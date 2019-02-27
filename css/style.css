@@ -1,0 +1,95 @@
+* {
+margin: 0;
+border: 0;
+padding: 0;
+}
+
+body {
+margin: 0px;
+margin-top:150px;
+padding:0px;
+text-align:center;
+background: #fff;
+font-family: Georgia;
+font-style: italic;
+}
+.vcard > span {
+margin-top:25px;
+display: inline-block;
+width: 100%;
+line-height: 24px; 
+}
+div {
+width: 100%;
+margin:0px auto;
+}
+img {
+-webkit-transition: all 2s ease-in-out;
+-moz-transition: all 2s ease-in-out;
+-o-transition: all 2s ease-in-out;
+-ms-transition: all 2s ease-in-out;
+transition: all 2s ease-in-out;	  
+}
+img:hover {
+-webkit-transform: rotate(315deg) scale(1);
+-moz-transform: rotate(315deg) scale(1);
+-o-transform: rotate(315deg) scale(1);
+-ms-transform: rotate(315deg) scale(1);
+transform: rotate(315deg) scale(1);
+cursor: none;		
+}
+
+.vcard a {
+color: #000;
+text-decoration: none;
+}
+
+a.copyright{
+text-decoration: none !important;
+color: #000 !important;
+}
+
+a.email {
+text-decoration: underline;
+}
+
+a.email:hover {
+color: #F13430;
+text-decoration: none;
+}
+
+.title, .region, .country-name, .url, .geo {
+display: none;
+}
+
+.social-media {
+position: absolute;
+bottom: 10px;
+font-size: 12px;
+font-family: tahoma;
+font-style: normal;
+color:#000;
+line-height: 24px;
+}
+
+.social-media  a  {
+color: #F13430;
+text-decoration: underline;
+}
+
+.social-media  a:hover  {
+color: #000;
+}
+
+.webchat  {
+font-size: 80%;
+}
+
+::selection {
+	background: #000;
+	color: #fff;
+	}
+::-moz-selection {
+	background: #000;
+	color: #fff;	
+}
