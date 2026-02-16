@@ -204,7 +204,7 @@
     /* RUN Button inside loading */
     .run-button {
       position: absolute;
-      top: calc(50% + 50px);
+      top: calc(50% + 55px);
       left: 50%;
       transform: translate(-50%, -50%);
       background: transparent;
@@ -232,6 +232,11 @@
     
     .run-button.hidden {
       display: none;
+    }
+    
+    .run-button.pulse {
+      animation: chat-alert-pulse 2s infinite;
+      border-color: rgba(200, 170, 120, 0.6);
     }
 
     #loading {
@@ -1464,7 +1469,7 @@
   <div id="loading">
     <div class="text">ARFR CORE</div>
     <div class="bar">
-      <button id="run-btn" class="run-button">ENTER</button>
+      <button id="run-btn" class="run-button pulse">ENTER</button>
       <div class="bar-fill hidden" id="loadBar"></div>
     </div>
   </div>
