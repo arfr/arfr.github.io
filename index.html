@@ -201,6 +201,39 @@
       }
     }
 
+    /* RUN Button inside loading */
+    .run-button {
+      position: absolute;
+      top: calc(50% + 50px);
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: transparent;
+      border: 1px solid rgba(200, 170, 120, 0.5);
+      color: rgba(200, 170, 120, 0.7);
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      letter-spacing: 6px;
+      padding: 8px 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      z-index: 10;
+    }
+    
+    .run-button:hover {
+      background: rgba(200, 170, 120, 0.1);
+      border-color: rgba(200, 170, 120, 0.8);
+      color: rgba(200, 170, 120, 1);
+    }
+    
+    .run-button:active {
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+    
+    .run-button.hidden {
+      display: none;
+    }
+
     #loading {
       position: fixed;
       top: 0;
@@ -239,6 +272,10 @@
       transition: width 0.4s;
       position: relative;
       box-shadow: 0 0 8px rgba(200, 170, 120, 0.6), 0 0 20px rgba(200, 170, 120, 0.3), 0 0 40px rgba(200, 170, 120, 0.15);
+    }
+
+    #loading .bar-fill.hidden {
+      display: none;
     }
 
     #loading .bar-fill::after {
@@ -1425,9 +1462,10 @@
 
 <body>
   <div id="loading">
-    <div class="text">arfr core</div>
+    <div class="text">ARFR CORE</div>
     <div class="bar">
-      <div class="bar-fill" id="loadBar"></div>
+      <button id="run-btn" class="run-button">ENTER</button>
+      <div class="bar-fill hidden" id="loadBar"></div>
     </div>
   </div>
   <div id="msg-stack"></div>
@@ -2589,6 +2627,7 @@
             addMiniOrbToVessel(ca.vessel);
             materiaCaught++;
             addScore(SCORE_CATCH, 'catch');
+            playSound('catch');
           }
           catchAnimations.splice(i, 1);
         }
@@ -2959,7 +2998,7 @@
       archetypState = 'slowdown';
       archetypAge = 0;
       archetypBlastIntensity = 0;
-      console.log('[ARCHETYP] Event triggered — all 12 vessels filled!');
+      playSound('fill');
     }
 
     // ══════════════════════════════════════════════════════
@@ -3157,7 +3196,7 @@
       doomIntensity = 0;
       sceneDarkness = 0;
       removeGlobalShield(); // Shield can't save from doom
-      console.log('[DOOM] All vessels corrupted — DOOM RITUAL begins!');
+      playSound('doom');
 
       // Create beams connecting all corrupted vessels to each other
       const vessels = Object.values(materiaVessels);
@@ -4090,6 +4129,7 @@
         if (t >= 1) {
           archetypState = 'blast';
           archetypAge = 0;
+          playSound('levelup');
         }
       } else if (archetypState === 'blast') {
         // MASSIVE flash + beam from core upward
@@ -4669,6 +4709,7 @@
       demon.age = 0;
       demonsKilled++;
       addScore(SCORE_DEMON_KILL, 'demon');
+      playSound('demon');
 
       // Flash white
       demon.orbMat.color = new THREE.Color(1, 1, 1);
@@ -4727,6 +4768,7 @@
 
       vessel.corrupted = true;
       vessel.demonCount = 1;
+      playSound('error');
 
       // SCORE PENALTY — lose points for corruption, minimum 0
       const penalty = 300 + blastLevel * 50;
@@ -4992,7 +5034,7 @@
         createTransferAnim(fromVessel, toVessel, 'cleanse');
         vesselsCleansed++;
         addScore(SCORE_CLEANSE, 'cleanse');
-        console.log(`[CLEANSE] Vessel ${toVessel.key} healed - 2 materia consumed`);
+        playSound('cleanse');
       } else {
         // Normal transfer: move 1 materia
         fromVessel.count--;
@@ -5002,6 +5044,7 @@
           last.mat.dispose();
         }
         createTransferAnim(fromVessel, toVessel, 'transfer');
+        playSound('click');
       }
 
       selectedVessel = null;
@@ -6043,25 +6086,41 @@
 
     let time = 0;
     let lp = 0;
-    const loadInt = setInterval(() => {
-      lp += randInt(3, 8); if (lp > 100) lp = 100;
-      document.getElementById('loadBar').style.width = lp + '%';
+    let loadStarted = false;
+    let loadingDone = false;
+    
+    function startLoading() {
+      if (loadStarted) return;
+      loadStarted = true;
+      
+      // Fixed 5 second load (5000ms / 50ms = 100 steps)
+      const loadInt = setInterval(() => {
+        lp += 1;
+        if (lp > 100) lp = 100;
+        document.getElementById('loadBar').style.width = lp + '%';
 
-      if (lp >= 100) {
-        clearInterval(loadInt);
-        // Start sequence immediately when loading is done
-        setTimeout(() => {
-          document.getElementById('loading').classList.add('hidden');
-          document.querySelector('canvas').classList.add('visible');
-
-          // Set manual zoom to a closer "standard" so we don't snap back to wide-angle
-          manualZoom = 1.35;
-
-          // Cinematic Intro: zoom from wide (0.45) to deep (2.5) then settle to manual (1.35)
-          setCameraOverride(-0.5, 0.4, 2.5, 6, false, 12, 12);
-        }, 500);
-      }
-    }, 120);
+        if (lp >= 100) {
+          clearInterval(loadInt);
+          loadingDone = true;
+          setTimeout(() => {
+            document.getElementById('loading').classList.add('hidden');
+            document.querySelector('canvas').classList.add('visible');
+            manualZoom = 1.35;
+            setCameraOverride(-0.5, 0.4, 2.5, 6, false, 12, 12);
+          }, 500);
+        }
+      }, 50);
+    }
+    
+    // RUN Button - starts loading and audio
+    document.getElementById('run-btn').addEventListener('click', function() {
+      playBackgroundMusic();
+      // Hide button, show loading bar
+      this.classList.add('hidden');
+      document.getElementById('loadBar').classList.remove('hidden');
+      document.getElementById('loadBar').style.width = '0%';
+      startLoading();
+    });
 
     function animate() {
       requestAnimationFrame(animate);
@@ -6504,7 +6563,7 @@
 
       // ── HOLOGRAPHIC MESSAGES ──
       const msgInterval = elapsed < 30 ? 3 : MSG_INTERVAL;
-      if (elapsed > 6 && !allMsgsDone && elapsed - lastMsgTime > msgInterval) {
+      if (loadingDone && elapsed > 6 && !allMsgsDone && elapsed - lastMsgTime > msgInterval) {
         lastMsgTime = elapsed;
         emitMessage();
       }
@@ -6567,13 +6626,122 @@
       }
       if (Math.random() > 0.95 && pulses.length < 100) spawnPulse();
 
-      renderer.render(scene, camera);
+renderer.render(scene, camera);
     }
     animate();
 
     // ══════════════════════════════════════════════════════
-    //  WAKE LOCK – Display bleibt an während der Sequenz (NoSleep.js)
+    //  SOUND SYSTEM - Web Audio API
     // ══════════════════════════════════════════════════════
+    let audioCtx = null;
+    let bgAudio = null;
+    
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      // Resume audio context if suspended
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+    
+    function playBackgroundMusic() {
+      if (bgAudio) return; // Already playing
+      
+      initAudio();
+      bgAudio = new Audio('817144__craigsmith__nasa-walla.wav');
+      bgAudio.volume = 1.0;
+      bgAudio.play().catch(() => {});
+}
+    
+    function playSound(type) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      switch(type) {
+        case 'catch': // Materia gefangen - hoher Glockenton
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.exponentialRampToValueAtTime(1760, now + 0.1);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
+          break;
+        case 'demon': // Dämon besiegt - tieferer Knall
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(150, now);
+          osc.frequency.exponentialRampToValueAtTime(50, now + 0.2);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+          break;
+        case 'fill': // Vessel gefüllt
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.setValueAtTime(554, now + 0.1);
+          osc.frequency.setValueAtTime(659, now + 0.2);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+          break;
+        case 'levelup': // Level Up
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523, now);
+          osc.frequency.setValueAtTime(659, now + 0.15);
+          osc.frequency.setValueAtTime(784, now + 0.3);
+          osc.frequency.setValueAtTime(1047, now + 0.45);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
+          osc.start(now);
+          osc.stop(now + 0.7);
+          break;
+        case 'doom': // DOOM startet
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(80, now);
+          osc.frequency.exponentialRampToValueAtTime(30, now + 1.5);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 1.5);
+          osc.start(now);
+          osc.stop(now + 1.5);
+          break;
+        case 'cleanse': // Vessel gereinigt
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(1200, now + 0.15);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+          osc.start(now);
+          osc.stop(now + 0.2);
+          break;
+        case 'click': // UI Click
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1000, now);
+          gain.gain.setValueAtTime(0.05, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          osc.start(now);
+          osc.stop(now + 0.05);
+          break;
+        case 'error': // Fehler/Warnung
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(200, now);
+          osc.frequency.setValueAtTime(150, now + 0.1);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+          osc.start(now);
+          osc.stop(now + 0.2);
+          break;
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
     //  WAKE LOCK – NoSleep.js keeps screen on
     // ══════════════════════════════════════════════════════
     let noSleepStarted = false;
@@ -6775,6 +6943,7 @@
     const LOGO_CLICKS_REQUIRED = 4;
 
     playTrigger.addEventListener('click', () => {
+      playSound('click');
       if (window.arfrSettings.gameActive) {
         // Show confirmation before stopping/resetting
         resetModal.classList.add('visible');
@@ -6787,6 +6956,8 @@
         if (autoCamToggle) autoCamToggle.classList.remove('on');
         playIcon.innerHTML = '<rect x="6" y="6" width="12" height="12" rx="1" />';
         playTrigger.setAttribute('title', 'Stop Materia');
+        // Start background music
+        playBackgroundMusic();
         // Immediately spawn first materia — set timer to 0 so next frame spawns
         nextMateriaTime = 0;
         showScoreHUD();
