@@ -1204,6 +1204,7 @@
       font-family: 'Orbitron', 'Courier New', monospace;
       pointer-events: none;
       opacity: 0;
+      visibility: hidden;
       transition: opacity 1.5s cubic-bezier(0.25, 0.1, 0.25, 1);
       display: flex;
       flex-direction: column;
@@ -1244,6 +1245,7 @@
 
     #score-hud.visible {
       opacity: 1;
+      visibility: visible;
     }
 
     .score-row {
@@ -4504,11 +4506,17 @@
     }
 
     // Show score HUD when game starts
-    function showScoreHUD() {
-      document.getElementById('score-hud').classList.add('visible');
-    }
     function hideScoreHUD() {
-      document.getElementById('score-hud').classList.remove('visible');
+      const hud = document.getElementById('score-hud');
+      hud.classList.remove('visible');
+      hud.style.visibility = 'hidden';
+      hud.style.display = 'none';
+    }
+    function showScoreHUD() {
+      const hud = document.getElementById('score-hud');
+      hud.style.display = 'flex';
+      hud.style.visibility = 'visible';
+      hud.classList.add('visible');
     }
 
     function createDemonOrb() {
@@ -6746,15 +6754,17 @@
       // UI Reset
       window.arfrSettings.gameActive = false;
       playIcon.innerHTML = '<polygon points="6.5 3 20.5 12 6.5 21 6.5 3"></polygon>';
-      playTrigger.setAttribute('title', t('materiaStart'));
+      playTrigger.setAttribute('title', 'MATERIA START');
       
-      // Reset Score
+      // Reset Score & Hide HUD
       gameScore = 0;
       materiaCaught = 0;
       demonsKilled = 0;
       vesselsCleansed = 0;
       updateScoreHUD();
       hideScoreHUD();
+      // Force hide on mobile
+      document.getElementById('score-hud').style.display = 'none';
     }
 
     // Play button hidden until 3 logo clicks
@@ -6792,6 +6802,10 @@
     resetConfirm.addEventListener('click', () => {
       resetModal.classList.remove('visible');
       resetCore();
+      // Force hide HUD immediately
+      const hud = document.getElementById('score-hud');
+      hud.style.display = 'none';
+      hud.classList.remove('visible');
     });
 
     playTrigger.addEventListener('mousedown', e => e.stopPropagation());
