@@ -472,6 +472,87 @@ a { color: inherit; }
 .next-band .comment { background: var(--term-surface); border-color: var(--term-line); }
 .next-band .comment .avatar { background: var(--term-fg); color: var(--term-bg); }
 .next-band :focus-visible { outline-color: var(--term-accent); }
+
+/* Mini terminal */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.cli-wrap { display: flex; flex-direction: column; gap: 12px; max-width: 760px; }
+.cli {
+  background: var(--term-surface);
+  border: 1px solid var(--term-line);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  cursor: text;
+  transition: border-color 0.15s ease;
+}
+.cli:focus-within { border-color: var(--term-muted); }
+.cli-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--term-line);
+  font-size: 0.75rem;
+  color: var(--term-muted);
+}
+.cli-out {
+  padding: 14px 14px 4px;
+  min-height: 150px;
+  max-height: 340px;
+  overflow-y: auto;
+  color: var(--term-fg);
+}
+.cli-line { white-space: pre-wrap; overflow-wrap: anywhere; }
+.cli-line .p { color: var(--term-accent); }
+.cli-line.muted { color: var(--term-muted); }
+.cli-line.accent { color: var(--term-accent); }
+.cli-line.err { color: var(--term-accent); }
+.cli-in { display: flex; align-items: center; gap: 1ch; padding: 0 14px 12px; }
+.cli-prompt { flex: none; color: var(--term-muted); }
+.cli-prompt .host { color: var(--term-accent); }
+.cli-in input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--term-fg);
+  caret-color: var(--term-accent);
+  font-family: var(--font-mono);
+  font-size: 16px;
+}
+.cli-chips {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--term-muted);
+}
+.cli-chip {
+  min-height: 34px;
+  padding: 0 10px;
+  font: inherit;
+  color: var(--term-fg);
+  background: transparent;
+  border: 1px solid var(--term-line);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.cli-chip:hover { border-color: var(--term-fg); }
+@media (prefers-reduced-motion: reduce) { .cli { transition: none; } }
 @media (prefers-reduced-motion: reduce) {
   .carousel, .opt { transition: none; }
 }
@@ -1216,6 +1297,24 @@ section { scroll-margin-top: 72px; }
           <p><b>Alexander</b> · <span data-i18n="next.alex">Siehst du? Genau deshalb entscheidest du.</span></p>
         </div>
       </div>
+      <div class="cli-wrap">
+        <div class="cli" id="cli">
+          <div class="cli-head" aria-hidden="true"><span>guest@arfr: ~</span><span>bash</span></div>
+          <div class="cli-out" id="cli-out" role="log" aria-live="polite">
+            <div class="cli-line muted" data-i18n="cli.welcome">Willkommen auf arfr.de. Tippe help für alle Befehle.</div>
+          </div>
+          <form class="cli-in" id="cli-form" autocomplete="off">
+            <label for="cli-input" class="cli-prompt"><span class="host">guest@arfr</span>:~$<span class="sr-only" data-i18n="cli.label">Befehl eingeben</span></label>
+            <input id="cli-input" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" aria-describedby="cli-hint">
+          </form>
+        </div>
+        <p class="cli-chips" id="cli-hint"><span data-i18n="cli.try">Probier mal:</span>
+          <button type="button" class="cli-chip" data-cmd="help">help</button>
+          <button type="button" class="cli-chip" data-cmd="whoami">whoami</button>
+          <button type="button" class="cli-chip" data-cmd="rm -rf /">rm -rf /</button>
+          <button type="button" class="cli-chip" data-cmd="exit">exit</button>
+        </p>
+      </div>
     </div>
   </section>
 </main>
@@ -1305,7 +1404,37 @@ section { scroll-margin-top: 72px; }
       "next.ai": "I recommend all four. At the same time.",
       "next.alex": "See? That's exactly why you decide.",
       "next.coffee": "Good call. I'll be right here when you're back.",
-      "next.subject": "Project inquiry via arfr.de"
+      "next.subject": "Project inquiry via arfr.de",
+      "cli.label": "Enter a command", "cli.try": "Try:",
+      "cli.welcome": "Welcome to arfr.de. Type help to see all commands.",
+      "cli.help.title": "Available commands:",
+      "cli.help.help": "this list", "cli.help.whoami": "who is Alex?", "cli.help.ls": "what's lying around",
+      "cli.help.cat": "show the profile", "cli.help.quiz": "play the quiz again", "cli.help.contact": "write to Alex",
+      "cli.help.linkedin": "open LinkedIn", "cli.help.coffee": "brew coffee", "cli.help.lang": "switch language",
+      "cli.help.clear": "clear the screen", "cli.help.exit": "leave (go ahead, try)",
+      "cli.help.secret": "Plus a few hidden commands. Real developers will find them.",
+      "cli.whoami": "alex · software developer · AI-assisted, human-led · everywhere",
+      "cli.denied": "Permission denied. Nice try.",
+      "cli.noFile": "{f}: No such file or directory",
+      "cli.quiz": "Restarting the quiz … good luck. The AI will praise you either way.",
+      "cli.contact": "Opening an email to hello@arfr.de …",
+      "cli.linkedin": "Opening LinkedIn …",
+      "cli.coffee1": "Brewing coffee …", "cli.coffee2": "Done. Now we can get going.",
+      "cli.lang": "Language: English",
+      "cli.exit2": "Connection to arfr.de closed.",
+      "cli.exit3": "… just kidding. Nobody leaves without a decision. Hint: contact",
+      "cli.rm1": "Deleting everything …",
+      "cli.rm2": "Kidding. See example 03 in the quiz: I'd like to keep the server.",
+      "cli.sudo": "guest is not in the sudoers file. This incident will be reported.",
+      "cli.vim": "You are now in vim. Good luck getting out. (Hint: :q!)",
+      "cli.vimExit": "Respect. You exited vim. Not everyone makes it.",
+      "cli.gitForce": "Rejected. Not on main. And definitely not on a Friday.",
+      "cli.ai": "AI assistant: Great question! The answer is clearly yes. Or no. Whichever you prefer.",
+      "cli.hack2": "Kidding. Real hackers write tests.",
+      "cli.42": "The answer to everything. You'll have to ask the question yourself.",
+      "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Alex replies to email almost as fast.",
+      "cli.hello": "Hello back! Type help if you're stuck.",
+      "cli.notFound": "command not found: {cmd}. Hint: help"
     },
     de: {
       "meta.description": "Alexander Fuhr – Softwareentwickler. KI-gestützt, menschlich geführt.",
@@ -1379,7 +1508,37 @@ section { scroll-margin-top: 72px; }
       "next.ai": "Ich empfehle alle vier. Gleichzeitig.",
       "next.alex": "Siehst du? Genau deshalb entscheidest du.",
       "next.coffee": "Gute Entscheidung. Ich bin hier, wenn du zurück bist.",
-      "next.subject": "Projektanfrage über arfr.de"
+      "next.subject": "Projektanfrage über arfr.de",
+      "cli.label": "Befehl eingeben", "cli.try": "Probier mal:",
+      "cli.welcome": "Willkommen auf arfr.de. Tippe help für alle Befehle.",
+      "cli.help.title": "Verfügbare Befehle:",
+      "cli.help.help": "diese Liste", "cli.help.whoami": "wer ist Alex?", "cli.help.ls": "was hier so rumliegt",
+      "cli.help.cat": "Profil anzeigen", "cli.help.quiz": "Quiz nochmal spielen", "cli.help.contact": "Alex schreiben",
+      "cli.help.linkedin": "LinkedIn öffnen", "cli.help.coffee": "Kaffee kochen", "cli.help.lang": "Sprache wechseln",
+      "cli.help.clear": "Bildschirm leeren", "cli.help.exit": "gehen (versuch's ruhig)",
+      "cli.help.secret": "Und ein paar versteckte Befehle. Echte Entwickler finden sie.",
+      "cli.whoami": "alex · Softwareentwickler · KI-gestützt, menschlich geführt · überall",
+      "cli.denied": "Zugriff verweigert. Netter Versuch.",
+      "cli.noFile": "{f}: Datei oder Verzeichnis nicht gefunden",
+      "cli.quiz": "Starte das Quiz neu … viel Glück. Die KI lobt dich so oder so.",
+      "cli.contact": "Öffne eine E-Mail an hello@arfr.de …",
+      "cli.linkedin": "Öffne LinkedIn …",
+      "cli.coffee1": "Brühe Kaffee …", "cli.coffee2": "Fertig. Jetzt kann's weitergehen.",
+      "cli.lang": "Sprache: Deutsch",
+      "cli.exit2": "Verbindung zu arfr.de geschlossen.",
+      "cli.exit3": "… war nur Spaß. Ohne Entscheidung geht hier keiner. Tipp: contact",
+      "cli.rm1": "Lösche alles …",
+      "cli.rm2": "Spaß. Siehe Beispiel 03 im Quiz: Den Server hätte ich gern noch.",
+      "cli.sudo": "guest steht nicht in der sudoers-Datei. Dieser Vorfall wird gemeldet.",
+      "cli.vim": "Du bist jetzt in vim. Viel Glück beim Rauskommen. (Tipp: :q!)",
+      "cli.vimExit": "Respekt. Du hast vim verlassen. Das schaffen nicht alle.",
+      "cli.gitForce": "Abgelehnt. Nicht auf main. Und schon gar nicht freitags.",
+      "cli.ai": "KI-Assistent: Großartige Frage! Die Antwort ist eindeutig ja. Oder nein. Was dir lieber ist.",
+      "cli.hack2": "Spaß. Echte Hacker schreiben Tests.",
+      "cli.42": "Die Antwort auf alles. Die Frage musst du selbst stellen.",
+      "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Alex antwortet auf Mails fast genauso schnell.",
+      "cli.hello": "Hallo zurück! Tippe help, wenn du nicht weiterweißt.",
+      "cli.notFound": "Befehl nicht gefunden: {cmd}. Tipp: help"
     },
     ru: {
       "meta.description": "Alexander Fuhr – разработчик ПО. ИИ помогает, решает человек.",
@@ -1453,7 +1612,37 @@ section { scroll-margin-top: 72px; }
       "next.ai": "Рекомендую все четыре. Одновременно.",
       "next.alex": "Видишь? Именно поэтому решаешь ты.",
       "next.coffee": "Хорошее решение. Я буду здесь, когда вернёшься.",
-      "next.subject": "Запрос проекта с arfr.de"
+      "next.subject": "Запрос проекта с arfr.de",
+      "cli.label": "Введите команду", "cli.try": "Попробуй:",
+      "cli.welcome": "Добро пожаловать на arfr.de. Введи help, чтобы увидеть все команды.",
+      "cli.help.title": "Доступные команды:",
+      "cli.help.help": "этот список", "cli.help.whoami": "кто такой Алекс?", "cli.help.ls": "что тут лежит",
+      "cli.help.cat": "показать профиль", "cli.help.quiz": "пройти квиз ещё раз", "cli.help.contact": "написать Алексу",
+      "cli.help.linkedin": "открыть LinkedIn", "cli.help.coffee": "сварить кофе", "cli.help.lang": "сменить язык",
+      "cli.help.clear": "очистить экран", "cli.help.exit": "выйти (попробуй)",
+      "cli.help.secret": "И пара скрытых команд. Настоящие разработчики их найдут.",
+      "cli.whoami": "alex · разработчик ПО · ИИ помогает, решает человек · везде",
+      "cli.denied": "Доступ запрещён. Хорошая попытка.",
+      "cli.noFile": "{f}: Нет такого файла или каталога",
+      "cli.quiz": "Перезапускаю квиз … удачи. ИИ всё равно тебя похвалит.",
+      "cli.contact": "Открываю письмо на hello@arfr.de …",
+      "cli.linkedin": "Открываю LinkedIn …",
+      "cli.coffee1": "Варю кофе …", "cli.coffee2": "Готово. Теперь можно продолжать.",
+      "cli.lang": "Язык: русский",
+      "cli.exit2": "Соединение с arfr.de закрыто.",
+      "cli.exit3": "… шучу. Без решения отсюда никто не уходит. Подсказка: contact",
+      "cli.rm1": "Удаляю всё …",
+      "cli.rm2": "Шучу. См. пример 03 в квизе: сервер мне ещё пригодится.",
+      "cli.sudo": "guest нет в файле sudoers. Об этом инциденте будет сообщено.",
+      "cli.vim": "Теперь ты в vim. Удачи выбраться. (Подсказка: :q!)",
+      "cli.vimExit": "Респект. Ты вышел из vim. Это удаётся не всем.",
+      "cli.gitForce": "Отклонено. Не в main. И уж точно не в пятницу.",
+      "cli.ai": "ИИ-ассистент: Отличный вопрос! Ответ однозначно да. Или нет. Как тебе больше нравится.",
+      "cli.hack2": "Шучу. Настоящие хакеры пишут тесты.",
+      "cli.42": "Ответ на всё. Вопрос придётся задать самому.",
+      "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Алекс отвечает на письма почти так же быстро.",
+      "cli.hello": "И тебе привет! Введи help, если не знаешь, что дальше.",
+      "cli.notFound": "команда не найдена: {cmd}. Подсказка: help"
     }
   };
   var LANGS = ['en', 'de', 'ru'];
@@ -1723,6 +1912,213 @@ section { scroll-margin-top: 72px; }
     });
     if (coffee) coffee.addEventListener('click', function () {
       nextStatus.textContent = t('next.coffee');
+    });
+  })();
+
+  /* Mini terminal: a few real commands, a few jokes */
+  (function miniCli() {
+    var form = document.getElementById('cli-form');
+    if (!form) return;
+    var input = document.getElementById('cli-input');
+    var out = document.getElementById('cli-out');
+    var box = document.getElementById('cli');
+    var LINKEDIN = 'https://www.linkedin.com/in/alexander-fuhr/';
+    var COMMANDS = ['help', 'whoami', 'ls', 'cat', 'cd', 'pwd', 'quiz', 'contact', 'linkedin', 'coffee',
+      'lang', 'clear', 'exit', 'history', 'date', 'echo', 'ping', 'git', 'sudo', 'vim', 'ai', 'hack', '42'];
+    var hist = [], hIdx = 0, busy = false, inVim = false;
+
+    function pad(s, n) { while (s.length < n) s += ' '; return s; }
+    function line(text, cls) {
+      var d = document.createElement('div');
+      d.className = 'cli-line' + (cls ? ' ' + cls : '');
+      d.textContent = text;
+      out.appendChild(d);
+      while (out.children.length > 200) out.removeChild(out.firstElementChild);
+      out.scrollTop = out.scrollHeight;
+    }
+    function echoCmd(text) {
+      var d = document.createElement('div');
+      d.className = 'cli-line';
+      var p = document.createElement('span');
+      p.className = 'p';
+      p.textContent = 'guest@arfr:~$ ';
+      d.appendChild(p);
+      d.appendChild(document.createTextNode(text));
+      out.appendChild(d);
+      out.scrollTop = out.scrollHeight;
+    }
+    function seq(items) {
+      busy = true;
+      var k = 0;
+      (function next() {
+        if (k >= items.length) { busy = false; return; }
+        var it = items[k++];
+        setTimeout(function () { line(it[0], it[1]); next(); }, reduceMotion ? 0 : (it[2] || 0));
+      })();
+    }
+    function hex() {
+      var s = '';
+      for (var k = 0; k < 6; k++) s += Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0') + ' ';
+      return s;
+    }
+    function openLink(href) {
+      var a = document.createElement('a');
+      a.href = href;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+    function help() {
+      line(t('cli.help.title'));
+      [['help', 'cli.help.help'], ['whoami', 'cli.help.whoami'], ['ls', 'cli.help.ls'],
+       ['cat profile.yml', 'cli.help.cat'], ['quiz', 'cli.help.quiz'], ['contact', 'cli.help.contact'],
+       ['linkedin', 'cli.help.linkedin'], ['coffee', 'cli.help.coffee'], ['lang de|en|ru', 'cli.help.lang'],
+       ['clear', 'cli.help.clear'], ['exit', 'cli.help.exit']].forEach(function (r) {
+        line('  ' + pad(r[0], 17) + t(r[1]), 'muted');
+      });
+      line(t('cli.help.secret'), 'accent');
+    }
+    function run(raw) {
+      var cmd = raw.trim();
+      echoCmd(raw);
+      if (!cmd) return;
+      hist.push(cmd);
+      hIdx = hist.length;
+      var low = cmd.toLowerCase();
+      var head = low.split(/\s+/)[0];
+      var arg = cmd.slice(head.length).trim();
+      var argLow = arg.toLowerCase();
+
+      if (inVim) {
+        if (/^:(q!?|wq!?|x)$/.test(low)) { inVim = false; line(t('cli.vimExit'), 'accent'); }
+        else line('E37: No write since last change (add ! to override)', 'err');
+        return;
+      }
+      if (head === 'sudo') { line(t('cli.sudo'), 'err'); return; }
+      if (head === 'rm') {
+        seq([[t('cli.rm1'), 'err'], ['removed /bin', 'muted', 350], ['removed /etc', 'muted', 300],
+             ['removed /home/alex', 'muted', 300], [t('cli.rm2'), 'accent', 700]]);
+        return;
+      }
+      if (head === 'git') {
+        if (/\bpush\b/.test(argLow) && /(--force|\s-f\b|^-f\b|push -f)/.test(argLow)) line(t('cli.gitForce'), 'err');
+        else line('On branch main\nnothing to commit, working tree clean');
+        return;
+      }
+      switch (head) {
+        case 'help': case 'man': case '?': help(); break;
+        case 'whoami': case 'who': line(t('cli.whoami')); break;
+        case 'ls': case 'dir': case 'll':
+          if (argLow.indexOf('secret') !== -1) line(t('cli.denied'), 'err');
+          else line('about.txt  profile.yml  quiz/  contact.sh  coffee.exe  secrets/');
+          break;
+        case 'cat': case 'less': case 'more':
+          if (argLow === 'profile.yml') {
+            line('name:     Alexander Fuhr');
+            line('role:     ' + t('role.title'));
+            line('location: ' + t('term.location'));
+            line('mode:     ' + t('term.mode'));
+          } else if (argLow === 'about.txt') {
+            line(t('about.text'));
+          } else if (argLow === 'contact.sh') {
+            line('#!/bin/sh\nmail hello@arfr.de');
+          } else if (argLow.indexOf('secret') !== -1) {
+            line(t('cli.denied'), 'err');
+          } else {
+            line(head + ': ' + t('cli.noFile').replace('{f}', arg || '?'), 'err');
+          }
+          break;
+        case 'cd':
+          if (!arg || arg === '~') break;
+          if (argLow.indexOf('secret') !== -1 || arg === '..' || arg === '/') line(t('cli.denied'), 'err');
+          else line('cd: ' + t('cli.noFile').replace('{f}', arg), 'err');
+          break;
+        case 'pwd': line('/home/guest'); break;
+        case 'quiz': case './quiz': case 'play':
+          line(t('cli.quiz'), 'accent');
+          var again = document.querySelector('.quiz-again');
+          if (again) again.click();
+          setTimeout(function () {
+            var top = document.getElementById('top');
+            if (top) top.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+          }, reduceMotion ? 0 : 600);
+          break;
+        case 'contact': case 'mail': case './contact.sh': case 'sh':
+          line(t('cli.contact'));
+          window.location.href = 'mailto:hello@arfr.de?subject=' + encodeURIComponent(t('next.subject'));
+          break;
+        case 'linkedin': line(t('cli.linkedin')); openLink(LINKEDIN); break;
+        case 'coffee': case './coffee.exe': case 'brew': case 'make':
+          seq([[t('cli.coffee1')], ['[###       ]  30 %', 'muted', 400], ['[######    ]  60 %', 'muted', 400],
+               ['[##########] 100 %', 'muted', 400], [t('cli.coffee2'), 'accent', 300]]);
+          break;
+        case 'lang':
+          if (LANGS.indexOf(argLow) !== -1) { setLang(argLow, true); line(t('cli.lang'), 'accent'); }
+          else line('lang de | en | ru', 'muted');
+          break;
+        case 'clear': case 'cls': out.textContent = ''; break;
+        case 'exit': case 'logout': case 'quit': case ':q': case ':q!': case ':wq':
+          seq([['logout', 'muted'], [t('cli.exit2'), 'muted', 500], [t('cli.exit3'), 'accent', 1300]]);
+          break;
+        case 'history':
+          hist.forEach(function (h, k) { line(pad(String(k + 1), 4) + h, 'muted'); });
+          break;
+        case 'date': line(new Date().toLocaleString(current === 'en' ? 'en-GB' : current)); break;
+        case 'echo': line(arg); break;
+        case 'ping': line(t('cli.ping')); break;
+        case 'vim': case 'vi': case 'nvim': case 'emacs': case 'nano':
+          inVim = true;
+          line(t('cli.vim'), 'accent');
+          break;
+        case 'ai': case 'chatgpt': case 'gpt': case 'claude': case 'ask':
+          line(t('cli.ai'));
+          break;
+        case 'hack':
+          seq([[hex(), 'muted'], [hex(), 'muted', 150], [hex(), 'muted', 150], [hex(), 'muted', 150],
+               ['ACCESS GRANTED', 'accent', 400], [t('cli.hack2'), null, 900]]);
+          break;
+        case '42': line(t('cli.42')); break;
+        case 'hi': case 'hello': case 'hallo': case 'hey': case 'moin': case 'привет':
+          line(t('cli.hello'));
+          break;
+        default:
+          line(t('cli.notFound').replace('{cmd}', head), 'err');
+      }
+    }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (busy) return;
+      var v = input.value;
+      input.value = '';
+      run(v);
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowUp') {
+        if (hIdx > 0) { hIdx -= 1; input.value = hist[hIdx]; }
+        e.preventDefault();
+      } else if (e.key === 'ArrowDown') {
+        if (hIdx < hist.length - 1) { hIdx += 1; input.value = hist[hIdx]; }
+        else { hIdx = hist.length; input.value = ''; }
+        e.preventDefault();
+      } else if (e.key === 'Tab') {
+        var v = input.value.trim().toLowerCase();
+        if (!v || v.indexOf(' ') !== -1) return;
+        var m = COMMANDS.filter(function (c) { return c.indexOf(v) === 0; });
+        if (m.length === 1) { input.value = m[0] + ' '; e.preventDefault(); }
+        else if (m.length > 1) { line(m.join('  '), 'muted'); e.preventDefault(); }
+      }
+    });
+    box.addEventListener('click', function () {
+      var sel = window.getSelection ? String(window.getSelection()) : '';
+      if (!sel) input.focus({ preventScroll: true });
+    });
+    document.querySelectorAll('.cli-chip').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (busy) return;
+        run(b.getAttribute('data-cmd'));
+      });
     });
   })();
 
