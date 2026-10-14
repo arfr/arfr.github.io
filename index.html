@@ -29,7 +29,9 @@
   --surface: #F6F5F6;
   --bar: #222123;
   --bar-fg: #FFFFFF;
-  --accent: #B8335A;
+  --accent: #7A3FD0;
+  --grid-ink: rgba(18, 17, 19, 0.13);
+  --grid-glow: rgba(122, 63, 208, 0.22);
   --font-display: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
   --font-body: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
@@ -40,17 +42,19 @@
   --term-fg: #EDEBEC;
   --term-muted: #8F8A8D;
   --term-line: #262326;
-  --term-accent: #F07898;
+  --term-accent: #B48CFF;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0F0E10; --fg: #F2F0F1; --muted: #A9A4A7; --line: #2A272A; --surface: #18171A;
-    --bar: #F2F0F1; --bar-fg: #121113; --accent: #F07898; color-scheme: dark;
+    --bar: #F2F0F1; --bar-fg: #121113; --accent: #B48CFF; color-scheme: dark;
+    --grid-ink: rgba(242, 240, 241, 0.12); --grid-glow: rgba(180, 140, 255, 0.3);
   }
 }
 :root[data-theme="dark"] {
   --bg: #0F0E10; --fg: #F2F0F1; --muted: #A9A4A7; --line: #2A272A; --surface: #18171A;
-  --bar: #F2F0F1; --bar-fg: #121113; --accent: #F07898; color-scheme: dark;
+  --bar: #F2F0F1; --bar-fg: #121113; --accent: #B48CFF; color-scheme: dark;
+    --grid-ink: rgba(242, 240, 241, 0.12); --grid-glow: rgba(180, 140, 255, 0.3);
 }
 
 * { box-sizing: border-box; }
@@ -178,6 +182,87 @@ a { color: inherit; }
 .lang button[aria-pressed="true"] { background: var(--bar); color: var(--bar-fg); }
 
 /* Hero */
+/* The hero is a dark neon stage in both themes, on purpose: the glow only works on black */
+.hero {
+  position: relative;
+  overflow: hidden;
+  --bg: #05070B;
+  --fg: #EAF6FA;
+  --muted: #8FA6B0;
+  --line: #1B2A34;
+  --surface: #0A1219;
+  --bar: #EAF6FA;
+  --bar-fg: #05070B;
+  --accent: #B98CFF;
+  color-scheme: dark;
+  color: var(--fg);
+  background: radial-gradient(120% 75% at 50% 60%, #0A2131 0%, #05070B 62%);
+}
+.hero .review-card {
+  box-shadow: 0 0 0 1px rgba(32, 227, 255, 0.14), 0 0 48px rgba(32, 227, 255, 0.08);
+}
+/* Neon controls for the quiz slider */
+.hero .carousel-nav {
+  padding: 6px;
+  background: rgba(5, 7, 11, 0.72);
+  border: 1px solid rgba(32, 227, 255, 0.16);
+  border-radius: 8px;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.hero .nav-btn {
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid rgba(32, 227, 255, 0.5);
+  color: #7FF0FF;
+  box-shadow: 0 0 10px rgba(32, 227, 255, 0.18), inset 0 0 8px rgba(32, 227, 255, 0.08);
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.hero .nav-btn:hover {
+  background: rgba(32, 227, 255, 0.1);
+  border-color: rgba(32, 227, 255, 0.95);
+  box-shadow: 0 0 16px rgba(32, 227, 255, 0.4), inset 0 0 8px rgba(32, 227, 255, 0.12);
+}
+.hero .dot::before {
+  box-sizing: border-box;
+  background: transparent;
+  border: 1px solid rgba(32, 227, 255, 0.5);
+}
+.hero .dot:hover::before { background: transparent; border-color: rgba(32, 227, 255, 1); }
+.hero .dot.is-right::before { background: rgba(32, 227, 255, 0.4); }
+.hero .dot.is-wrong::before { background: rgba(168, 85, 247, 0.45); border-color: #A855F7; }
+.hero .dot[aria-current="true"]::before {
+  background: #20E3FF;
+  border-color: #20E3FF;
+  box-shadow: 0 0 8px rgba(32, 227, 255, 0.95);
+  transform: scale(1.3);
+}
+.hero .counter { color: #7FF0FF; padding-right: 6px; }
+@media (prefers-reduced-motion: reduce) { .hero .nav-btn { transition: none; } }
+.retro-grid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  z-index: 0;
+}
+.hero .wrap { position: relative; z-index: 1; }
+
+/* CRT feel on the dark terminal bands */
+.about-band, .next-band { position: relative; }
+.about-band::before, .next-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.5) 100%);
+}
+.about-band .wrap, .next-band .wrap { position: relative; z-index: 1; }
+
 .hero .wrap {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
@@ -553,6 +638,134 @@ a { color: inherit; }
 }
 .cli-chip:hover { border-color: var(--term-fg); }
 @media (prefers-reduced-motion: reduce) { .cli { transition: none; } }
+
+/* Soundtrack: YouTube only loads after a click (privacy) */
+.sound {
+  max-width: 760px;
+  background: var(--term-surface);
+  border: 1px solid var(--term-line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.sound-head { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--term-line); }
+.sound-meta { min-width: 0; }
+.sound-label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--term-muted);
+}
+.sound-title { margin: 2px 0 0; font-weight: 600; color: var(--term-fg); }
+.sound-title span { font-weight: 400; font-family: var(--font-mono); font-size: 0.8125rem; color: var(--term-muted); }
+.eq { flex: none; display: flex; align-items: flex-end; gap: 3px; width: 24px; height: 22px; }
+.eq i { display: block; width: 3px; height: 30%; border-radius: 1px; background: var(--term-accent); }
+.sound.playing .eq i { animation: eq 0.9s ease-in-out infinite alternate; }
+.sound.playing .eq i:nth-child(2) { animation-delay: -0.3s; }
+.sound.playing .eq i:nth-child(3) { animation-delay: -0.6s; }
+.sound.playing .eq i:nth-child(4) { animation-delay: -0.15s; }
+.sound.playing .eq i:nth-child(5) { animation-delay: -0.45s; }
+@keyframes eq { from { height: 18%; } to { height: 100%; } }
+.sound-frame { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 16px; }
+.sound.playing .sound-frame { padding: 0; }
+.sound-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 18px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--term-fg);
+  background: transparent;
+  border: 1px solid var(--term-accent);
+  border-radius: 6px;
+  box-shadow: 0 0 14px rgba(180, 140, 255, 0.25);
+  cursor: pointer;
+}
+.sound-play:hover { background: rgba(180, 140, 255, 0.12); }
+.sound-play svg { width: 18px; height: 18px; color: var(--term-accent); }
+.sound-note { margin: 0; max-width: 60ch; font-size: 0.8125rem; line-height: 1.5; color: var(--term-muted); }
+.sound-link { font-size: 0.8125rem; color: var(--term-fg); }
+.sound-video { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; background: #000; }
+.sound-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+@media (prefers-reduced-motion: reduce) { .sound.playing .eq i { animation: none; height: 70%; } }
+
+/* Secret game: LIGHTRACE (fixed look, always dark) */
+.game {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding:
+    max(12px, env(safe-area-inset-top, 0px))
+    max(12px, env(safe-area-inset-right, 0px))
+    max(12px, env(safe-area-inset-bottom, 0px))
+    max(12px, env(safe-area-inset-left, 0px));
+  background: #05070B;
+  color: #EAF6FA;
+  font-family: var(--font-mono);
+  color-scheme: dark;
+}
+.game:focus { outline: none; }
+.game-hud { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.game-title {
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: #7FF0FF;
+  text-shadow: 0 0 10px rgba(32, 227, 255, 0.8);
+}
+.game-score { margin: 0; display: flex; align-items: baseline; gap: 10px; font-size: 0.875rem; }
+.game-score b { font-weight: 500; font-size: 1.375rem; font-variant-numeric: tabular-nums; }
+.game-score .you { color: #7FF0FF; }
+.game-score .ai { color: #C9A4FF; }
+.game-close, .game-pad button {
+  font: inherit;
+  color: #EAF6FA;
+  background: transparent;
+  border: 1px solid rgba(32, 227, 255, 0.5);
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(32, 227, 255, 0.15);
+  cursor: pointer;
+}
+.game-close { min-height: 40px; padding: 0 14px; }
+.game-close:hover, .game-pad button:hover { border-color: rgba(32, 227, 255, 1); background: rgba(32, 227, 255, 0.1); }
+.game-close:focus-visible, .game-pad button:focus-visible { outline: 2px solid #7FF0FF; outline-offset: 2px; }
+.game-stage { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; touch-action: none; }
+.game-canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  border: 1px solid rgba(32, 227, 255, 0.35);
+  box-shadow: 0 0 30px rgba(32, 227, 255, 0.15);
+}
+.game-msg {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  text-align: center;
+  white-space: pre-line;
+  pointer-events: none;
+  font-size: clamp(1rem, 0.8rem + 1.2vw, 1.5rem);
+  line-height: 1.5;
+  text-shadow: 0 0 12px rgba(32, 227, 255, 0.7), 0 0 2px #05070B;
+}
+.game-help { margin: 0; text-align: center; font-size: 0.75rem; color: #8FA6B0; }
+.game-pad { display: none; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 8px; justify-content: center; }
+.game-pad button { display: grid; place-items: center; }
+.game-pad svg { width: 24px; height: 24px; }
+.game-pad [data-dir="up"] { grid-column: 2; grid-row: 1; }
+.game-pad [data-dir="left"] { grid-column: 1; grid-row: 2; }
+.game-pad [data-dir="down"] { grid-column: 2; grid-row: 2; }
+.game-pad [data-dir="right"] { grid-column: 3; grid-row: 2; }
+@media (pointer: coarse) { .game-pad { display: grid; } }
 @media (prefers-reduced-motion: reduce) {
   .carousel, .opt { transition: none; }
 }
@@ -834,6 +1047,7 @@ section { scroll-margin-top: 72px; }
 
 <main id="top">
   <section class="hero" aria-labelledby="hero-title">
+    <canvas class="retro-grid" aria-hidden="true"></canvas>
     <div class="wrap">
       <div class="hero-text">
         <p class="eyebrow" data-i18n="hero.eyebrow">Softwareentwickler · KI-gestützt, menschlich geführt</p>
@@ -876,7 +1090,7 @@ section { scroll-margin-top: 72px; }
                 </div>
                 <div class="comment">
                   <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.php">Grüße von Little Bobby Tables. Bitte mit Prepared Statement.</span></p>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.php">Grüße von Little Bobby Tables. Bitte mit Prepared Statement.</span></p>
                 </div>
               </div>
               <div class="hunk hunk-fix">
@@ -914,7 +1128,7 @@ section { scroll-margin-top: 72px; }
                 </div>
                 <div class="comment">
                   <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.sql">Damit meldest du jeden einzelnen Kunden ab. Bitte nur den, der gefragt hat.</span></p>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.sql">Damit meldest du jeden einzelnen Kunden ab. Bitte nur den, der gefragt hat.</span></p>
                 </div>
               </div>
               <div class="hunk hunk-fix">
@@ -950,7 +1164,7 @@ section { scroll-margin-top: 72px; }
                 </div>
                 <div class="comment">
                   <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.sh">Ist BUILD_DIR leer, löscht das /*. Den Server hätte ich gern noch.</span></p>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.sh">Ist BUILD_DIR leer, löscht das /*. Den Server hätte ich gern noch.</span></p>
                 </div>
               </div>
               <div class="hunk hunk-fix">
@@ -986,7 +1200,7 @@ section { scroll-margin-top: 72px; }
                 </div>
                 <div class="comment">
                   <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="review.comment">Die Menge fehlt. Jede Bestellung mit zwei oder mehr Artikeln wäre falsch.</span></p>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="review.comment">Die Menge fehlt. Jede Bestellung mit zwei oder mehr Artikeln wäre falsch.</span></p>
                 </div>
               </div>
               <div class="hunk hunk-fix">
@@ -1022,7 +1236,7 @@ section { scroll-margin-top: 72px; }
                 </div>
                 <div class="comment">
                   <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.cs">double für Geld? Dann ist 0,1 + 0,2 = 0,30000000000000004 €. Bitte decimal.</span></p>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.cs">double für Geld? Dann ist 0,1 + 0,2 = 0,30000000000000004 €. Bitte decimal.</span></p>
                 </div>
               </div>
               <div class="hunk hunk-fix">
@@ -1058,7 +1272,7 @@ section { scroll-margin-top: 72px; }
                 </div>
                 <div class="comment">
                   <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.java">== vergleicht Referenzen, nicht Text. Im Test grün, in Produktion rot.</span></p>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.java">== vergleicht Referenzen, nicht Text. Im Test grün, in Produktion rot.</span></p>
                 </div>
               </div>
               <div class="hunk hunk-fix">
@@ -1095,7 +1309,7 @@ section { scroll-margin-top: 72px; }
                 </div>
                 <div class="comment">
                   <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.pseudo">Klassiker. Mal π nehmen, dann wird's realistisch.</span></p>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.pseudo">Klassiker. Mal π nehmen, dann wird's realistisch.</span></p>
                 </div>
               </div>
               <div class="hunk hunk-fix">
@@ -1132,7 +1346,7 @@ section { scroll-margin-top: 72px; }
                 </div>
                 <div class="comment">
                   <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.real">Er ist wütend, nicht neugierig. Das löst kein Prompt.</span></p>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.real">Er ist wütend, nicht neugierig. Das löst kein Prompt.</span></p>
                 </div>
               </div>
               <div class="hunk hunk-fix">
@@ -1170,7 +1384,7 @@ section { scroll-margin-top: 72px; }
                 </div>
                 <div class="comment">
                   <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.final">Eine von drei Zeilen stimmt. Die erste.</span></p>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.final">Eine von drei Zeilen stimmt. Die erste.</span></p>
                 </div>
               </div>
               <div class="hunk hunk-fix">
@@ -1294,7 +1508,7 @@ section { scroll-margin-top: 72px; }
         </div>
         <div class="comment">
           <span class="avatar" aria-hidden="true">AF</span>
-          <p><b>Alexander</b> · <span data-i18n="next.alex">Siehst du? Genau deshalb entscheidest du.</span></p>
+          <p><b>Alex</b> · <span data-i18n="next.alex">Siehst du? Genau deshalb entscheidest du.</span></p>
         </div>
       </div>
       <div class="cli-wrap">
@@ -1315,6 +1529,20 @@ section { scroll-margin-top: 72px; }
           <button type="button" class="cli-chip" data-cmd="exit">exit</button>
         </p>
       </div>
+      <div class="sound" id="sound">
+        <div class="sound-head">
+          <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <div class="sound-meta">
+            <p class="sound-label" data-i18n="sound.label">Soundtrack zur Seite</p>
+            <p class="sound-title">Le Matos – Summer of '84 <span data-i18n="sound.playlist">+ Playlist</span></p>
+          </div>
+        </div>
+        <div class="sound-frame" id="sound-frame">
+          <button type="button" class="sound-play" id="sound-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><span data-i18n="sound.play">Soundtrack abspielen</span></button>
+          <p class="sound-note" data-i18n="sound.note">Beim Abspielen wird der YouTube-Player geladen. Dabei überträgt dein Browser Daten an Google.</p>
+          <a class="sound-link" href="https://www.youtube.com/watch?v=Qe6kxVtVC7g&amp;list=PLznuo3wvUB6dtGavViepTCogI-ZzSczaD" target="_blank" rel="noopener" data-i18n="sound.open">Auf YouTube öffnen</a>
+        </div>
+      </div>
     </div>
   </section>
 </main>
@@ -1324,6 +1552,25 @@ section { scroll-margin-top: 72px; }
     <a class="foot-link" href="https://arfr.de/">© 2026 Alexander Fuhr</a>
   </div>
 </footer>
+
+<div class="game" id="game" role="dialog" aria-modal="true" aria-labelledby="game-title" tabindex="-1" hidden>
+  <div class="game-hud">
+    <p class="game-title" id="game-title">LIGHTRACE</p>
+    <p class="game-score"><span class="you" data-i18n="game.you">Mensch</span><b id="score-you">0</b><span>:</span><b id="score-ai">0</b><span class="ai" data-i18n="game.ai">KI</span></p>
+    <button type="button" class="game-close" id="game-close" data-i18n="game.close">Beenden</button>
+  </div>
+  <div class="game-stage" id="game-stage">
+    <canvas class="game-canvas" id="game-canvas" role="img" aria-label="Spielfeld: deine cyanfarbene Lichtspur gegen die lilafarbene der KI" data-i18n-aria="game.label"></canvas>
+    <div class="game-msg" id="game-msg" aria-live="polite"></div>
+  </div>
+  <p class="game-help" data-i18n="game.controls">Pfeiltasten oder WASD · auf dem Handy wischen · Esc beendet</p>
+  <div class="game-pad">
+    <button type="button" data-dir="up" aria-label="hoch" data-i18n-aria="game.up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+    <button type="button" data-dir="left" aria-label="links" data-i18n-aria="game.left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <button type="button" data-dir="down" aria-label="runter" data-i18n-aria="game.down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+    <button type="button" data-dir="right" aria-label="rechts" data-i18n-aria="game.right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+  </div>
+</div>
 
 <script>
 (function () {
@@ -1412,7 +1659,7 @@ section { scroll-margin-top: 72px; }
       "cli.help.cat": "show the profile", "cli.help.quiz": "play the quiz again", "cli.help.contact": "write to Alex",
       "cli.help.linkedin": "open LinkedIn", "cli.help.coffee": "brew coffee", "cli.help.lang": "switch language",
       "cli.help.clear": "clear the screen", "cli.help.exit": "leave (go ahead, try)",
-      "cli.help.secret": "Plus a few hidden commands. Real developers will find them.",
+      "cli.help.secret": "Plus a few hidden commands. One of them is a game.",
       "cli.whoami": "alex · software developer · AI-assisted, human-led · everywhere",
       "cli.denied": "Permission denied. Nice try.",
       "cli.noFile": "{f}: No such file or directory",
@@ -1434,7 +1681,23 @@ section { scroll-margin-top: 72px; }
       "cli.42": "The answer to everything. You'll have to ask the question yourself.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Alex replies to email almost as fast.",
       "cli.hello": "Hello back! Type help if you're stuck.",
-      "cli.notFound": "command not found: {cmd}. Hint: help"
+      "cli.notFound": "command not found: {cmd}. Hint: help",
+      "cli.play": "Secret mode unlocked. Launching LIGHTRACE: human vs AI …",
+      "cli.playEnd": "Game over. Human {h} : {a} AI.",
+      "game.you": "Human", "game.ai": "AI", "game.close": "Quit",
+      "game.controls": "Arrow keys or WASD · swipe on phones · Esc quits",
+      "game.start": "Press space or tap to start",
+      "game.win": "Human beats AI. Just like real life.",
+      "game.lose": "The AI wins. This time.",
+      "game.draw": "Draw. Good thing a human makes the final call.",
+      "game.again": "Press space or tap for the next round",
+      "game.paused": "Paused. Press space or tap to continue",
+      "game.up": "up", "game.down": "down", "game.left": "left", "game.right": "right",
+      "game.label": "Game board: your cyan light trail against the AI's purple one",
+      "sound.label": "Soundtrack for this page", "sound.playlist": "+ playlist",
+      "sound.play": "Play soundtrack", "sound.open": "Open on YouTube",
+      "sound.note": "Playing loads the YouTube player, which sends data from your browser to Google.",
+      "cli.help.music": "start the soundtrack", "cli.music": "Loading the soundtrack … turn it up."
     },
     de: {
       "meta.description": "Alexander Fuhr – Softwareentwickler. KI-gestützt, menschlich geführt.",
@@ -1516,7 +1779,7 @@ section { scroll-margin-top: 72px; }
       "cli.help.cat": "Profil anzeigen", "cli.help.quiz": "Quiz nochmal spielen", "cli.help.contact": "Alex schreiben",
       "cli.help.linkedin": "LinkedIn öffnen", "cli.help.coffee": "Kaffee kochen", "cli.help.lang": "Sprache wechseln",
       "cli.help.clear": "Bildschirm leeren", "cli.help.exit": "gehen (versuch's ruhig)",
-      "cli.help.secret": "Und ein paar versteckte Befehle. Echte Entwickler finden sie.",
+      "cli.help.secret": "Und ein paar versteckte Befehle. Einer davon ist ein Spiel.",
       "cli.whoami": "alex · Softwareentwickler · KI-gestützt, menschlich geführt · überall",
       "cli.denied": "Zugriff verweigert. Netter Versuch.",
       "cli.noFile": "{f}: Datei oder Verzeichnis nicht gefunden",
@@ -1538,7 +1801,23 @@ section { scroll-margin-top: 72px; }
       "cli.42": "Die Antwort auf alles. Die Frage musst du selbst stellen.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Alex antwortet auf Mails fast genauso schnell.",
       "cli.hello": "Hallo zurück! Tippe help, wenn du nicht weiterweißt.",
-      "cli.notFound": "Befehl nicht gefunden: {cmd}. Tipp: help"
+      "cli.notFound": "Befehl nicht gefunden: {cmd}. Tipp: help",
+      "cli.play": "Geheimer Modus freigeschaltet. Starte LIGHTRACE: Mensch gegen KI …",
+      "cli.playEnd": "Spiel beendet. Mensch {h} : {a} KI.",
+      "game.you": "Mensch", "game.ai": "KI", "game.close": "Beenden",
+      "game.controls": "Pfeiltasten oder WASD · auf dem Handy wischen · Esc beendet",
+      "game.start": "Leertaste oder Tippen zum Starten",
+      "game.win": "Mensch schlägt KI. Wie im echten Leben.",
+      "game.lose": "Die KI gewinnt. Diesmal.",
+      "game.draw": "Unentschieden. Gut, dass am Ende ein Mensch entscheidet.",
+      "game.again": "Leertaste oder Tippen für die nächste Runde",
+      "game.paused": "Pause. Leertaste oder Tippen zum Weiterspielen",
+      "game.up": "hoch", "game.down": "runter", "game.left": "links", "game.right": "rechts",
+      "game.label": "Spielfeld: deine cyanfarbene Lichtspur gegen die lilafarbene der KI",
+      "sound.label": "Soundtrack zur Seite", "sound.playlist": "+ Playlist",
+      "sound.play": "Soundtrack abspielen", "sound.open": "Auf YouTube öffnen",
+      "sound.note": "Beim Abspielen wird der YouTube-Player geladen. Dabei überträgt dein Browser Daten an Google.",
+      "cli.help.music": "Soundtrack starten", "cli.music": "Lade den Soundtrack … Lautstärke hoch."
     },
     ru: {
       "meta.description": "Alexander Fuhr – разработчик ПО. ИИ помогает, решает человек.",
@@ -1620,7 +1899,7 @@ section { scroll-margin-top: 72px; }
       "cli.help.cat": "показать профиль", "cli.help.quiz": "пройти квиз ещё раз", "cli.help.contact": "написать Алексу",
       "cli.help.linkedin": "открыть LinkedIn", "cli.help.coffee": "сварить кофе", "cli.help.lang": "сменить язык",
       "cli.help.clear": "очистить экран", "cli.help.exit": "выйти (попробуй)",
-      "cli.help.secret": "И пара скрытых команд. Настоящие разработчики их найдут.",
+      "cli.help.secret": "И пара скрытых команд. Одна из них — игра.",
       "cli.whoami": "alex · разработчик ПО · ИИ помогает, решает человек · везде",
       "cli.denied": "Доступ запрещён. Хорошая попытка.",
       "cli.noFile": "{f}: Нет такого файла или каталога",
@@ -1642,7 +1921,23 @@ section { scroll-margin-top: 72px; }
       "cli.42": "Ответ на всё. Вопрос придётся задать самому.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Алекс отвечает на письма почти так же быстро.",
       "cli.hello": "И тебе привет! Введи help, если не знаешь, что дальше.",
-      "cli.notFound": "команда не найдена: {cmd}. Подсказка: help"
+      "cli.notFound": "команда не найдена: {cmd}. Подсказка: help",
+      "cli.play": "Секретный режим открыт. Запускаю LIGHTRACE: человек против ИИ …",
+      "cli.playEnd": "Игра окончена. Человек {h} : {a} ИИ.",
+      "game.you": "Человек", "game.ai": "ИИ", "game.close": "Выйти",
+      "game.controls": "Стрелки или WASD · свайп на телефоне · Esc — выход",
+      "game.start": "Пробел или тап — старт",
+      "game.win": "Человек побеждает ИИ. Как в жизни.",
+      "game.lose": "ИИ победил. На этот раз.",
+      "game.draw": "Ничья. Хорошо, что последнее слово за человеком.",
+      "game.again": "Пробел или тап — следующий раунд",
+      "game.paused": "Пауза. Пробел или тап — продолжить",
+      "game.up": "вверх", "game.down": "вниз", "game.left": "влево", "game.right": "вправо",
+      "game.label": "Игровое поле: твой голубой световой след против фиолетового следа ИИ",
+      "sound.label": "Саундтрек к сайту", "sound.playlist": "+ плейлист",
+      "sound.play": "Включить саундтрек", "sound.open": "Открыть на YouTube",
+      "sound.note": "При воспроизведении загружается плеер YouTube, и браузер передаёт данные в Google.",
+      "cli.help.music": "включить саундтрек", "cli.music": "Загружаю саундтрек … сделай погромче."
     }
   };
   var LANGS = ['en', 'de', 'ru'];
@@ -1862,6 +2157,8 @@ section { scroll-margin-top: 72px; }
         showVerdict(st, s.querySelector('.verdict'));
         st.revealed = true;
         s.classList.add('answered');
+        var dot = quizFig.querySelectorAll('.dot')[k];
+        if (dot) dot.classList.add(st.right ? 'is-right' : 'is-wrong');
         updateScore();
       }, reduceMotion ? 0 : 450);
     });
@@ -1888,6 +2185,7 @@ section { scroll-margin-top: 72px; }
           b.removeAttribute('aria-pressed');
         });
       });
+      quizFig.querySelectorAll('.dot').forEach(function (d) { d.classList.remove('is-right', 'is-wrong'); });
       updateScore();
       var first = quizFig.querySelector('.dot');
       if (first) first.click();
@@ -1915,6 +2213,287 @@ section { scroll-margin-top: 72px; }
     });
   })();
 
+  /* Soundtrack: the YouTube player only loads after a click (privacy-enhanced mode) */
+  var soundBox = document.getElementById('sound');
+  function playSound() {
+    if (!soundBox || soundBox.classList.contains('playing')) return;
+    var frame = document.getElementById('sound-frame');
+    var wrap = document.createElement('div');
+    wrap.className = 'sound-video';
+    var f = document.createElement('iframe');
+    f.src = 'https://www.youtube-nocookie.com/embed/Qe6kxVtVC7g?list=PLznuo3wvUB6dtGavViepTCogI-ZzSczaD&autoplay=1&rel=0';
+    f.title = "YouTube: Le Matos \u2013 Summer of '84";
+    f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    f.allowFullscreen = true;
+    f.referrerPolicy = 'strict-origin-when-cross-origin';
+    wrap.appendChild(f);
+    frame.textContent = '';
+    frame.appendChild(wrap);
+    soundBox.classList.add('playing');
+  }
+  var soundBtn = document.getElementById('sound-play');
+  if (soundBtn) soundBtn.addEventListener('click', playSound);
+
+  /* Secret game LIGHTRACE: a light-trail duel, human vs AI. Unlocked with `play` in the terminal. */
+  var game = (function lightrace() {
+    var root = document.getElementById('game');
+    var cv = document.getElementById('game-canvas');
+    if (!root || !cv || !cv.getContext) return null;
+    var ctx = cv.getContext('2d');
+    var stage = document.getElementById('game-stage');
+    var msg = document.getElementById('game-msg');
+    var elYou = document.getElementById('score-you');
+    var elAi = document.getElementById('score-ai');
+    var CYAN = '32, 227, 255', VIOLET = '168, 85, 247';
+    var DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+    var COLS = 64, ROWS = 40, cell = 12;
+    var board, you, bot, state = 'idle', loop = 0, countTimer = 0;
+    var score = { you: 0, ai: 0 }, onClose = null, lastFocus = null;
+    var STEP_MS = 75;
+
+    function showMsg(text) { msg.textContent = text; }
+    function fit() {
+      var r = stage.getBoundingClientRect();
+      cell = Math.max(5, Math.floor(Math.min(r.width / COLS, r.height / ROWS)));
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cv.style.width = (COLS * cell) + 'px';
+      cv.style.height = (ROWS * cell) + 'px';
+      cv.width = COLS * cell * dpr;
+      cv.height = ROWS * cell * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function idx(x, y) { return y * COLS + x; }
+    function free(x, y) { return x >= 0 && y >= 0 && x < COLS && y < ROWS && board[idx(x, y)] === 0; }
+    function mark(p) { board[idx(p.x, p.y)] = p.id; p.trail.push([p.x, p.y]); }
+    function opposite(a, b) { return DIRS[a][0] === -DIRS[b][0] && DIRS[a][1] === -DIRS[b][1]; }
+
+    function reset() {
+      var r = stage.getBoundingClientRect();
+      var portrait = r.height > r.width;
+      COLS = portrait ? 30 : 64;
+      ROWS = portrait ? 44 : 40;
+      fit();
+      board = new Uint8Array(COLS * ROWS);
+      if (portrait) {
+        var cx = Math.floor(COLS / 2);
+        you = { id: 1, x: cx, y: ROWS - 6, dir: 'up', next: null, trail: [] };
+        bot = { id: 2, x: cx, y: 5, dir: 'down', trail: [] };
+      } else {
+        var cy = Math.floor(ROWS / 2);
+        you = { id: 1, x: 6, y: cy, dir: 'right', next: null, trail: [] };
+        bot = { id: 2, x: COLS - 7, y: cy, dir: 'left', trail: [] };
+      }
+      mark(you);
+      mark(bot);
+      draw();
+    }
+
+    /* The AI looks for open space, likes to go straight and drifts toward you */
+    function room(x, y, limit) {
+      if (!free(x, y)) return -1;
+      var seen = new Uint8Array(COLS * ROWS);
+      var q = [x, y], head = 0, n = 0;
+      seen[idx(x, y)] = 1;
+      while (head < q.length && n < limit) {
+        var px = q[head++], py = q[head++];
+        n++;
+        for (var d in DIRS) {
+          var nx = px + DIRS[d][0], ny = py + DIRS[d][1];
+          if (free(nx, ny) && !seen[idx(nx, ny)]) { seen[idx(nx, ny)] = 1; q.push(nx, ny); }
+        }
+      }
+      return n;
+    }
+    function think() {
+      var best = bot.dir, bestScore = -Infinity;
+      for (var d in DIRS) {
+        if (opposite(d, bot.dir)) continue;
+        var nx = bot.x + DIRS[d][0], ny = bot.y + DIRS[d][1];
+        var s = room(nx, ny, 150);
+        if (s < 0) continue;
+        if (d === bot.dir) s += 6;
+        s += Math.random() * 8;
+        s -= (Math.abs(nx - you.x) + Math.abs(ny - you.y)) * 0.15;
+        if (s > bestScore) { bestScore = s; best = d; }
+      }
+      bot.dir = best;
+    }
+
+    function step() {
+      if (you.next && !opposite(you.next, you.dir)) you.dir = you.next;
+      you.next = null;
+      think();
+      var yx = you.x + DIRS[you.dir][0], yy = you.y + DIRS[you.dir][1];
+      var bx = bot.x + DIRS[bot.dir][0], by = bot.y + DIRS[bot.dir][1];
+      var youOut = !free(yx, yy), botOut = !free(bx, by);
+      if (yx === bx && yy === by) { youOut = true; botOut = true; }
+      if (!youOut) { you.x = yx; you.y = yy; mark(you); }
+      if (!botOut) { bot.x = bx; bot.y = by; mark(bot); }
+      draw(youOut ? you : null, botOut ? bot : null);
+      if (youOut || botOut) finish(youOut, botOut);
+    }
+    function finish(youOut, botOut) {
+      clearInterval(loop);
+      state = 'over';
+      var key;
+      if (youOut && botOut) key = 'game.draw';
+      else if (botOut) { score.you += 1; key = 'game.win'; }
+      else { score.ai += 1; key = 'game.lose'; }
+      elYou.textContent = score.you;
+      elAi.textContent = score.ai;
+      showMsg(t(key) + '\n\n' + t('game.again'));
+    }
+
+    function drawTrail(p, rgb) {
+      if (!p.trail.length) return;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(' + rgb + ',0.95)';
+      ctx.lineWidth = Math.max(2, cell * 0.45);
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.shadowColor = 'rgba(' + rgb + ',1)';
+      ctx.shadowBlur = cell * 1.2;
+      ctx.beginPath();
+      p.trail.forEach(function (c, i) {
+        var x = (c[0] + 0.5) * cell, y = (c[1] + 0.5) * cell;
+        if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+      });
+      ctx.stroke();
+      ctx.shadowBlur = cell * 1.6;
+      ctx.fillStyle = '#FFFFFF';
+      var hx = (p.x + 0.5) * cell, hy = (p.y + 0.5) * cell;
+      ctx.fillRect(hx - cell * 0.35, hy - cell * 0.35, cell * 0.7, cell * 0.7);
+      ctx.restore();
+    }
+    function burst(p, rgb) {
+      var x = (p.x + 0.5 + DIRS[p.dir][0] * 0.5) * cell, y = (p.y + 0.5 + DIRS[p.dir][1] * 0.5) * cell;
+      var g = ctx.createRadialGradient(x, y, 0, x, y, cell * 5);
+      g.addColorStop(0, 'rgba(255,255,255,0.95)');
+      g.addColorStop(0.3, 'rgba(' + rgb + ',0.7)');
+      g.addColorStop(1, 'rgba(' + rgb + ',0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(x - cell * 5, y - cell * 5, cell * 10, cell * 10);
+    }
+    function draw(youCrash, botCrash) {
+      var W = COLS * cell, H = ROWS * cell;
+      ctx.fillStyle = '#05070B';
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = 'rgba(' + CYAN + ',0.09)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (var x = 0; x <= COLS; x += 2) { ctx.moveTo(x * cell + 0.5, 0); ctx.lineTo(x * cell + 0.5, H); }
+      for (var y = 0; y <= ROWS; y += 2) { ctx.moveTo(0, y * cell + 0.5); ctx.lineTo(W, y * cell + 0.5); }
+      ctx.stroke();
+      drawTrail(you, CYAN);
+      drawTrail(bot, VIOLET);
+      if (youCrash) burst(youCrash, CYAN);
+      if (botCrash) burst(botCrash, VIOLET);
+    }
+
+    function countdown() {
+      reset();
+      state = 'count';
+      var n = 3;
+      showMsg(String(n));
+      (function tick() {
+        countTimer = setTimeout(function () {
+          n -= 1;
+          if (n > 0) { showMsg(String(n)); tick(); return; }
+          showMsg('');
+          state = 'run';
+          loop = setInterval(step, STEP_MS);
+        }, 700);
+      })();
+    }
+    function pause() {
+      if (state !== 'run') return;
+      clearInterval(loop);
+      state = 'paused';
+      showMsg(t('game.paused'));
+    }
+    function resume() {
+      if (state !== 'paused') return;
+      showMsg('');
+      state = 'run';
+      loop = setInterval(step, STEP_MS);
+    }
+    function primary() {
+      if (state === 'ready' || state === 'over') countdown();
+      else if (state === 'paused') resume();
+    }
+    function steer(d) {
+      if (state === 'run' || state === 'count') {
+        if (!opposite(d, you.dir)) you.next = d;
+      } else {
+        primary();
+      }
+    }
+
+    var KEYS = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+      w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right' };
+    function onKey(e) {
+      if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+      if (KEYS[e.key]) { e.preventDefault(); steer(KEYS[e.key]); return; }
+      if (e.key === ' ' || e.key === 'Enter') {
+        if (document.activeElement && document.activeElement.tagName === 'BUTTON') return;
+        e.preventDefault();
+        primary();
+      }
+    }
+    function onResize() {
+      if (state === 'idle') return;
+      fit();
+      draw();
+    }
+    function onVisibility() { if (document.hidden) pause(); }
+
+    var sx = 0, sy = 0, swiping = false;
+    stage.addEventListener('pointerdown', function (e) { sx = e.clientX; sy = e.clientY; swiping = true; });
+    stage.addEventListener('pointerup', function (e) {
+      if (!swiping) return;
+      swiping = false;
+      var dx = e.clientX - sx, dy = e.clientY - sy;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) { primary(); return; }
+      if (Math.abs(dx) > Math.abs(dy)) steer(dx > 0 ? 'right' : 'left');
+      else steer(dy > 0 ? 'down' : 'up');
+    });
+    stage.addEventListener('pointercancel', function () { swiping = false; });
+    root.querySelectorAll('.game-pad button').forEach(function (b) {
+      b.addEventListener('click', function () { steer(b.getAttribute('data-dir')); });
+    });
+    document.getElementById('game-close').addEventListener('click', function () { close(); });
+
+    function open(cb) {
+      onClose = cb || null;
+      lastFocus = document.activeElement;
+      score = { you: 0, ai: 0 };
+      elYou.textContent = '0';
+      elAi.textContent = '0';
+      root.hidden = false;
+      document.documentElement.style.overflow = 'hidden';
+      document.addEventListener('keydown', onKey);
+      window.addEventListener('resize', onResize);
+      document.addEventListener('visibilitychange', onVisibility);
+      reset();
+      state = 'ready';
+      showMsg('LIGHTRACE\n\n' + t('game.start'));
+      root.focus({ preventScroll: true });
+    }
+    function close() {
+      clearInterval(loop);
+      clearTimeout(countTimer);
+      state = 'idle';
+      root.hidden = true;
+      document.documentElement.style.overflow = '';
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('resize', onResize);
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+      if (onClose) onClose(score.you, score.ai);
+    }
+    return { open: open };
+  })();
+
   /* Mini terminal: a few real commands, a few jokes */
   (function miniCli() {
     var form = document.getElementById('cli-form');
@@ -1924,7 +2503,7 @@ section { scroll-margin-top: 72px; }
     var box = document.getElementById('cli');
     var LINKEDIN = 'https://www.linkedin.com/in/alexander-fuhr/';
     var COMMANDS = ['help', 'whoami', 'ls', 'cat', 'cd', 'pwd', 'quiz', 'contact', 'linkedin', 'coffee',
-      'lang', 'clear', 'exit', 'history', 'date', 'echo', 'ping', 'git', 'sudo', 'vim', 'ai', 'hack', '42'];
+      'lang', 'music', 'clear', 'exit', 'history', 'date', 'echo', 'ping', 'git', 'sudo', 'vim', 'ai', 'hack', '42'];
     var hist = [], hIdx = 0, busy = false, inVim = false;
 
     function pad(s, n) { while (s.length < n) s += ' '; return s; }
@@ -1975,7 +2554,7 @@ section { scroll-margin-top: 72px; }
       [['help', 'cli.help.help'], ['whoami', 'cli.help.whoami'], ['ls', 'cli.help.ls'],
        ['cat profile.yml', 'cli.help.cat'], ['quiz', 'cli.help.quiz'], ['contact', 'cli.help.contact'],
        ['linkedin', 'cli.help.linkedin'], ['coffee', 'cli.help.coffee'], ['lang de|en|ru', 'cli.help.lang'],
-       ['clear', 'cli.help.clear'], ['exit', 'cli.help.exit']].forEach(function (r) {
+       ['music', 'cli.help.music'], ['clear', 'cli.help.clear'], ['exit', 'cli.help.exit']].forEach(function (r) {
         line('  ' + pad(r[0], 17) + t(r[1]), 'muted');
       });
       line(t('cli.help.secret'), 'accent');
@@ -2036,7 +2615,7 @@ section { scroll-margin-top: 72px; }
           else line('cd: ' + t('cli.noFile').replace('{f}', arg), 'err');
           break;
         case 'pwd': line('/home/guest'); break;
-        case 'quiz': case './quiz': case 'play':
+        case 'quiz': case './quiz':
           line(t('cli.quiz'), 'accent');
           var again = document.querySelector('.quiz-again');
           if (again) again.click();
@@ -2048,6 +2627,22 @@ section { scroll-margin-top: 72px; }
         case 'contact': case 'mail': case './contact.sh': case 'sh':
           line(t('cli.contact'));
           window.location.href = 'mailto:hello@arfr.de?subject=' + encodeURIComponent(t('next.subject'));
+          break;
+        case 'play': case './lightrace': case 'lightrace':
+          if (!game) { line(t('cli.notFound').replace('{cmd}', head), 'err'); break; }
+          line(t('cli.play'), 'accent');
+          busy = true;
+          setTimeout(function () {
+            busy = false;
+            game.open(function (h, a) {
+              line(t('cli.playEnd').replace('{h}', h).replace('{a}', a), 'muted');
+            });
+          }, reduceMotion ? 0 : 700);
+          break;
+        case 'music': case 'radio': case 'soundtrack':
+          line(t('cli.music'), 'accent');
+          if (soundBox) soundBox.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+          playSound();
           break;
         case 'linkedin': line(t('cli.linkedin')); openLink(LINKEDIN); break;
         case 'coffee': case './coffee.exe': case 'brew': case 'make':
@@ -2119,6 +2714,182 @@ section { scroll-margin-top: 72px; }
         if (busy) return;
         run(b.getAttribute('data-cmd'));
       });
+    });
+  })();
+
+  /* Neon grid behind the hero: a glowing floor with light trails racing across it */
+  (function neonGrid() {
+    var hero = document.querySelector('.hero');
+    var cv = document.querySelector('.retro-grid');
+    if (!hero || !cv || !cv.getContext || typeof Path2D === 'undefined') return;
+    var ctx = cv.getContext('2d');
+    var w = 0, h = 0, raf = 0, running = false, onScreen = true, horizonY = 0, last = 0;
+    var CYAN = '32, 227, 255', VIOLET = '168, 85, 247';
+    var FAR = 26;
+    var trails = [];
+
+    function rand(a, b) { return a + Math.random() * (b - a); }
+    function spawn(tr) {
+      tr.lateral = Math.random() < 0.35;
+      tr.color = Math.random() < 0.5 ? CYAN : VIOLET;
+      tr.len = rand(3, 7);
+      if (tr.lateral) {
+        tr.z = Math.round(rand(3, 9));
+        tr.dir = Math.random() < 0.5 ? 1 : -1;
+        tr.x = -tr.dir * 30;
+        tr.speed = rand(6, 10);
+      } else {
+        tr.x = Math.round(rand(-10, 10));
+        tr.z = FAR + rand(0, 12);
+        tr.speed = rand(3.5, 6);
+      }
+      return tr;
+    }
+    for (var k = 0; k < 4; k++) {
+      var tr = spawn({});
+      if (!tr.lateral) tr.z = rand(4, FAR);
+      else tr.x = rand(-12, 12);
+      trails.push(tr);
+    }
+
+    function resize() {
+      var r = hero.getBoundingClientRect();
+      var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      w = r.width; h = r.height;
+      cv.width = Math.max(1, Math.round(w * dpr));
+      cv.height = Math.max(1, Math.round(h * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      /* wide: horizon at 58 %; stacked phone layout: just above the buttons, so the floor shows */
+      horizonY = Math.round(h * 0.58);
+      var cta = hero.querySelector('.cta');
+      if (w < 860 && cta) horizonY = Math.round(cta.getBoundingClientRect().top - r.top - 28);
+    }
+    function unit() { return Math.max(w, 700) * 0.09; }
+    function proj(x, z) {
+      var p = 1 / z;
+      return [w / 2 + x * unit() * p, horizonY + (h - horizonY) * p];
+    }
+    function glowStroke(path, rgb, alpha, width, blur) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(' + rgb + ',' + alpha + ')';
+      ctx.lineWidth = width;
+      ctx.shadowColor = 'rgba(' + rgb + ',0.9)';
+      ctx.shadowBlur = blur;
+      ctx.stroke(path);
+      ctx.restore();
+    }
+    function draw(now) {
+      if (!w || !h) return;
+      var dt = last && now ? Math.min((now - last) / 1000, 0.05) : 0;
+      last = now || 0;
+      var hz = horizonY, floor = h - hz;
+      var phase = ((now || 0) / 1000 * 0.6) % 1;
+      ctx.clearRect(0, 0, w, h);
+
+      /* light above the horizon and a sheen on the floor */
+      var sky = ctx.createLinearGradient(0, hz - 160, 0, hz);
+      sky.addColorStop(0, 'rgba(' + CYAN + ',0)');
+      sky.addColorStop(1, 'rgba(' + CYAN + ',0.14)');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, hz - 160, w, 160);
+      var sheen = ctx.createLinearGradient(0, hz, 0, h);
+      sheen.addColorStop(0, 'rgba(' + CYAN + ',0.09)');
+      sheen.addColorStop(1, 'rgba(' + CYAN + ',0)');
+      ctx.fillStyle = sheen;
+      ctx.fillRect(0, hz, w, floor);
+
+      /* the grid */
+      var grid = new Path2D();
+      for (var x = -22; x <= 22; x++) {
+        var a = proj(x, 1), b = proj(x, FAR);
+        grid.moveTo(a[0], a[1]);
+        grid.lineTo(b[0], b[1]);
+      }
+      for (var i = 0; i < FAR; i++) {
+        var z = 1 + i - phase;
+        if (z < 1) continue;
+        var y = Math.round(hz + floor / z) + 0.5;
+        grid.moveTo(0, y);
+        grid.lineTo(w, y);
+      }
+      glowStroke(grid, CYAN, 0.3, 1, 6);
+
+      /* fade the far floor into the haze */
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-out';
+      var fade = ctx.createLinearGradient(0, hz, 0, hz + floor * 0.4);
+      fade.addColorStop(0, 'rgba(0,0,0,0.75)');
+      fade.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = fade;
+      ctx.fillRect(0, hz + 1, w, floor);
+      ctx.restore();
+
+      /* horizon */
+      var line = new Path2D();
+      line.moveTo(0, hz + 0.5);
+      line.lineTo(w, hz + 0.5);
+      glowStroke(line, CYAN, 0.9, 1.5, 18);
+
+      /* light trails */
+      trails.forEach(function (t) {
+        if (dt) {
+          if (t.lateral) t.x += t.dir * t.speed * dt;
+          else t.z -= t.speed * dt;
+        }
+        if ((!t.lateral && t.z < 1.05) || (t.lateral && Math.abs(t.x) > 32)) { spawn(t); return; }
+        var head = proj(t.x, t.z);
+        var tail = t.lateral ? proj(t.x - t.dir * t.len, t.z) : proj(t.x, t.z + t.len);
+        var lw = Math.max(1.2, Math.min(4, 4.5 / t.z));
+        var grad = ctx.createLinearGradient(tail[0], tail[1], head[0], head[1]);
+        grad.addColorStop(0, 'rgba(' + t.color + ',0)');
+        grad.addColorStop(1, 'rgba(' + t.color + ',0.95)');
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = lw;
+        ctx.shadowColor = 'rgba(' + t.color + ',1)';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.moveTo(tail[0], tail[1]);
+        ctx.lineTo(head[0], head[1]);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.95)';
+        ctx.beginPath();
+        ctx.arc(head[0], head[1], lw * 0.6 + 0.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+    }
+    function loop(now) {
+      draw(now);
+      if (running) raf = requestAnimationFrame(loop);
+    }
+    function start() {
+      if (running || reduceMotion || !onScreen || document.hidden) return;
+      running = true;
+      last = 0;
+      raf = requestAnimationFrame(loop);
+    }
+    function stop() {
+      running = false;
+      cancelAnimationFrame(raf);
+    }
+    resize();
+    draw(0);
+    start();
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(function () { resize(); draw(last); }).observe(hero);
+    } else {
+      window.addEventListener('resize', function () { resize(); draw(last); });
+    }
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        onScreen = entries[0].isIntersecting;
+        if (onScreen) start(); else stop();
+      }).observe(hero);
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop(); else start();
     });
   })();
 
