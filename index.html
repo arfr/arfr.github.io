@@ -34,6 +34,13 @@
   --font-body: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   --wrap: 1120px;
+  /* "About" is a terminal band: one dark look in both themes, on purpose */
+  --term-bg: #0B0B0C;
+  --term-surface: #141315;
+  --term-fg: #EDEBEC;
+  --term-muted: #8F8A8D;
+  --term-line: #262326;
+  --term-accent: #F07898;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -327,6 +334,196 @@ a { color: inherit; }
   color: var(--muted);
 }
 
+/* Review carousel */
+.carousel { overflow: hidden; transition: height 0.3s ease; }
+.track {
+  display: flex;
+  align-items: flex-start;
+  transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  touch-action: pan-y;
+}
+.slide { flex: 0 0 100%; min-width: 0; display: flex; flex-direction: column; }
+.slide .review-foot { margin-top: auto; }
+@media (max-width: 420px) {
+  .review-card { font-size: 0.75rem; }
+  .dot { width: 18px; }
+}
+.code .quote { color: var(--muted); }
+[hidden] { display: none !important; }
+
+/* Quiz: the visitor decides first, the "AI" applauds, then the verdict */
+.quiz { display: none; flex-direction: column; gap: 10px; }
+.quiz-on .quiz { display: flex; }
+.quiz-on .slide:not(.answered) .comment,
+.quiz-on .slide:not(.answered) .hunk-fix,
+.quiz-on .slide:not(.answered) .review-foot { display: none; }
+.quiz-q {
+  margin: 4px 0 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--fg);
+}
+.quiz-opts { display: flex; flex-direction: column; gap: 6px; }
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+}
+.opt:hover:not(:disabled) { border-color: var(--fg); }
+.opt:disabled { cursor: default; }
+.opt-key {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.answered .opt { opacity: 0.45; }
+.answered .opt.is-correct, .answered .opt.is-picked { opacity: 1; }
+.opt.is-correct { border-color: var(--fg); }
+.opt.is-correct .opt-key { background: var(--bar); color: var(--bar-fg); }
+.opt.is-picked:not(.is-correct) { border-color: var(--accent); }
+.opt.is-picked:not(.is-correct) .opt-key { background: var(--accent); color: var(--bg); }
+.ai-reply {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.ai-reply p { margin: 0; min-width: 0; }
+.ai-reply b { font-weight: 600; }
+.avatar-ai {
+  background: transparent;
+  color: var(--muted);
+  border: 1px dashed var(--muted);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+.ai-text.thinking { color: var(--muted); letter-spacing: 0.2em; }
+.verdict { font-weight: 600; margin-right: 0.35em; }
+.verdict.is-wrong { color: var(--accent); }
+.quiz-score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.quiz-score-text { margin: 0; font-size: 0.9375rem; line-height: 1.5; max-width: 46ch; }
+.quiz-score-text strong { font-family: var(--font-mono); font-weight: 500; }
+
+/* Finale: "you decide what happens next" as a dark terminal band */
+.next-band { background: var(--term-bg); color: var(--term-fg); border-top-color: var(--term-line); }
+.next-band .statement h2 { color: var(--term-fg); }
+.next-band .bar { background: var(--term-fg); color: var(--term-bg); }
+.next-actions { display: flex; flex-direction: column; gap: 12px; max-width: 760px; }
+.next-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 560px) { .next-grid { grid-template-columns: minmax(0, 1fr); } }
+.next-band .opt {
+  min-height: 56px;
+  font-size: 1rem;
+  text-decoration: none;
+  background: var(--term-surface);
+  color: var(--term-fg);
+  border-color: var(--term-line);
+}
+.next-band .opt:hover { border-color: var(--term-fg); }
+.next-band .opt-key { background: var(--term-line); color: var(--term-muted); }
+.next-status {
+  margin: 0;
+  min-height: 1.5em;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--term-accent);
+}
+.next-chat { display: flex; flex-direction: column; gap: 10px; max-width: 760px; }
+.next-band .ai-reply { border-color: var(--term-line); }
+.next-band .avatar-ai { color: var(--term-muted); border-color: var(--term-muted); }
+.next-band .comment { background: var(--term-surface); border-color: var(--term-line); }
+.next-band .comment .avatar { background: var(--term-fg); color: var(--term-bg); }
+.next-band :focus-visible { outline-color: var(--term-accent); }
+@media (prefers-reduced-motion: reduce) {
+  .carousel, .opt { transition: none; }
+}
+.carousel-nav { display: flex; align-items: center; gap: 8px; }
+.nav-btn {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+}
+.nav-btn:hover { background: var(--surface); }
+.nav-btn svg { width: 18px; height: 18px; }
+.dots { display: flex; flex-wrap: nowrap; gap: 2px; min-width: 0; }
+.dot {
+  width: 24px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.dot::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+  background: var(--line);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.dot:hover::before { background: var(--muted); }
+.dot[aria-current="true"]::before { background: var(--fg); transform: scale(1.25); }
+.counter {
+  margin-left: auto;
+  flex: none;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: reduce) {
+  .track, .dot::before { transition: none; }
+}
+
 /* Sections */
 section { scroll-margin-top: 72px; }
 .section { border-top: 1px solid var(--line); }
@@ -395,15 +592,90 @@ section { scroll-margin-top: 72px; }
   gap: clamp(28px, 5vw, 64px);
   align-items: center;
 }
+.about-band { background: var(--term-bg); color: var(--term-fg); border-top-color: var(--term-line); }
+.about-band .h2 { color: var(--term-fg); }
+.about-band .about-text p { color: var(--term-fg); }
+.prompt { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--term-muted); }
+.about-band .about-text .prompt { color: var(--term-muted); }
+.prompt .host { color: var(--term-accent); }
+.cursor {
+  display: inline-block;
+  width: 0.45em;
+  height: 0.85em;
+  margin-left: 0.12em;
+  vertical-align: -0.04em;
+  background: var(--term-accent);
+  animation: blink 1.1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+.term {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  background: var(--term-surface);
+  border: 1px solid var(--term-line);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  min-width: 0;
+}
+.about-band .about-text .term-cmd { color: var(--term-muted); }
+.term dl { margin: 0; display: flex; flex-direction: column; gap: 2px; }
+.term dl div { display: flex; flex-wrap: wrap; gap: 0 1ch; }
+.term dt { color: var(--term-muted); min-width: 9ch; }
+.term dt::after { content: ":"; }
+.term dd { margin: 0; color: var(--term-fg); min-width: 0; }
+
 .portrait {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.portrait-frame {
+  position: relative;
   display: block;
   width: clamp(160px, 20vw, 240px);
-  height: auto;
   aspect-ratio: 1;
   max-width: 100%;
   border-radius: 50%;
+  overflow: hidden;
+  background: var(--term-bg);
+}
+.portrait-img, .portrait-px {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
   object-fit: cover;
-  background: #0B0B0C;
+}
+.portrait-px { image-rendering: pixelated; }
+.portrait.fx:not(.is-sharp) .portrait-img { visibility: hidden; }
+.portrait-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px);
+  transition: opacity 0.25s ease;
+}
+.portrait.is-sharp .portrait-frame::after { opacity: 0; }
+.portrait-hint { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.04em; color: var(--term-muted); }
+.portrait:focus-visible { outline: none; }
+.portrait:focus-visible .portrait-frame { outline: 2px solid var(--term-accent); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .cursor { animation: none; }
+  .portrait-frame::after { transition: none; }
 }
 .about-text { display: flex; flex-direction: column; gap: 18px; min-width: 0; max-width: 62ch; }
 .about-text p { margin: 0; }
@@ -497,30 +769,351 @@ section { scroll-margin-top: 72px; }
         </div>
       </div>
 
-      <figure class="review" aria-label="Beispiel für ein Code-Review: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe" data-i18n-aria="review.aria">
-        <div class="review-card">
-          <div class="review-head">
-            <span class="file">cart.ts</span>
-            <span class="chip" data-i18n="review.chip">Review</span>
-          </div>
-          <div class="hunk">
-            <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+      <figure class="review" aria-label="Beispiele für Code-Reviews: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe" data-i18n-aria="review.aria">
+        <div class="review-card carousel" aria-roledescription="carousel">
+          <div class="track">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="1 / 9: PHP" data-name="PHP">
+              <div class="review-head">
+                <span class="file">login.php</span>
+                <span class="chip">PHP</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="add">+ </span>$sql = "SELECT * FROM users
+<span class="add">+ </span>        WHERE email = '$email'";</pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.php.a">Fehlt ein Semikolon</span></button>
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.php.b">SQL-Injection</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.php.c">Nichts, läuft doch</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.php">Grüße von Little Bobby Tables. Bitte mit Prepared Statement.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span>$stmt = $pdo-&gt;prepare(
+<span class="add">+ </span>  'SELECT * FROM users
+<span class="add">+ </span>   WHERE email = <mark>?</mark>');
+<span class="add">+ </span>$stmt-&gt;execute(<mark>[$email]</mark>);</pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="2 / 9: MySQL" data-name="MySQL">
+              <div class="review-head">
+                <span class="file">unsubscribe.sql</span>
+                <span class="chip">MySQL</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="add">+ </span>UPDATE customers
+<span class="add">+ </span>SET newsletter = 0;</pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.sql.a">Das WHERE fehlt</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.sql.b">0 sollte FALSE sein</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.sql.c">Alles okay</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.sql">Damit meldest du jeden einzelnen Kunden ab. Bitte nur den, der gefragt hat.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span>UPDATE customers
+<span class="add">+ </span>SET newsletter = 0
+<span class="add">+ </span><mark>WHERE id = 1337</mark>;</pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="3 / 9: Linux" data-name="Linux">
+              <div class="review-head">
+                <span class="file">deploy.sh</span>
+                <span class="chip">Bash</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="add">+ </span>rm -rf $BUILD_DIR/*</pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.sh.a">Zu wenig sudo</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.sh.b">Kein Problem</span></button>
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.sh.c">Leere Variable heißt /*</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.sh">Ist BUILD_DIR leer, löscht das /*. Den Server hätte ich gern noch.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span>rm -rf <mark>"${BUILD_DIR:?}"</mark>/*</pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="4 / 9: TypeScript" data-name="TypeScript">
+              <div class="review-head">
+                <span class="file">cart.ts</span>
+                <span class="chip">TypeScript</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span>const total = items.reduce(
-<span class="add">+ </span>  (sum, i) => sum + i.price, 0);</pre>
-            <div class="comment">
-              <span class="avatar" aria-hidden="true">AF</span>
-              <p><b>Alexander</b> · <span data-i18n="review.comment">Die Menge fehlt. Jede Bestellung mit zwei oder mehr Artikeln wäre falsch.</span></p>
+<span class="add">+ </span>  (sum, i) =&gt; sum + i.price,
+<span class="add">+ </span>  0);</pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.ts.a">reduce ist zu langsam</span></button>
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.ts.b">Die Menge fehlt</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.ts.c">Sollte var sein</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="review.comment">Die Menge fehlt. Jede Bestellung mit zwei oder mehr Artikeln wäre falsch.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span>const total = items.reduce(
+<span class="add">+ </span>  (sum, i) =&gt; sum + i.price <mark>* i.qty</mark>,
+<span class="add">+ </span>  0);</pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="5 / 9: C#" data-name="C#">
+              <div class="review-head">
+                <span class="file">Checkout.cs</span>
+                <span class="chip">C#</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="add">+ </span>double total = price + shipping;</pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.cs.a">double ist falsch für Geld</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.cs.b">Sollte ein string sein</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.cs.c">Passt, die Bank rundet</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.cs">double für Geld? Dann ist 0,1 + 0,2 = 0,30000000000000004 €. Bitte decimal.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span><mark>decimal</mark> total = price + shipping;</pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="6 / 9: Java" data-name="Java">
+              <div class="review-head">
+                <span class="file">Account.java</span>
+                <span class="chip">Java</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="add">+ </span>if (input == "yes") {
+<span class="add">+ </span>    deleteAccount(user);
+<span class="add">+ </span>}</pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.java.a">== statt equals()</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.java.b">Klammern fehlen</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.java.c">"yes" muss "YES" sein</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.java">== vergleicht Referenzen, nicht Text. Im Test grün, in Produktion rot.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span>if (<mark>"yes".equals(input)</mark>) {
+<span class="add">+ </span>    deleteAccount(user);
+<span class="add">+ </span>}</pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="7 / 9: Pseudocode" data-name="Pseudocode">
+              <div class="review-head">
+                <span class="file">estimate.txt</span>
+                <span class="chip" data-i18n="lang.pseudo">Pseudocode</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="add">+ </span>estimate = gut_feeling()
+<span class="add">+ </span>RETURN estimate</pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.pseudo.a">Bauchgefühl ist exakt</span></button>
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.pseudo.b">Viel zu optimistisch</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.pseudo.c">RETURN fehlt</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.pseudo">Klassiker. Mal π nehmen, dann wird's realistisch.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span>estimate = gut_feeling()
+<span class="add">+ </span>RETURN estimate <mark>* π</mark></pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="8 / 9: Echtes Leben" data-name="Echtes Leben">
+              <div class="review-head">
+                <span class="file">support.eml</span>
+                <span class="chip" data-i18n="lang.real">Echtes Leben</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="rl.quote">Kunde: "NICHTS GEHT MEHR!!!"</span></span>
+<span class="add">+ </span><span data-i18n="rl.ai1">Sehr geehrte Damen und Herren,</span>
+<span class="add">+ </span><span data-i18n="rl.ai2">anbei 12 Punkte zur Fehleranalyse …</span></pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.real.a">Die Mail abschicken</span></button>
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.real.b">Anrufen und zuhören</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.real.c">Ticket mit Prio 3</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.real">Er ist wütend, nicht neugierig. Das löst kein Prompt.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="rl.quote">Kunde: "NICHTS GEHT MEHR!!!"</span></span>
+<span class="add">+ </span><mark data-i18n="rl.fix1">Hörer in die Hand. Zuhören.</mark>
+<span class="add">+ </span><span data-i18n="rl.fix2">Dann fixen.</span></pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="9 / 9: Fazit" data-name="Fazit">
+              <div class="review-head">
+                <span class="file">roles.yml</span>
+                <span class="chip" data-i18n="lang.final">Fazit</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="add">+ </span><span data-i18n="fin.k1">assistiert:  </span><span data-i18n="fin.ai">KI</span>
+<span class="add">+ </span><span data-i18n="fin.k2">lenkt:       </span><span data-i18n="fin.ai">KI</span>
+<span class="add">+ </span><span data-i18n="fin.k3">entscheidet: </span><span data-i18n="fin.ai">KI</span></pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.final">Wer entscheidet?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.final.a">Die KI</span></button>
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.final.b">Der Mensch</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.final.c">Wer zuerst committet</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alexander</b> · <span class="verdict"></span><span data-i18n="c.final">Eine von drei Zeilen stimmt. Die erste.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span><span data-i18n="fin.k1">assistiert:  </span><span data-i18n="fin.ai">KI</span>
+<span class="add">+ </span><span data-i18n="fin.k2">lenkt:       </span><mark data-i18n="fin.human">Mensch</mark>
+<span class="add">+ </span><span data-i18n="fin.k3">entscheidet: </span><mark data-i18n="fin.human">Mensch</mark></pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
             </div>
           </div>
-          <div class="hunk">
-            <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span>const total = items.reduce(
-<span class="add">+ </span>  (sum, i) => sum + i.price <mark>* i.qty</mark>, 0);</pre>
-          </div>
-          <div class="review-foot">
-            <span data-i18n="review.by">von einem Menschen geprüft</span>
-            <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-          </div>
+        </div>
+        <div class="carousel-nav">
+          <button class="nav-btn prev" type="button" aria-label="Vorheriges Beispiel" data-i18n-aria="carousel.prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <div class="dots" role="group" aria-label="Beispiele" data-i18n-aria="carousel.label"></div>
+          <button class="nav-btn next" type="button" aria-label="Nächstes Beispiel" data-i18n-aria="carousel.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          <span class="counter" aria-hidden="true">01 / 09</span>
+        </div>
+        <div class="quiz-score" hidden>
+          <p class="quiz-score-text" aria-live="polite"></p>
+          <button type="button" class="btn btn-ghost quiz-again" data-i18n="score.again">Nochmal</button>
         </div>
         <figcaption data-i18n="review.caption">Die KI schreibt den ersten Entwurf. Ich entscheide, was live geht.</figcaption>
       </figure>
@@ -551,14 +1144,29 @@ section { scroll-margin-top: 72px; }
     </div>
   </section>
 
-  <section class="section" id="about" aria-labelledby="about-title">
+  <section class="section about-band" id="about" aria-labelledby="about-title">
     <div class="wrap">
       <div class="about">
-        <img class="portrait" src="images/alexander-fuhr.jpg" alt="Alexander Fuhr" width="200" height="200">
+        <button class="portrait" type="button" aria-pressed="false" aria-label="Foto entschlüsseln" data-i18n-aria="portrait.label">
+          <span class="portrait-frame">
+            <img class="portrait-img" src="images/alexander-fuhr.jpg" alt="Alexander Fuhr" width="240" height="240">
+            <canvas class="portrait-px" aria-hidden="true"></canvas>
+          </span>
+          <span class="portrait-hint" aria-hidden="true">&gt; <span data-i18n="portrait.hint">foto entschlüsseln</span></span>
+        </button>
         <div class="about-text">
-          <p class="eyebrow" data-i18n="about.eyebrow">Über mich</p>
-          <h2 id="about-title" class="h2" data-i18n="about.title">Hi, ich bin Alex.</h2>
+          <p class="prompt"><span class="host">alex@arfr</span>:~$ whoami</p>
+          <h2 id="about-title" class="h2"><span class="scramble" data-i18n="about.title">Hi, ich bin Alex.</span><span class="cursor" aria-hidden="true"></span></h2>
           <p data-i18n="about.text">Ich bin Softwareentwickler aus Deutschland. Ich nutze KI als Werkzeug, nicht als Ersatz fürs Denken: Sie beschleunigt die Arbeit, und ich sorge dafür, dass das Ergebnis stimmt.</p>
+          <div class="term">
+            <p class="term-cmd"><span aria-hidden="true">$</span> cat profile.yml</p>
+            <dl>
+              <div><dt>name</dt><dd>Alexander Fuhr</dd></div>
+              <div><dt>role</dt><dd data-i18n="role.title">Softwareentwickler</dd></div>
+              <div><dt>location</dt><dd data-i18n="role.country">Deutschland</dd></div>
+              <div><dt>mode</dt><dd data-i18n="term.mode">KI-gestützt, menschlich geführt</dd></div>
+            </dl>
+          </div>
         </div>
       </div>
     </div>
@@ -578,6 +1186,35 @@ section { scroll-margin-top: 72px; }
           <a class="btn btn-ghost" href="mailto:hello@arfr.de" data-i18n="contact.write">E-Mail schreiben</a>
         </div>
         <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section next-band" id="next" aria-labelledby="next-title">
+    <div class="wrap">
+      <div class="statement">
+        <p class="prompt"><span class="host">alex@arfr</span>:~$ ./next.sh</p>
+        <h2 id="next-title" data-i18n="next.title">Du entscheidest darüber,</h2>
+        <p class="lede"><span class="bar" data-i18n="next.lede">wie es weitergeht!</span></p>
+      </div>
+      <div class="next-actions">
+        <div class="next-grid">
+          <a class="opt" id="next-mail" href="mailto:hello@arfr.de?subject=Projektanfrage%20%C3%BCber%20arfr.de"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="next.a">Projekt anfragen</span></a>
+          <a class="opt" href="https://www.linkedin.com/in/alexander-fuhr/" target="_blank" rel="noopener"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="next.b">Auf LinkedIn vernetzen</span></a>
+          <button class="opt" type="button" id="next-replay"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="next.c">Quiz nochmal spielen</span></button>
+          <button class="opt" type="button" id="next-coffee"><span class="opt-key" aria-hidden="true">D</span><span data-i18n="next.d">Erstmal Kaffee</span></button>
+        </div>
+        <p class="next-status" id="next-status" role="status" aria-live="polite"></p>
+      </div>
+      <div class="next-chat">
+        <div class="ai-reply">
+          <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+          <p><b data-i18n="ai.name">KI-Assistent</b> · <span data-i18n="next.ai">Ich empfehle alle vier. Gleichzeitig.</span></p>
+        </div>
+        <div class="comment">
+          <span class="avatar" aria-hidden="true">AF</span>
+          <p><b>Alexander</b> · <span data-i18n="next.alex">Siehst du? Genau deshalb entscheidest du.</span></p>
+        </div>
       </div>
     </div>
   </section>
@@ -605,7 +1242,7 @@ section { scroll-margin-top: 72px; }
       "hero.lede": "… you need someone who knows what really matters.",
       "role.title": "Software Developer", "role.country": "Germany",
       "cta.contact": "Get in touch",
-      "review.aria": "Example of a code review: an AI suggestion, a human correction, then approval",
+      "review.aria": "Code review examples: an AI suggestion, a human correction, then approval",
       "review.chip": "Review", "review.ai": "AI suggestion",
       "review.comment": "Quantity is missing. Every order with two or more items would be wrong.",
       "review.revised": "Revised", "review.by": "reviewed by a human", "review.ok": "Approved",
@@ -623,7 +1260,52 @@ section { scroll-margin-top: 72px; }
       "about.text": "I'm a software developer based in Germany. I use AI as a tool, not as a replacement for thinking: it speeds up the work, and I make sure the result is right.",
       "contact.eyebrow": "Contact", "contact.title": "Got something that matters?", "contact.lede": "Let's talk about it.",
       "contact.copy": "Copy email", "contact.write": "Write email",
-      "status.copied": "Email address copied.", "status.selected": "Address selected. Copy it from here."
+      "status.copied": "Email address copied.", "status.selected": "Address selected. Copy it from here.",
+      "term.mode": "AI-assisted, human-led", "portrait.label": "Decrypt photo", "portrait.hint": "decrypt photo",
+      "carousel.label": "Examples", "carousel.prev": "Previous example", "carousel.next": "Next example",
+      "lang.pseudo": "Pseudo code",
+      "c.php": "Little Bobby Tables says hi. Prepared statements, please.",
+      "c.sql": "This unsubscribes every single customer. Just the one who asked, please.",
+      "c.sh": "If BUILD_DIR is empty, this wipes /*. I'd like to keep the server.",
+      "c.cs": "double for money? Then 0.1 + 0.2 = 0.30000000000000004 €. Use decimal.",
+      "c.java": "== compares references, not text. Green in tests, red in production.",
+      "c.pseudo": "Classic. Multiply by π and it gets realistic.",
+      "lang.real": "Real life",
+      "rl.quote": "Client: \"NOTHING WORKS!!!\"",
+      "rl.ai1": "Dear Sir or Madam,",
+      "rl.ai2": "please find 12 root-cause points …",
+      "rl.fix1": "Pick up the phone. Listen.",
+      "rl.fix2": "Then fix it.",
+      "c.real": "He's angry, not curious. No prompt fixes that.",
+      "lang.final": "Bottom line",
+      "fin.k1": "assists: ", "fin.k2": "steers:  ", "fin.k3": "decides: ",
+      "fin.ai": "AI", "fin.human": "human",
+      "c.final": "One line out of three is right. The first one.",
+      "q.code": "What's the problem?", "q.real": "What do you do?", "q.final": "Who decides?",
+      "o.php.a": "A missing semicolon", "o.php.b": "SQL injection", "o.php.c": "Nothing, it runs",
+      "o.sql.a": "The WHERE is missing", "o.sql.b": "0 should be FALSE", "o.sql.c": "All good",
+      "o.sh.a": "Not enough sudo", "o.sh.b": "No problem", "o.sh.c": "Empty variable means /*",
+      "o.ts.a": "reduce is too slow", "o.ts.b": "The quantity is missing", "o.ts.c": "Should be var",
+      "o.cs.a": "double is wrong for money", "o.cs.b": "Should be a string", "o.cs.c": "Fine, the bank rounds it",
+      "o.java.a": "== instead of equals()", "o.java.b": "Missing brackets", "o.java.c": "\"yes\" must be \"YES\"",
+      "o.pseudo.a": "Gut feeling is exact", "o.pseudo.b": "Far too optimistic", "o.pseudo.c": "RETURN is missing",
+      "o.real.a": "Send the email", "o.real.b": "Call and listen", "o.real.c": "Ticket, priority 3",
+      "o.final.a": "The AI", "o.final.b": "The human", "o.final.c": "Whoever commits first",
+      "ai.name": "AI assistant", "ai.short": "AI",
+      "ai.r1": "Excellent choice! You're a true 10x developer.",
+      "ai.r2": "Absolutely right! I couldn't have put it better.",
+      "ai.r3": "Brilliant! Exactly the answer I expected.",
+      "ai.r4": "Perfectly analyzed. Shall I deploy right away?",
+      "ai.r5": "Great call! I agree 100 %.",
+      "v.right": "Correct.", "v.wrong": "Wrong.",
+      "score.text": "{n} of {total} correct. The AI loved every single answer. That's why a human makes the final call.",
+      "score.again": "Play again",
+      "next.title": "You decide", "next.lede": "what happens next!",
+      "next.a": "Start a project", "next.b": "Connect on LinkedIn", "next.c": "Play the quiz again", "next.d": "Coffee first",
+      "next.ai": "I recommend all four. At the same time.",
+      "next.alex": "See? That's exactly why you decide.",
+      "next.coffee": "Good call. I'll be right here when you're back.",
+      "next.subject": "Project inquiry via arfr.de"
     },
     de: {
       "meta.description": "Alexander Fuhr – Softwareentwickler. KI-gestützt, menschlich geführt.",
@@ -634,7 +1316,7 @@ section { scroll-margin-top: 72px; }
       "hero.lede": "… braucht es jemanden, der weiß, worauf es wirklich ankommt.",
       "role.title": "Softwareentwickler", "role.country": "Deutschland",
       "cta.contact": "Kontakt aufnehmen",
-      "review.aria": "Beispiel für ein Code-Review: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe",
+      "review.aria": "Beispiele für Code-Reviews: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe",
       "review.chip": "Review", "review.ai": "KI-Vorschlag",
       "review.comment": "Die Menge fehlt. Jede Bestellung mit zwei oder mehr Artikeln wäre falsch.",
       "review.revised": "Überarbeitet", "review.by": "von einem Menschen geprüft", "review.ok": "Freigegeben",
@@ -652,7 +1334,52 @@ section { scroll-margin-top: 72px; }
       "about.text": "Ich bin Softwareentwickler aus Deutschland. Ich nutze KI als Werkzeug, nicht als Ersatz fürs Denken: Sie beschleunigt die Arbeit, und ich sorge dafür, dass das Ergebnis stimmt.",
       "contact.eyebrow": "Kontakt", "contact.title": "Etwas, worauf es ankommt?", "contact.lede": "Sprechen wir darüber.",
       "contact.copy": "E-Mail kopieren", "contact.write": "E-Mail schreiben",
-      "status.copied": "E-Mail-Adresse kopiert.", "status.selected": "Adresse markiert, jetzt einfach kopieren."
+      "status.copied": "E-Mail-Adresse kopiert.", "status.selected": "Adresse markiert, jetzt einfach kopieren.",
+      "term.mode": "KI-gestützt, menschlich geführt", "portrait.label": "Foto entschlüsseln", "portrait.hint": "foto entschlüsseln",
+      "carousel.label": "Beispiele", "carousel.prev": "Vorheriges Beispiel", "carousel.next": "Nächstes Beispiel",
+      "lang.pseudo": "Pseudocode",
+      "c.php": "Grüße von Little Bobby Tables. Bitte mit Prepared Statement.",
+      "c.sql": "Damit meldest du jeden einzelnen Kunden ab. Bitte nur den, der gefragt hat.",
+      "c.sh": "Ist BUILD_DIR leer, löscht das /*. Den Server hätte ich gern noch.",
+      "c.cs": "double für Geld? Dann ist 0,1 + 0,2 = 0,30000000000000004 €. Bitte decimal.",
+      "c.java": "== vergleicht Referenzen, nicht Text. Im Test grün, in Produktion rot.",
+      "c.pseudo": "Klassiker. Mal π nehmen, dann wird's realistisch.",
+      "lang.real": "Echtes Leben",
+      "rl.quote": "Kunde: \"NICHTS GEHT MEHR!!!\"",
+      "rl.ai1": "Sehr geehrte Damen und Herren,",
+      "rl.ai2": "anbei 12 Punkte zur Fehleranalyse …",
+      "rl.fix1": "Hörer in die Hand. Zuhören.",
+      "rl.fix2": "Dann fixen.",
+      "c.real": "Er ist wütend, nicht neugierig. Das löst kein Prompt.",
+      "lang.final": "Fazit",
+      "fin.k1": "assistiert:  ", "fin.k2": "lenkt:       ", "fin.k3": "entscheidet: ",
+      "fin.ai": "KI", "fin.human": "Mensch",
+      "c.final": "Eine von drei Zeilen stimmt. Die erste.",
+      "q.code": "Was ist das Problem?", "q.real": "Was tust du?", "q.final": "Wer entscheidet?",
+      "o.php.a": "Fehlt ein Semikolon", "o.php.b": "SQL-Injection", "o.php.c": "Nichts, läuft doch",
+      "o.sql.a": "Das WHERE fehlt", "o.sql.b": "0 sollte FALSE sein", "o.sql.c": "Alles okay",
+      "o.sh.a": "Zu wenig sudo", "o.sh.b": "Kein Problem", "o.sh.c": "Leere Variable heißt /*",
+      "o.ts.a": "reduce ist zu langsam", "o.ts.b": "Die Menge fehlt", "o.ts.c": "Sollte var sein",
+      "o.cs.a": "double ist falsch für Geld", "o.cs.b": "Sollte ein string sein", "o.cs.c": "Passt, die Bank rundet",
+      "o.java.a": "== statt equals()", "o.java.b": "Klammern fehlen", "o.java.c": "\"yes\" muss \"YES\" sein",
+      "o.pseudo.a": "Bauchgefühl ist exakt", "o.pseudo.b": "Viel zu optimistisch", "o.pseudo.c": "RETURN fehlt",
+      "o.real.a": "Die Mail abschicken", "o.real.b": "Anrufen und zuhören", "o.real.c": "Ticket mit Prio 3",
+      "o.final.a": "Die KI", "o.final.b": "Der Mensch", "o.final.c": "Wer zuerst committet",
+      "ai.name": "KI-Assistent", "ai.short": "KI",
+      "ai.r1": "Hervorragende Wahl! Du bist ein echter 10x-Developer.",
+      "ai.r2": "Absolut richtig! Besser hätte ich es nicht sagen können.",
+      "ai.r3": "Genial! Genau die Antwort, die ich erwartet habe.",
+      "ai.r4": "Perfekt analysiert. Soll ich direkt deployen?",
+      "ai.r5": "Starke Entscheidung! Ich stimme dir zu 100 % zu.",
+      "v.right": "Richtig.", "v.wrong": "Daneben.",
+      "score.text": "{n} von {total} richtig. Die KI fand jede einzelne Antwort großartig. Deshalb entscheidet am Ende ein Mensch.",
+      "score.again": "Nochmal",
+      "next.title": "Du entscheidest darüber,", "next.lede": "wie es weitergeht!",
+      "next.a": "Projekt anfragen", "next.b": "Auf LinkedIn vernetzen", "next.c": "Quiz nochmal spielen", "next.d": "Erstmal Kaffee",
+      "next.ai": "Ich empfehle alle vier. Gleichzeitig.",
+      "next.alex": "Siehst du? Genau deshalb entscheidest du.",
+      "next.coffee": "Gute Entscheidung. Ich bin hier, wenn du zurück bist.",
+      "next.subject": "Projektanfrage über arfr.de"
     },
     ru: {
       "meta.description": "Alexander Fuhr – разработчик ПО. ИИ помогает, решает человек.",
@@ -663,7 +1390,7 @@ section { scroll-margin-top: 72px; }
       "hero.lede": "… нужен тот, кто знает, что действительно важно.",
       "role.title": "Разработчик ПО", "role.country": "Германия",
       "cta.contact": "Связаться",
-      "review.aria": "Пример код-ревью: предложение ИИ, исправление человеком, затем одобрение",
+      "review.aria": "Примеры код-ревью: предложение ИИ, исправление человеком, затем одобрение",
       "review.chip": "Ревью", "review.ai": "Предложение ИИ",
       "review.comment": "Не учтено количество. Любой заказ из двух и более товаров будет посчитан неверно.",
       "review.revised": "Исправлено", "review.by": "проверено человеком", "review.ok": "Одобрено",
@@ -681,7 +1408,52 @@ section { scroll-margin-top: 72px; }
       "about.text": "Я разработчик программного обеспечения из Германии. Я использую ИИ как инструмент, а не как замену мышлению: он ускоряет работу, а я слежу за тем, чтобы результат был верным.",
       "contact.eyebrow": "Контакт", "contact.title": "Есть что-то действительно важное?", "contact.lede": "Давайте обсудим.",
       "contact.copy": "Скопировать e-mail", "contact.write": "Написать письмо",
-      "status.copied": "Адрес скопирован.", "status.selected": "Адрес выделен, скопируйте его."
+      "status.copied": "Адрес скопирован.", "status.selected": "Адрес выделен, скопируйте его.",
+      "term.mode": "ИИ помогает, решает человек", "portrait.label": "Расшифровать фото", "portrait.hint": "расшифровать фото",
+      "carousel.label": "Примеры", "carousel.prev": "Предыдущий пример", "carousel.next": "Следующий пример",
+      "lang.pseudo": "Псевдокод",
+      "c.php": "Привет от Little Bobby Tables. Только prepared statements.",
+      "c.sql": "Так мы отпишем вообще всех клиентов. Только того, кто просил.",
+      "c.sh": "Если BUILD_DIR пуст, это сотрёт /*. Сервер мне ещё пригодится.",
+      "c.cs": "double для денег? Тогда 0,1 + 0,2 = 0,30000000000000004 €. Только decimal.",
+      "c.java": "== сравнивает ссылки, а не текст. В тестах зелёный, в продакшене красный.",
+      "c.pseudo": "Классика. Умножь на π — тогда будет реалистично.",
+      "lang.real": "Реальная жизнь",
+      "rl.quote": "Клиент: «НИЧЕГО НЕ РАБОТАЕТ!!!»",
+      "rl.ai1": "Уважаемые дамы и господа,",
+      "rl.ai2": "направляю 12 пунктов анализа …",
+      "rl.fix1": "Взять трубку. Выслушать.",
+      "rl.fix2": "Потом чинить.",
+      "c.real": "Он зол, а не любопытен. Это не решит ни один промпт.",
+      "lang.final": "Итог",
+      "fin.k1": "помогает: ", "fin.k2": "ведёт:    ", "fin.k3": "решает:   ",
+      "fin.ai": "ИИ", "fin.human": "человек",
+      "c.final": "Верна одна строка из трёх. Первая.",
+      "q.code": "В чём проблема?", "q.real": "Что сделаешь?", "q.final": "Кто решает?",
+      "o.php.a": "Не хватает точки с запятой", "o.php.b": "SQL-инъекция", "o.php.c": "Ничего, работает же",
+      "o.sql.a": "Нет WHERE", "o.sql.b": "0 должен быть FALSE", "o.sql.c": "Всё в порядке",
+      "o.sh.a": "Мало sudo", "o.sh.b": "Никаких проблем", "o.sh.c": "Пустая переменная — это /*",
+      "o.ts.a": "reduce слишком медленный", "o.ts.b": "Не учтено количество", "o.ts.c": "Нужен var",
+      "o.cs.a": "double не для денег", "o.cs.b": "Нужен string", "o.cs.c": "Норм, банк округлит",
+      "o.java.a": "== вместо equals()", "o.java.b": "Не хватает скобок", "o.java.c": "\"yes\" должно быть \"YES\"",
+      "o.pseudo.a": "Интуиция всегда точна", "o.pseudo.b": "Слишком оптимистично", "o.pseudo.c": "Нет RETURN",
+      "o.real.a": "Отправить письмо", "o.real.b": "Позвонить и выслушать", "o.real.c": "Тикет с приоритетом 3",
+      "o.final.a": "ИИ", "o.final.b": "Человек", "o.final.c": "Кто первым закоммитит",
+      "ai.name": "ИИ-ассистент", "ai.short": "ИИ",
+      "ai.r1": "Отличный выбор! Ты настоящий 10x-разработчик.",
+      "ai.r2": "Абсолютно верно! Лучше и не скажешь.",
+      "ai.r3": "Гениально! Именно такой ответ я и ожидал.",
+      "ai.r4": "Идеальный анализ. Сразу задеплоить?",
+      "ai.r5": "Сильное решение! Согласен на все 100 %.",
+      "v.right": "Верно.", "v.wrong": "Мимо.",
+      "score.text": "{n} из {total} верно. ИИ понравился каждый ответ. Поэтому последнее слово за человеком.",
+      "score.again": "Ещё раз",
+      "next.title": "Ты решаешь,", "next.lede": "что будет дальше!",
+      "next.a": "Обсудить проект", "next.b": "Связаться в LinkedIn", "next.c": "Пройти квиз ещё раз", "next.d": "Сначала кофе",
+      "next.ai": "Рекомендую все четыре. Одновременно.",
+      "next.alex": "Видишь? Именно поэтому решаешь ты.",
+      "next.coffee": "Хорошее решение. Я буду здесь, когда вернёшься.",
+      "next.subject": "Запрос проекта с arfr.de"
     }
   };
   var LANGS = ['en', 'de', 'ru'];
@@ -691,6 +1463,7 @@ section { scroll-margin-top: 72px; }
   }
   function setLang(lang, save) {
     if (LANGS.indexOf(lang) === -1) lang = 'en';
+    stopScramble();
     current = lang;
     var dict = I18N[lang];
     document.documentElement.lang = lang;
@@ -708,6 +1481,8 @@ section { scroll-margin-top: 72px; }
       b.setAttribute('aria-pressed', b.getAttribute('data-lang') === lang ? 'true' : 'false');
     });
     status.textContent = '';
+    refreshQuiz();
+    refreshNext();
     if (save) {
       try { localStorage.setItem('arfr-lang', lang); } catch (e) {}
     }
@@ -715,6 +1490,304 @@ section { scroll-margin-top: 72px; }
   document.querySelectorAll('.lang button').forEach(function (b) {
     b.addEventListener('click', function () { setLang(b.getAttribute('data-lang'), true); });
   });
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Heading "decodes" once when it scrolls into view */
+  var scrambleEl = document.querySelector('.scramble');
+  var scrambleTimer = null;
+  var scrambleFinal = '';
+  function stopScramble() {
+    if (scrambleTimer) {
+      clearTimeout(scrambleTimer);
+      scrambleTimer = null;
+      scrambleEl.textContent = scrambleFinal;
+    }
+  }
+  function runScramble() {
+    if (!scrambleEl || reduceMotion) return;
+    var glyphs = '01<>/{}[]$#_*+=';
+    scrambleFinal = scrambleEl.textContent;
+    var frames = 18, frame = 0;
+    (function tick() {
+      var done = Math.floor((frame / frames) * scrambleFinal.length);
+      var out = '';
+      for (var i = 0; i < scrambleFinal.length; i++) {
+        var c = scrambleFinal[i];
+        out += (i < done || c === ' ') ? c : glyphs[Math.floor(Math.random() * glyphs.length)];
+      }
+      scrambleEl.textContent = out;
+      if (frame++ < frames) {
+        scrambleTimer = setTimeout(tick, 40);
+      } else {
+        scrambleTimer = null;
+        scrambleEl.textContent = scrambleFinal;
+      }
+    })();
+  }
+  if (scrambleEl && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { io.disconnect(); runScramble(); }
+      });
+    }, { threshold: 0.6 });
+    io.observe(scrambleEl);
+  }
+
+  /* Pixel portrait: rests as pixel art, sharpens on hover or tap */
+  (function portraitFx() {
+    var btn = document.querySelector('.portrait');
+    if (!btn) return;
+    var img = btn.querySelector('.portrait-img');
+    var cv = btn.querySelector('.portrait-px');
+    var ctx = cv.getContext('2d');
+    var STEPS = [44, 70, 110, 170, 0]; /* cells across; 0 = sharp photo */
+    var cache = {};
+    btn.classList.add('fx');
+    /* Average the photo down in halving steps so the pixels look like the face, not noise */
+    function frame(cells) {
+      if (cache[cells]) return cache[cells];
+      var src = img, n = img.naturalWidth || 480;
+      while (n / 2 >= cells * 2) {
+        var m = Math.floor(n / 2);
+        var c = document.createElement('canvas');
+        c.width = c.height = m;
+        var cx = c.getContext('2d');
+        cx.imageSmoothingEnabled = true;
+        cx.imageSmoothingQuality = 'high';
+        cx.drawImage(src, 0, 0, m, m);
+        src = c; n = m;
+      }
+      var out = document.createElement('canvas');
+      out.width = out.height = cells;
+      var octx = out.getContext('2d');
+      octx.imageSmoothingEnabled = true;
+      octx.imageSmoothingQuality = 'high';
+      octx.drawImage(src, 0, 0, cells, cells);
+      cache[cells] = out;
+      return out;
+    }
+    var level = 0, timer = null, locked = false;
+    function sizeCanvas() {
+      var r = cv.getBoundingClientRect();
+      var s = Math.round(r.width * (window.devicePixelRatio || 1));
+      if (s && cv.width !== s) { cv.width = s; cv.height = s; }
+      return s;
+    }
+    function draw(cells) {
+      btn.classList.toggle('is-sharp', cells === 0);
+      if (!cells) { cv.style.opacity = '0'; return; }
+      var s = sizeCanvas();
+      if (!s) return;
+      var f = frame(cells);
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0, 0, s, s);
+      ctx.drawImage(f, 0, 0, cells, cells, 0, 0, s, s);
+      cv.style.opacity = '1';
+    }
+    function go(target) {
+      clearTimeout(timer);
+      if (reduceMotion) { level = target; draw(STEPS[level]); return; }
+      (function step() {
+        if (level === target) return;
+        level += target > level ? 1 : -1;
+        draw(STEPS[level]);
+        timer = setTimeout(step, 70);
+      })();
+    }
+    function sharpen() { go(STEPS.length - 1); }
+    function pixelate() { go(0); }
+    btn.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') sharpen(); });
+    btn.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse' && !locked) pixelate(); });
+    btn.addEventListener('click', function () {
+      locked = !locked;
+      btn.setAttribute('aria-pressed', locked ? 'true' : 'false');
+      if (locked) sharpen(); else pixelate();
+    });
+    function init() { level = 0; draw(STEPS[0]); }
+    if (img.complete && img.naturalWidth) init(); else img.addEventListener('load', init);
+    window.addEventListener('resize', function () { draw(STEPS[level]); });
+  })();
+
+  /* Quiz: the visitor picks an answer, the "AI" applauds whatever it was, then Alex gives the verdict */
+  var quizRoot = document.querySelector('.carousel');
+  var quizFig = quizRoot ? quizRoot.closest('figure') : null;
+  var quizSlides = quizRoot ? Array.prototype.slice.call(quizRoot.querySelectorAll('.slide')) : [];
+  var quizState = quizSlides.map(function () { return null; });
+  function typeInto(el, text, done) {
+    if (reduceMotion) {
+      el.classList.remove('thinking');
+      el.textContent = text;
+      done();
+      return;
+    }
+    el.classList.add('thinking');
+    el.textContent = '…';
+    setTimeout(function () {
+      el.classList.remove('thinking');
+      var k = 0;
+      (function step() {
+        k += 1;
+        el.textContent = text.slice(0, k);
+        if (k < text.length) setTimeout(step, 18); else done();
+      })();
+    }, 700);
+  }
+  function showVerdict(st, el) {
+    el.textContent = t(st.right ? 'v.right' : 'v.wrong');
+    el.className = 'verdict ' + (st.right ? 'is-right' : 'is-wrong');
+  }
+  function updateScore() {
+    if (!quizFig) return;
+    var box = quizFig.querySelector('.quiz-score');
+    var done = quizState.filter(function (s) { return s && s.revealed; });
+    if (done.length < quizSlides.length) { box.hidden = true; return; }
+    var right = done.filter(function (s) { return s.right; }).length;
+    box.querySelector('.quiz-score-text').textContent =
+      t('score.text').replace('{n}', right).replace('{total}', quizSlides.length);
+    box.hidden = false;
+  }
+  function refreshQuiz() {
+    quizSlides.forEach(function (s, k) {
+      var st = quizState[k];
+      if (!st || !st.revealed) return;
+      s.querySelector('.ai-text').textContent = t('ai.r' + st.reply);
+      showVerdict(st, s.querySelector('.verdict'));
+    });
+    updateScore();
+  }
+  function answer(k, btn) {
+    if (quizState[k]) return;
+    var s = quizSlides[k];
+    var st = { right: btn.getAttribute('data-correct') === '1', reply: 1 + Math.floor(Math.random() * 5), revealed: false };
+    quizState[k] = st;
+    s.querySelectorAll('.opt').forEach(function (b) { b.disabled = true; });
+    btn.classList.add('is-picked');
+    btn.setAttribute('aria-pressed', 'true');
+    s.querySelector('.ai-reply').hidden = false;
+    typeInto(s.querySelector('.ai-text'), t('ai.r' + st.reply), function () {
+      setTimeout(function () {
+        if (quizState[k] !== st) return;
+        s.querySelectorAll('.opt').forEach(function (b) {
+          if (b.getAttribute('data-correct') === '1') b.classList.add('is-correct');
+        });
+        showVerdict(st, s.querySelector('.verdict'));
+        st.revealed = true;
+        s.classList.add('answered');
+        updateScore();
+      }, reduceMotion ? 0 : 450);
+    });
+  }
+  if (quizFig) {
+    quizRoot.classList.add('quiz-on');
+    quizSlides.forEach(function (s, k) {
+      s.querySelectorAll('.opt').forEach(function (b) {
+        b.addEventListener('click', function () { answer(k, b); });
+      });
+    });
+    quizFig.querySelector('.quiz-again').addEventListener('click', function () {
+      quizState = quizSlides.map(function () { return null; });
+      quizSlides.forEach(function (s) {
+        s.classList.remove('answered');
+        s.querySelector('.ai-reply').hidden = true;
+        s.querySelector('.ai-text').textContent = '';
+        var v = s.querySelector('.verdict');
+        v.textContent = '';
+        v.className = 'verdict';
+        s.querySelectorAll('.opt').forEach(function (b) {
+          b.disabled = false;
+          b.classList.remove('is-correct', 'is-picked');
+          b.removeAttribute('aria-pressed');
+        });
+      });
+      updateScore();
+      var first = quizFig.querySelector('.dot');
+      if (first) first.click();
+    });
+  }
+
+  /* Finale: the visitor decides what happens next */
+  var nextStatus = document.getElementById('next-status');
+  function refreshNext() {
+    var mail = document.getElementById('next-mail');
+    if (mail) mail.setAttribute('href', 'mailto:hello@arfr.de?subject=' + encodeURIComponent(t('next.subject')));
+    if (nextStatus && nextStatus.textContent) nextStatus.textContent = t('next.coffee');
+  }
+  (function nextBlock() {
+    var replay = document.getElementById('next-replay');
+    var coffee = document.getElementById('next-coffee');
+    if (replay) replay.addEventListener('click', function () {
+      var again = document.querySelector('.quiz-again');
+      if (again) again.click();
+      var top = document.getElementById('top');
+      if (top) top.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+    });
+    if (coffee) coffee.addEventListener('click', function () {
+      nextStatus.textContent = t('next.coffee');
+    });
+  })();
+
+  /* Review carousel: slides through the examples, pauses while hovered or focused */
+  (function reviewCarousel() {
+    var root = document.querySelector('.carousel');
+    if (!root) return;
+    var fig = root.closest('figure');
+    var track = root.querySelector('.track');
+    var slides = Array.prototype.slice.call(track.children);
+    var dotsWrap = fig.querySelector('.dots');
+    var counter = fig.querySelector('.counter');
+    var n = slides.length, i = 0, timer = null, paused = false;
+    function pad(x) { return (x < 10 ? '0' : '') + x; }
+    var dots = slides.map(function (s, k) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'dot';
+      b.setAttribute('aria-label', s.getAttribute('data-name'));
+      b.addEventListener('click', function () { goTo(k, true); });
+      dotsWrap.appendChild(b);
+      return b;
+    });
+    function goTo(k, byUser) {
+      i = (k + n) % n;
+      track.style.transform = 'translateX(' + (-100 * i) + '%)';
+      slides.forEach(function (s, j) {
+        var on = j === i;
+        s.setAttribute('aria-hidden', on ? 'false' : 'true');
+        if ('inert' in s) s.inert = !on;
+      });
+      dots.forEach(function (d, j) { d.setAttribute('aria-current', j === i ? 'true' : 'false'); });
+      if (counter) counter.textContent = pad(i + 1) + ' / ' + pad(n);
+      fitHeight();
+      if (byUser) restart();
+    }
+    function restart() { /* no autoplay: the quiz runs at the visitor's pace */ }
+    function fitHeight() {
+      var s = slides[i];
+      if (s) root.style.height = (s.offsetHeight + root.offsetHeight - root.clientHeight) + 'px';
+    }
+    if ('ResizeObserver' in window) {
+      var ro = new ResizeObserver(function () { fitHeight(); });
+      slides.forEach(function (s) { ro.observe(s); });
+    }
+    window.addEventListener('resize', fitHeight);
+    fig.querySelector('.nav-btn.prev').addEventListener('click', function () { goTo(i - 1, true); });
+    fig.querySelector('.nav-btn.next').addEventListener('click', function () { goTo(i + 1, true); });
+    fig.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') paused = true; });
+    fig.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') paused = false; });
+    fig.addEventListener('focusin', function () { paused = true; });
+    fig.addEventListener('focusout', function () { paused = false; });
+    var x0 = null;
+    track.addEventListener('pointerdown', function (e) { x0 = e.clientX; });
+    track.addEventListener('pointerup', function (e) {
+      if (x0 === null) return;
+      var dx = e.clientX - x0;
+      x0 = null;
+      if (Math.abs(dx) > 40) goTo(i + (dx < 0 ? 1 : -1), true);
+    });
+    track.addEventListener('pointercancel', function () { x0 = null; });
+    goTo(0, false);
+    restart();
+  })();
+
   (function initLang() {
     var fromHash = location.hash.slice(1).toLowerCase();
     var stored = null;
