@@ -580,6 +580,12 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
 /* options, the coffee reply and the comment thread read as one group */
 .next-actions { display: flex; flex-direction: column; gap: 14px; max-width: 760px; }
 .next-status:empty { display: none; }
+@media (min-width: 900px) {
+  .next-actions { max-width: none; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 14px clamp(32px, 4vw, 64px); align-items: start; }
+  .next-actions .next-grid { grid-column: 1; grid-template-columns: minmax(0, 1fr); }
+  .next-actions .next-status { grid-column: 1; }
+  .next-actions .next-chat { grid-column: 2; grid-row: 1 / span 2; max-width: none; }
+}
 .next-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 @media (max-width: 560px) { .next-grid { grid-template-columns: minmax(0, 1fr); } }
 .next-band .opt {
@@ -963,8 +969,8 @@ section { scroll-margin-top: 72px; }
 .term {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 16px 18px;
+  gap: 8px;
+  padding: 20px 22px;
   background: var(--term-surface);
   border: 1px solid var(--term-line);
   border-radius: 6px;
@@ -976,9 +982,11 @@ section { scroll-margin-top: 72px; }
 .about-band .about-text .term-cmd { color: var(--term-muted); }
 .term dl { margin: 0; display: flex; flex-direction: column; gap: 2px; }
 .term dl div { display: flex; flex-wrap: wrap; gap: 0 1ch; }
-.term dt { color: var(--term-muted); min-width: 9ch; }
+.term dt { color: var(--term-muted); min-width: 10ch; }
 .term dt::after { content: ":"; }
 .term dd { margin: 0; color: var(--term-fg); min-width: 0; }
+.term-link { color: var(--term-accent); text-decoration: none; }
+.term-link:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 .portrait {
   appearance: none;
@@ -1225,7 +1233,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         </div>
       </div>
 
-      <figure class="review" aria-label="Beispiele für Code-Reviews: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe" data-i18n-aria="review.aria">
+      <figure class="review" data-ui aria-label="Beispiele für Code-Reviews: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe" data-i18n-aria="review.aria">
         <div class="review-card carousel" aria-roledescription="carousel">
           <div class="track">
             <div class="slide" role="group" aria-roledescription="slide" aria-label="1 / 9: PHP" data-name="PHP">
@@ -1603,11 +1611,14 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
           <p class="prompt"><span class="host">alex@arfr</span>:~$ <span class="cmd">whoami</span></p>
           <h2 id="about-title" class="h2"><span class="scramble" data-i18n="about.title">Hi, ich bin Alex.</span><span class="cursor" aria-hidden="true"></span></h2>
           <p data-i18n="about.text">Ich bin Softwareentwickler. Ich nutze KI als Werkzeug, nicht als Ersatz fürs Denken: Sie beschleunigt die Arbeit, und ich sorge dafür, dass das Ergebnis stimmt.</p>
-          <div class="term">
+          <div class="term" data-ui>
             <p class="term-cmd"><span aria-hidden="true">$</span> cat profile.yml</p>
             <dl>
               <div><dt>name</dt><dd>Alexander Fuhr</dd></div>
               <div><dt>role</dt><dd data-i18n="role.title">Softwareentwickler</dd></div>
+              <div><dt>workflow</dt><dd data-i18n="profile.workflow">verstehen → bauen → verantworten</dd></div>
+              <div><dt>ai</dt><dd>{ role: assist, decides: false }</dd></div>
+              <div><dt>contact</dt><dd><a class="term-link" href="mailto:hello@arfr.de?subject=Sprechen%20wir%20dar%C3%BCber.">hello@arfr.de</a></dd></div>
             </dl>
           </div>
         </div>
@@ -1654,7 +1665,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
           <button class="opt" type="button" id="next-coffee"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="next.d">Erstmal Kaffee</span></button>
         </div>
         <p class="next-status" id="next-status" role="status" aria-live="polite"></p>
-        <div class="next-chat">
+        <div class="next-chat" data-ui>
           <div class="ai-reply">
             <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
             <p><b data-i18n="ai.name">KI-Assistent</b> · <span data-i18n="next.ai">Ich empfehle alle drei. Gleichzeitig.</span></p>
@@ -1676,7 +1687,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         <p class="lede"><span class="bar" data-i18n="term.lede">Das Terminal gehört dir.</span></p>
       </div>
       <div class="cli-wrap">
-        <div class="cli" id="cli">
+        <div class="cli" id="cli" data-ui>
           <div class="cli-head" aria-hidden="true">
             <span class="cli-dots"><i></i><i></i><i></i></span>
             <span class="cli-title">guest@arfr: ~ — bash — 80×24</span>
@@ -1735,7 +1746,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "approach.cmd": "cat approach.md", "role.tag": "AI-assisted, human-led",
       "hero.title": "When everything gets easy …",
       "hero.lede": "… you need someone who knows what really matters.",
-      "role.title": "Software Developer", "role.country": "Germany",
+      "role.title": "Software Developer", "role.country": "Germany", "profile.workflow": "understand → build → own it",
       "cta.contact": "Get in touch",
       "review.aria": "Code review examples: an AI suggestion, a human correction, then approval",
       "review.chip": "Review", "review.ai": "AI suggestion",
@@ -1865,7 +1876,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "approach.cmd": "cat vorgehen.md", "role.tag": "KI-gestützt, menschlich geführt",
       "hero.title": "Wenn alles einfach wird …",
       "hero.lede": "… braucht es jemanden, der weiß, worauf es wirklich ankommt.",
-      "role.title": "Softwareentwickler", "role.country": "Deutschland",
+      "role.title": "Softwareentwickler", "role.country": "Deutschland", "profile.workflow": "verstehen → bauen → verantworten",
       "cta.contact": "Kontakt aufnehmen",
       "review.aria": "Beispiele für Code-Reviews: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe",
       "review.chip": "Review", "review.ai": "KI-Vorschlag",
@@ -1995,7 +2006,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "approach.cmd": "cat approach.md", "role.tag": "ИИ помогает, решает человек",
       "hero.title": "Когда всё становится просто …",
       "hero.lede": "… нужен тот, кто знает, что действительно важно.",
-      "role.title": "Разработчик ПО", "role.country": "Германия",
+      "role.title": "Разработчик ПО", "role.country": "Германия", "profile.workflow": "понять → сделать → отвечать",
       "cta.contact": "Связаться",
       "review.aria": "Примеры код-ревью: предложение ИИ, исправление человеком, затем одобрение",
       "review.chip": "Ревью", "review.ai": "Предложение ИИ",
