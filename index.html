@@ -156,30 +156,71 @@ a { color: inherit; }
   .nav { display: none; }
 }
 .head-right { display: flex; align-items: center; gap: 12px; }
-.lang {
-  display: flex;
-  gap: 2px;
-  padding: 3px;
+/* Language: globe button with a small dropdown */
+.lang { position: relative; }
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 10px;
   border: 1px solid var(--line);
   border-radius: 6px;
-}
-.lang button {
-  appearance: none;
-  border: 0;
   background: transparent;
-  color: var(--muted);
+  color: var(--fg);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.06em;
-  min-width: 40px;
-  min-height: 34px;
-  padding: 0 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.lang-toggle:hover, .lang-toggle[aria-expanded="true"] { background: var(--surface); border-color: var(--muted); }
+.lang-toggle .globe { width: 18px; height: 18px; }
+.lang-toggle .chev { width: 14px; height: 14px; color: var(--muted); transition: transform 0.15s ease; }
+.lang-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 30;
+  min-width: 180px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+.lang-menu button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 0;
   border-radius: 4px;
+  background: transparent;
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  text-align: left;
   cursor: pointer;
 }
-.lang button:hover { color: var(--fg); background: var(--surface); }
-.lang button[aria-pressed="true"] { background: var(--bar); color: var(--bar-fg); }
+.lang-menu button:hover, .lang-menu button:focus-visible { background: var(--surface); }
+.lang-code { width: 2.6ch; font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.06em; color: var(--muted); }
+.lang-menu button[aria-pressed="true"] { font-weight: 600; }
+.lang-menu button[aria-pressed="true"]::after {
+  content: "";
+  margin-left: auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+@media (prefers-reduced-motion: reduce) { .lang-toggle, .lang-toggle .chev { transition: none; } }
 
 /* Hero */
 /* The hero is a dark neon stage in both themes, on purpose: the glow only works on black */
@@ -1036,10 +1077,17 @@ section { scroll-margin-top: 72px; }
         <a href="#about" data-i18n="nav.about">Über mich</a>
         <a href="#contact" data-i18n="nav.contact">Kontakt</a>
       </nav>
-      <div class="lang" role="group" aria-label="Sprache" data-i18n-aria="lang.label">
-        <button type="button" data-lang="de" lang="de" aria-pressed="true">DE</button>
-        <button type="button" data-lang="en" lang="en" aria-pressed="false">EN</button>
-        <button type="button" data-lang="ru" lang="ru" aria-pressed="false">RU</button>
+      <div class="lang">
+        <button type="button" class="lang-toggle" id="lang-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu" aria-label="Sprache: Deutsch">
+          <svg class="globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M4.6 7.5h14.8M4.6 16.5h14.8"/><path d="M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9s1.3-6.4 3.8-9z"/></svg>
+          <span id="lang-current">DE</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <ul class="lang-menu" id="lang-menu" hidden>
+          <li><button type="button" data-lang="de" lang="de" aria-pressed="true"><span class="lang-code" aria-hidden="true">DE</span>Deutsch</button></li>
+          <li><button type="button" data-lang="en" lang="en" aria-pressed="false"><span class="lang-code" aria-hidden="true">EN</span>English</button></li>
+          <li><button type="button" data-lang="ru" lang="ru" aria-pressed="false"><span class="lang-code" aria-hidden="true">RU</span>Русский</button></li>
+        </ul>
       </div>
     </div>
   </div>
@@ -1547,7 +1595,7 @@ section { scroll-margin-top: 72px; }
 
 <footer class="site-foot">
   <div class="wrap">
-    <a class="foot-link" href="https://arfr.de/">© 2026 Alexander Fuhr</a>
+    <a class="foot-link" href="https://arfr.de/">© 2026 arfr.de</a>
   </div>
 </footer>
 
@@ -1959,9 +2007,14 @@ section { scroll-margin-top: 72px; }
     });
     var meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute('content', dict['meta.description']);
-    document.querySelectorAll('.lang button').forEach(function (b) {
+    document.querySelectorAll('.lang-menu button').forEach(function (b) {
       b.setAttribute('aria-pressed', b.getAttribute('data-lang') === lang ? 'true' : 'false');
     });
+    var langNames = { de: 'Deutsch', en: 'English', ru: 'Русский' };
+    var langCur = document.getElementById('lang-current');
+    if (langCur) langCur.textContent = lang.toUpperCase();
+    var langTog = document.getElementById('lang-toggle');
+    if (langTog) langTog.setAttribute('aria-label', dict['lang.label'] + ': ' + langNames[lang]);
     status.textContent = '';
     refreshQuiz();
     refreshNext();
@@ -1969,9 +2022,47 @@ section { scroll-margin-top: 72px; }
       try { localStorage.setItem('arfr-lang', lang); } catch (e) {}
     }
   }
-  document.querySelectorAll('.lang button').forEach(function (b) {
-    b.addEventListener('click', function () { setLang(b.getAttribute('data-lang'), true); });
-  });
+  /* Globe dropdown */
+  (function langMenu() {
+    var tog = document.getElementById('lang-toggle');
+    var menu = document.getElementById('lang-menu');
+    if (!tog || !menu) return;
+    var opts = Array.prototype.slice.call(menu.querySelectorAll('button'));
+    function openMenu(focusCurrent) {
+      menu.hidden = false;
+      tog.setAttribute('aria-expanded', 'true');
+      if (focusCurrent) (menu.querySelector('button[aria-pressed="true"]') || opts[0]).focus();
+    }
+    function closeMenu(returnFocus) {
+      if (menu.hidden) return;
+      menu.hidden = true;
+      tog.setAttribute('aria-expanded', 'false');
+      if (returnFocus) tog.focus();
+    }
+    tog.addEventListener('click', function () { if (menu.hidden) openMenu(false); else closeMenu(false); });
+    tog.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); openMenu(true); }
+    });
+    opts.forEach(function (b, k) {
+      b.addEventListener('click', function () {
+        setLang(b.getAttribute('data-lang'), true);
+        closeMenu(true);
+      });
+      b.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown') { e.preventDefault(); opts[(k + 1) % opts.length].focus(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); opts[(k - 1 + opts.length) % opts.length].focus(); }
+      });
+    });
+    document.addEventListener('click', function (e) {
+      if (!menu.hidden && !(e.target.closest && e.target.closest('.lang'))) closeMenu(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !menu.hidden) closeMenu(true);
+    });
+    menu.addEventListener('focusout', function (e) {
+      if (!menu.hidden && e.relatedTarget && !e.relatedTarget.closest('.lang')) closeMenu(false);
+    });
+  })();
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* Heading "decodes" once when it scrolls into view */
