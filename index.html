@@ -134,13 +134,13 @@ a { color: inherit; }
 .brand small {
   font-family: var(--font-mono);
   font-weight: 400;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   color: var(--muted);
 }
 .nav { display: flex; gap: 4px; flex-wrap: wrap; }
 .nav a {
   text-decoration: none;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 500;
   padding: 8px 12px;
   border-radius: 4px;
@@ -169,9 +169,9 @@ a { color: inherit; }
   background: transparent;
   color: var(--fg);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
@@ -205,12 +205,12 @@ a { color: inherit; }
   background: transparent;
   color: var(--fg);
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 0.9375rem;
   text-align: left;
   cursor: pointer;
 }
 .lang-menu button:hover, .lang-menu button:focus-visible { background: var(--surface); }
-.lang-code { width: 2.6ch; font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.06em; color: var(--muted); }
+.lang-code { width: 2.8ch; font-family: var(--font-mono); font-size: 0.8125rem; letter-spacing: 0.06em; color: var(--muted); }
 .lang-menu button[aria-pressed="true"] { font-weight: 600; }
 .lang-menu button[aria-pressed="true"]::after {
   content: "";
@@ -316,11 +316,13 @@ a { color: inherit; }
   margin: 0;
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: clamp(2.4rem, 1.6rem + 2.8vw, 3.6rem);
-  line-height: 1.05;
-  letter-spacing: -0.025em;
+  font-size: clamp(2.4rem, 1rem + 4vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
   text-wrap: balance;
 }
+html[lang="en"] .hero h1 { font-size: clamp(2.3rem, 1rem + 3.3vw, 3.9rem); }
+html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
 .hero .lede {
   margin: 0;
   font-family: var(--font-display);
@@ -330,15 +332,15 @@ a { color: inherit; }
 }
 .role {
   margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 12px;
-  color: var(--muted);
-  font-size: 0.95rem;
+  color: var(--fg);
+  font-weight: 500;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  /* lifts the line off the neon grid behind it */
+  text-shadow: 0 1px 2px rgba(5, 7, 11, 0.9), 0 0 14px rgba(5, 7, 11, 0.85);
 }
 .role strong { color: var(--fg); font-weight: 600; }
-.role .sep { width: 4px; height: 4px; border-radius: 50%; background: var(--muted); }
+.role .sep { display: inline-block; width: 4px; height: 4px; margin: 0 10px; vertical-align: middle; border-radius: 50%; background: var(--muted); }
 .cta { display: flex; flex-wrap: wrap; gap: 12px; }
 .btn {
   display: inline-flex;
@@ -349,7 +351,7 @@ a { color: inherit; }
   border-radius: 4px;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9375rem;
   text-decoration: none;
   border: 1.5px solid var(--bar);
   transition: transform 0.15s ease, background-color 0.15s ease;
@@ -358,6 +360,7 @@ a { color: inherit; }
 .btn-ghost { background: transparent; color: var(--fg); }
 .btn-ghost:hover { background: var(--surface); }
 .btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0) scale(0.98); }
 @media (prefers-reduced-motion: reduce) { .btn { transition: none; } .btn:hover { transform: none; } }
 .btn svg { width: 18px; height: 18px; flex: none; }
 
@@ -392,11 +395,10 @@ a { color: inherit; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 3px 8px;
+  letter-spacing: 0.01em;
+  padding: 3px 10px;
   border-radius: 999px;
   border: 1px solid var(--line);
   background: var(--bg);
@@ -406,7 +408,7 @@ a { color: inherit; }
 .chip svg { width: 12px; height: 12px; }
 .hunk { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
 .hunk + .hunk { border-top: 1px dashed var(--line); }
-.hunk-label { color: var(--muted); font-size: 0.75rem; }
+.hunk-label { color: var(--muted); font-size: 0.8125rem; }
 .code {
   margin: 0;
   overflow-x: auto;
@@ -426,7 +428,7 @@ a { color: inherit; }
   border: 1px solid var(--line);
   border-radius: 6px;
   font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   line-height: 1.5;
 }
 .avatar {
@@ -440,7 +442,7 @@ a { color: inherit; }
   place-items: center;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.02em;
 }
 .comment p { margin: 0; min-width: 0; }
@@ -472,7 +474,6 @@ a { color: inherit; }
 .slide .review-foot { margin-top: auto; }
 .slide .review-head { justify-content: flex-end; }
 @media (max-width: 420px) {
-  .review-card { font-size: 0.75rem; }
   .dot { width: 18px; }
 }
 .code .quote { color: var(--muted); }
@@ -501,27 +502,28 @@ a { color: inherit; }
   padding: 8px 12px;
   text-align: left;
   font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   line-height: 1.35;
   color: var(--fg);
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 6px;
   cursor: pointer;
-  transition: border-color 0.15s ease, opacity 0.15s ease;
+  transition: border-color 0.15s ease, opacity 0.15s ease, transform 0.12s ease;
 }
 .opt:hover:not(:disabled) { border-color: var(--fg); }
+.opt:active:not(:disabled) { transform: scale(0.985); }
 .opt:disabled { cursor: default; }
 .opt-key {
   flex: none;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   display: grid;
   place-items: center;
   border-radius: 4px;
   background: var(--surface);
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: var(--muted);
 }
@@ -539,7 +541,7 @@ a { color: inherit; }
   border: 1px dashed var(--line);
   border-radius: 6px;
   font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   line-height: 1.5;
 }
 .ai-reply p { margin: 0; min-width: 0; }
@@ -582,7 +584,7 @@ a { color: inherit; }
 @media (max-width: 560px) { .next-grid { grid-template-columns: minmax(0, 1fr); } }
 .next-band .opt {
   min-height: 56px;
-  font-size: 1rem;
+  font-size: 1.0625rem;
   text-decoration: none;
   background: var(--term-surface);
   color: var(--term-fg);
@@ -594,7 +596,7 @@ a { color: inherit; }
   margin: 0;
   min-height: 1.5em;
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   color: var(--term-accent);
 }
 .next-chat { display: flex; flex-direction: column; gap: 10px; max-width: 760px; }
@@ -613,7 +615,8 @@ a { color: inherit; }
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
-.cli-wrap { max-width: 760px; }
+.cli-wrap { max-width: none; }
+@media (min-width: 900px) { .cli-screen { height: 380px; } }
 .cli {
   background: var(--term-surface);
   border: 1px solid var(--term-line);
@@ -641,7 +644,7 @@ a { color: inherit; }
 }
 .cli-dots { position: absolute; left: 14px; display: flex; gap: 7px; }
 .cli-dots i { display: block; width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--term-muted); opacity: 0.55; }
-.cli-title { font-size: 0.8em; color: var(--term-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 40px; }
+.cli-title { font-size: 13px; color: var(--term-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 40px; }
 .cli-screen {
   height: 300px;
   overflow-y: auto;
@@ -865,7 +868,7 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
   flex: none;
   white-space: nowrap;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -928,10 +931,10 @@ section { scroll-margin-top: 72px; }
   margin: 0;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   line-height: 1.3;
 }
-.steps p { margin: 0; color: var(--muted); max-width: 40ch; }
+.steps p { margin: 0; color: var(--fg); max-width: 40ch; }
 @media (max-width: 860px) { .steps { grid-template-columns: minmax(0, 1fr); } }
 
 /* About */
@@ -966,7 +969,7 @@ section { scroll-margin-top: 72px; }
   border: 1px solid var(--term-line);
   border-radius: 6px;
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   line-height: 1.6;
   min-width: 0;
 }
@@ -1045,7 +1048,7 @@ section { scroll-margin-top: 72px; }
   transition: opacity 0.25s ease;
 }
 .portrait.is-sharp .portrait-frame::after { opacity: 0; }
-.portrait-hint { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.04em; color: var(--term-muted); }
+.portrait-hint { font-family: var(--font-mono); font-size: 0.8125rem; letter-spacing: 0.04em; color: var(--term-muted); }
 .portrait:focus-visible { outline: none; }
 .portrait:focus-visible .portrait-frame { outline: 2px solid var(--term-accent); outline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) {
@@ -1056,6 +1059,28 @@ section { scroll-margin-top: 72px; }
 .about-text p { margin: 0; }
 .placeholder { color: var(--muted); font-style: italic; }
 @media (max-width: 640px) { .about { grid-template-columns: minmax(0, 1fr); } }
+
+/* Contact: the closing statement at the hero's scale */
+#contact .statement h2 { font-size: clamp(1.9rem, 0.6rem + 4.6vw, 4.5rem); line-height: 1.04; letter-spacing: -0.025em; }
+html[lang="ru"] #contact .statement h2 { font-size: clamp(1.7rem, 0.6rem + 3.6vw, 3.4rem); }
+#contact .statement .lede { font-size: clamp(1.15rem, 1rem + 0.7vw, 1.55rem); }
+#approach .prompt, #contact .prompt { color: var(--muted); }
+#approach .prompt .host, #contact .prompt .host { color: var(--accent); }
+
+/* Entrance: parts rise in turn as they scroll in; the prompt's command types itself */
+html.reveal-on .rv { opacity: 0; transform: translateY(24px); }
+html.reveal-on .rv.in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms), transform 0.75s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms);
+}
+html.reveal-on .prompt.rv .cmd { display: inline-block; clip-path: inset(0 100% 0 0); }
+html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55ms) steps(var(--n, 8), end) calc(var(--d, 0ms) + 250ms) forwards; }
+@keyframes prompt-type { to { clip-path: inset(0 0 0 0); } }
+@media print {
+  html.reveal-on .rv { opacity: 1 !important; transform: none !important; }
+  html.reveal-on .prompt.rv .cmd { clip-path: none !important; }
+}
 
 /* Contact */
 .contact-row {
@@ -1085,7 +1110,7 @@ section { scroll-margin-top: 72px; }
   min-width: 0;
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: 1.1rem;
+  font-size: 1.0625rem;
   color: var(--fg);
   text-decoration: none;
   overflow-wrap: anywhere;
@@ -1103,9 +1128,10 @@ section { scroll-margin-top: 72px; }
   background: transparent;
   color: var(--muted);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
 }
 .mail-copy:hover { color: var(--fg); border-color: var(--fg); }
+.mail-copy:active { transform: scale(0.94); }
 .mail-copy.copied { color: var(--accent); border-color: var(--accent); }
 .mail-copy svg { width: 20px; height: 20px; }
 .mail-copy .i-ok { display: none; }
@@ -1113,7 +1139,7 @@ section { scroll-margin-top: 72px; }
 .mail-copy.copied .i-ok { display: block; }
 .mail-text:focus-visible, .mail-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) { .mail-copy { transition: none; } }
-.copy-status { font-size: 0.875rem; color: var(--muted); min-height: 1.4em; margin: 0; }
+.copy-status { font-size: 0.9375rem; color: var(--muted); min-height: 1.4em; margin: 0; }
 
 /* Footer + legal */
 .site-foot { border-top: 1px solid var(--line); }
@@ -1123,7 +1149,7 @@ section { scroll-margin-top: 72px; }
   flex-direction: column;
   align-items: center;
   text-align: center;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   color: var(--muted);
 }
 .foot-link { text-decoration: none; padding-block: 6px; }
@@ -1189,10 +1215,9 @@ section { scroll-margin-top: 72px; }
     <canvas class="retro-grid" aria-hidden="true"></canvas>
     <div class="wrap">
       <div class="hero-text">
-        <p class="eyebrow" data-i18n="hero.eyebrow">Softwareentwickler · KI-gestützt, menschlich geführt</p>
         <h1 id="hero-title" data-i18n="hero.title">Wenn alles einfach wird …</h1>
         <p class="lede"><span class="bar" data-i18n="hero.lede">… braucht es jemanden, der weiß, worauf es wirklich ankommt.</span></p>
-        <p class="role"><strong>Alexander Fuhr</strong><span class="sep" aria-hidden="true"></span><span data-i18n="role.title">Softwareentwickler</span></p>
+        <p class="role" data-i18n="hero.eyebrow">Softwareentwickler · KI-gestützt, menschlich geführt</p>
         <div class="cta">
           <a class="btn btn-primary" href="#contact"><span data-i18n="cta.contact">Kontakt aufnehmen</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -1544,7 +1569,7 @@ section { scroll-margin-top: 72px; }
   <section class="section" id="approach" aria-labelledby="approach-title">
     <div class="wrap">
       <div class="statement">
-        <p class="eyebrow" data-i18n="approach.eyebrow">Vorgehen</p>
+        <p class="prompt"><span class="host">alex@arfr</span>:~$ <span class="cmd" data-i18n="approach.cmd">cat vorgehen.md</span></p>
         <h2 id="approach-title" data-i18n="approach.title">Die Tools werden klüger.</h2>
         <p class="lede"><span class="bar" data-i18n="approach.lede">Gute Entscheidungen brauchen trotzdem einen klaren Kopf.</span></p>
       </div>
@@ -1575,7 +1600,7 @@ section { scroll-margin-top: 72px; }
           </span>
         </button>
         <div class="about-text">
-          <p class="prompt"><span class="host">alex@arfr</span>:~$ whoami</p>
+          <p class="prompt"><span class="host">alex@arfr</span>:~$ <span class="cmd">whoami</span></p>
           <h2 id="about-title" class="h2"><span class="scramble" data-i18n="about.title">Hi, ich bin Alex.</span><span class="cursor" aria-hidden="true"></span></h2>
           <p data-i18n="about.text">Ich bin Softwareentwickler. Ich nutze KI als Werkzeug, nicht als Ersatz fürs Denken: Sie beschleunigt die Arbeit, und ich sorge dafür, dass das Ergebnis stimmt.</p>
           <div class="term">
@@ -1593,7 +1618,7 @@ section { scroll-margin-top: 72px; }
   <section class="section" id="contact" aria-labelledby="contact-title">
     <div class="wrap">
       <div class="statement">
-        <p class="eyebrow" data-i18n="contact.eyebrow">Kontakt</p>
+        <p class="prompt"><span class="host">alex@arfr</span>:~$ <span class="cmd">mail hello@arfr.de</span></p>
         <h2 id="contact-title" data-i18n="contact.title">Etwas, worauf es ankommt?</h2>
         <p class="lede"><span class="bar" data-i18n="contact.lede">Sprechen wir darüber.</span></p>
       </div>
@@ -1618,7 +1643,7 @@ section { scroll-margin-top: 72px; }
   <section class="section next-band" id="next" aria-labelledby="next-title">
     <div class="wrap">
       <div class="statement">
-        <p class="prompt"><span class="host">alex@arfr</span>:~$ ./next.sh</p>
+        <p class="prompt"><span class="host">alex@arfr</span>:~$ <span class="cmd">./next.sh</span></p>
         <h2 id="next-title" data-i18n="next.title">Du entscheidest darüber,</h2>
         <p class="lede"><span class="bar" data-i18n="next.lede">wie es weitergeht!</span></p>
       </div>
@@ -1646,7 +1671,7 @@ section { scroll-margin-top: 72px; }
   <section class="section next-band term-band" id="terminal" aria-labelledby="term-title">
     <div class="wrap">
       <div class="statement">
-        <p class="prompt"><span class="host">alex@arfr</span>:~$ su guest</p>
+        <p class="prompt"><span class="host">alex@arfr</span>:~$ <span class="cmd">su guest</span></p>
         <h2 id="term-title" data-i18n="term.title">Noch neugierig?</h2>
         <p class="lede"><span class="bar" data-i18n="term.lede">Das Terminal gehört dir.</span></p>
       </div>
@@ -1707,6 +1732,7 @@ section { scroll-margin-top: 72px; }
       "nav.label": "Main", "nav.approach": "Approach", "nav.about": "About", "nav.contact": "Contact",
       "lang.label": "Language",
       "hero.eyebrow": "Software Developer · AI-assisted, human-led",
+      "approach.cmd": "cat approach.md", "role.tag": "AI-assisted, human-led",
       "hero.title": "When everything gets easy …",
       "hero.lede": "… you need someone who knows what really matters.",
       "role.title": "Software Developer", "role.country": "Germany",
@@ -1836,6 +1862,7 @@ section { scroll-margin-top: 72px; }
       "nav.label": "Hauptnavigation", "nav.approach": "Vorgehen", "nav.about": "Über mich", "nav.contact": "Kontakt",
       "lang.label": "Sprache",
       "hero.eyebrow": "Softwareentwickler · KI-gestützt, menschlich geführt",
+      "approach.cmd": "cat vorgehen.md", "role.tag": "KI-gestützt, menschlich geführt",
       "hero.title": "Wenn alles einfach wird …",
       "hero.lede": "… braucht es jemanden, der weiß, worauf es wirklich ankommt.",
       "role.title": "Softwareentwickler", "role.country": "Deutschland",
@@ -1965,6 +1992,7 @@ section { scroll-margin-top: 72px; }
       "nav.label": "Основная навигация", "nav.approach": "Подход", "nav.about": "Обо мне", "nav.contact": "Контакт",
       "lang.label": "Язык",
       "hero.eyebrow": "Разработчик ПО · ИИ помогает, решает человек",
+      "approach.cmd": "cat approach.md", "role.tag": "ИИ помогает, решает человек",
       "hero.title": "Когда всё становится просто …",
       "hero.lede": "… нужен тот, кто знает, что действительно важно.",
       "role.title": "Разработчик ПО", "role.country": "Германия",
@@ -3745,6 +3773,28 @@ section { scroll-margin-top: 72px; }
     track.addEventListener('pointercancel', function () { x0 = null; });
     goTo(0, false);
     restart();
+  })();
+
+  /* Entrance: whatever scrolls in rises in turn; prompts type their command */
+  (function reveal() {
+    if (reduceMotion || !('IntersectionObserver' in window)) return;
+    var sel = '.hero-text > *, .review, main > .section .statement > *, .steps > li, .about > .portrait, .about-text > *, ' +
+      '.contact-row, .next-grid > .opt, .next-chat > *, .cli-wrap';
+    var items = Array.prototype.slice.call(document.querySelectorAll(sel));
+    if (!items.length) return;
+    document.documentElement.classList.add('reveal-on');
+    var io = new IntersectionObserver(function (entries) {
+      var batch = entries.filter(function (en) { return en.isIntersecting; }).map(function (en) { return en.target; });
+      batch.sort(function (a, b) { return items.indexOf(a) - items.indexOf(b); });
+      batch.forEach(function (el, i) {
+        io.unobserve(el);
+        el.style.setProperty('--d', Math.min(i * 80, 560) + 'ms');
+        var cmd = el.classList.contains('prompt') && el.querySelector('.cmd');
+        if (cmd) cmd.style.setProperty('--n', Math.max(1, cmd.textContent.length));
+        el.classList.add('in');
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.01 });
+    items.forEach(function (el) { el.classList.add('rv'); io.observe(el); });
   })();
 
   (function initLang() {
