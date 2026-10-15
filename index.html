@@ -470,6 +470,7 @@ a { color: inherit; }
 }
 .slide { flex: 0 0 100%; min-width: 0; display: flex; flex-direction: column; }
 .slide .review-foot { margin-top: auto; }
+.slide .review-head { justify-content: flex-end; }
 @media (max-width: 420px) {
   .review-card { font-size: 0.75rem; }
   .dot { width: 18px; }
@@ -1117,7 +1118,6 @@ section { scroll-margin-top: 72px; }
           <div class="track">
             <div class="slide" role="group" aria-roledescription="slide" aria-label="1 / 9: PHP" data-name="PHP">
               <div class="review-head">
-                <span class="file">login.php</span>
                 <span class="chip">PHP</span>
               </div>
               <div class="hunk">
@@ -1155,7 +1155,6 @@ section { scroll-margin-top: 72px; }
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="2 / 9: MySQL" data-name="MySQL">
               <div class="review-head">
-                <span class="file">unsubscribe.sql</span>
                 <span class="chip">MySQL</span>
               </div>
               <div class="hunk">
@@ -1192,7 +1191,6 @@ section { scroll-margin-top: 72px; }
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="3 / 9: Linux" data-name="Linux">
               <div class="review-head">
-                <span class="file">deploy.sh</span>
                 <span class="chip">Bash</span>
               </div>
               <div class="hunk">
@@ -1226,7 +1224,6 @@ section { scroll-margin-top: 72px; }
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="4 / 9: TypeScript" data-name="TypeScript">
               <div class="review-head">
-                <span class="file">cart.ts</span>
                 <span class="chip">TypeScript</span>
               </div>
               <div class="hunk">
@@ -1264,7 +1261,6 @@ section { scroll-margin-top: 72px; }
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="5 / 9: C#" data-name="C#">
               <div class="review-head">
-                <span class="file">Checkout.cs</span>
                 <span class="chip">C#</span>
               </div>
               <div class="hunk">
@@ -1298,7 +1294,6 @@ section { scroll-margin-top: 72px; }
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="6 / 9: Java" data-name="Java">
               <div class="review-head">
-                <span class="file">Account.java</span>
                 <span class="chip">Java</span>
               </div>
               <div class="hunk">
@@ -1336,7 +1331,6 @@ section { scroll-margin-top: 72px; }
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="7 / 9: Pseudocode" data-name="Pseudocode">
               <div class="review-head">
-                <span class="file">estimate.txt</span>
                 <span class="chip" data-i18n="lang.pseudo">Pseudocode</span>
               </div>
               <div class="hunk">
@@ -1372,7 +1366,6 @@ section { scroll-margin-top: 72px; }
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="8 / 9: Echtes Leben" data-name="Echtes Leben">
               <div class="review-head">
-                <span class="file">support.eml</span>
                 <span class="chip" data-i18n="lang.real">Echtes Leben</span>
               </div>
               <div class="hunk">
@@ -1410,7 +1403,6 @@ section { scroll-margin-top: 72px; }
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="9 / 9: Fazit" data-name="Fazit">
               <div class="review-head">
-                <span class="file">roles.yml</span>
                 <span class="chip" data-i18n="lang.final">Fazit</span>
               </div>
               <div class="hunk">
@@ -1432,7 +1424,7 @@ section { scroll-margin-top: 72px; }
                 </div>
                 <div class="comment">
                   <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.final">Eine von drei Zeilen stimmt. Die erste.</span></p>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.final">KI assistiert, ja. Aber lenken und entscheiden tut der Mensch.</span></p>
                 </div>
               </div>
               <div class="hunk hunk-fix">
@@ -1672,7 +1664,7 @@ section { scroll-margin-top: 72px; }
       "lang.final": "Bottom line",
       "fin.k1": "assists: ", "fin.k2": "steers:  ", "fin.k3": "decides: ",
       "fin.ai": "AI", "fin.human": "human",
-      "c.final": "One line out of three is right. The first one.",
+      "c.final": "AI assists, sure. But steering and deciding is the human's job.",
       "q.code": "What's the problem?", "q.real": "What do you do?", "q.final": "Who decides?",
       "o.php.a": "A missing semicolon", "o.php.b": "SQL injection", "o.php.c": "Nothing, it runs",
       "o.sql.a": "The WHERE is missing", "o.sql.b": "0 should be FALSE", "o.sql.c": "All good",
@@ -1792,7 +1784,7 @@ section { scroll-margin-top: 72px; }
       "lang.final": "Fazit",
       "fin.k1": "assistiert:  ", "fin.k2": "lenkt:       ", "fin.k3": "entscheidet: ",
       "fin.ai": "KI", "fin.human": "Mensch",
-      "c.final": "Eine von drei Zeilen stimmt. Die erste.",
+      "c.final": "KI assistiert, ja. Aber lenken und entscheiden tut der Mensch.",
       "q.code": "Was ist das Problem?", "q.real": "Was tust du?", "q.final": "Wer entscheidet?",
       "o.php.a": "Fehlt ein Semikolon", "o.php.b": "SQL-Injection", "o.php.c": "Nichts, läuft doch",
       "o.sql.a": "Das WHERE fehlt", "o.sql.b": "0 sollte FALSE sein", "o.sql.c": "Alles okay",
@@ -1912,7 +1904,7 @@ section { scroll-margin-top: 72px; }
       "lang.final": "Итог",
       "fin.k1": "помогает: ", "fin.k2": "ведёт:    ", "fin.k3": "решает:   ",
       "fin.ai": "ИИ", "fin.human": "человек",
-      "c.final": "Верна одна строка из трёх. Первая.",
+      "c.final": "ИИ помогает — да. Но вести и решать — дело человека.",
       "q.code": "В чём проблема?", "q.real": "Что сделаешь?", "q.final": "Кто решает?",
       "o.php.a": "Не хватает точки с запятой", "o.php.b": "SQL-инъекция", "o.php.c": "Ничего, работает же",
       "o.sql.a": "Нет WHERE", "o.sql.b": "0 должен быть FALSE", "o.sql.c": "Всё в порядке",
