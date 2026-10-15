@@ -1447,7 +1447,6 @@ section { scroll-margin-top: 72px; }
             <img class="portrait-img" src="images/alexander-fuhr.jpg" alt="Alexander Fuhr" width="240" height="240">
             <canvas class="portrait-px" aria-hidden="true"></canvas>
           </span>
-          <span class="portrait-hint" aria-hidden="true">&gt; <span data-i18n="portrait.hint">foto entschlüsseln</span></span>
         </button>
         <div class="about-text">
           <p class="prompt"><span class="host">alex@arfr</span>:~$ whoami</p>
@@ -1458,7 +1457,6 @@ section { scroll-margin-top: 72px; }
             <dl>
               <div><dt>name</dt><dd>Alexander Fuhr</dd></div>
               <div><dt>role</dt><dd data-i18n="role.title">Softwareentwickler</dd></div>
-              <div><dt>location</dt><dd data-i18n="term.location">überall</dd></div>
               <div><dt>mode</dt><dd data-i18n="term.mode">KI-gestützt, menschlich geführt</dd></div>
             </dl>
           </div>
@@ -1494,7 +1492,7 @@ section { scroll-margin-top: 72px; }
       </div>
       <div class="next-actions">
         <div class="next-grid">
-          <a class="opt" id="next-mail" href="mailto:hello@arfr.de?subject=Projektanfrage%20%C3%BCber%20arfr.de"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="next.a">Projekt anfragen</span></a>
+          <a class="opt" id="next-mail" href="mailto:hello@arfr.de?subject=Kontakt%20%C3%BCber%20arfr.de"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="next.a">Kontakt aufnehmen</span></a>
           <a class="opt" href="https://www.linkedin.com/in/alexander-fuhr/" target="_blank" rel="noopener"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="next.b">Auf LinkedIn vernetzen</span></a>
           <button class="opt" type="button" id="next-replay"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="next.c">Quiz nochmal spielen</span></button>
           <button class="opt" type="button" id="next-coffee"><span class="opt-key" aria-hidden="true">D</span><span data-i18n="next.d">Erstmal Kaffee</span></button>
@@ -1529,7 +1527,7 @@ section { scroll-margin-top: 72px; }
           <button type="button" class="cli-chip" data-cmd="exit">exit</button>
         </p>
       </div>
-      <div class="sound" id="sound">
+      <div class="sound" id="sound" hidden>
         <div class="sound-head">
           <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
           <div class="sound-meta">
@@ -1647,11 +1645,11 @@ section { scroll-margin-top: 72px; }
       "score.text": "{n} of {total} correct. The AI loved every single answer. That's why a human makes the final call.",
       "score.again": "Play again",
       "next.title": "You decide", "next.lede": "what happens next!",
-      "next.a": "Start a project", "next.b": "Connect on LinkedIn", "next.c": "Play the quiz again", "next.d": "Coffee first",
+      "next.a": "Get in touch", "next.b": "Connect on LinkedIn", "next.c": "Play the quiz again", "next.d": "Coffee first",
       "next.ai": "I recommend all four. At the same time.",
       "next.alex": "See? That's exactly why you decide.",
       "next.coffee": "Good call. I'll be right here when you're back.",
-      "next.subject": "Project inquiry via arfr.de",
+      "next.subject": "Contact via arfr.de",
       "cli.label": "Enter a command", "cli.try": "Try:",
       "cli.welcome": "Welcome to arfr.de. Type help to see all commands.",
       "cli.help.title": "Available commands:",
@@ -1660,7 +1658,7 @@ section { scroll-margin-top: 72px; }
       "cli.help.linkedin": "open LinkedIn", "cli.help.coffee": "brew coffee", "cli.help.lang": "switch language",
       "cli.help.clear": "clear the screen", "cli.help.exit": "leave (go ahead, try)",
       "cli.help.secret": "Plus a few hidden commands. One of them is a game.",
-      "cli.whoami": "alex · software developer · AI-assisted, human-led · everywhere",
+      "cli.whoami": "alex · software developer · AI-assisted, human-led",
       "cli.denied": "Permission denied. Nice try.",
       "cli.noFile": "{f}: No such file or directory",
       "cli.quiz": "Restarting the quiz … good luck. The AI will praise you either way.",
@@ -1697,7 +1695,7 @@ section { scroll-margin-top: 72px; }
       "sound.label": "Soundtrack for this page", "sound.playlist": "+ playlist: best songs of 1984",
       "sound.play": "Play soundtrack", "sound.open": "Open on YouTube",
       "sound.note": "Playing loads the YouTube player, which sends data from your browser to Google.",
-      "cli.help.music": "start the soundtrack", "cli.music": "Loading the soundtrack … turn it up."
+      "cli.help.music": "start the soundtrack", "cli.music": "Secret soundtrack unlocked … turn it up."
     },
     de: {
       "meta.description": "Alexander Fuhr – Softwareentwickler. KI-gestützt, menschlich geführt.",
@@ -1767,11 +1765,11 @@ section { scroll-margin-top: 72px; }
       "score.text": "{n} von {total} richtig. Die KI fand jede einzelne Antwort großartig. Deshalb entscheidet am Ende ein Mensch.",
       "score.again": "Nochmal",
       "next.title": "Du entscheidest darüber,", "next.lede": "wie es weitergeht!",
-      "next.a": "Projekt anfragen", "next.b": "Auf LinkedIn vernetzen", "next.c": "Quiz nochmal spielen", "next.d": "Erstmal Kaffee",
+      "next.a": "Kontakt aufnehmen", "next.b": "Auf LinkedIn vernetzen", "next.c": "Quiz nochmal spielen", "next.d": "Erstmal Kaffee",
       "next.ai": "Ich empfehle alle vier. Gleichzeitig.",
       "next.alex": "Siehst du? Genau deshalb entscheidest du.",
       "next.coffee": "Gute Entscheidung. Ich bin hier, wenn du zurück bist.",
-      "next.subject": "Projektanfrage über arfr.de",
+      "next.subject": "Kontakt über arfr.de",
       "cli.label": "Befehl eingeben", "cli.try": "Probier mal:",
       "cli.welcome": "Willkommen auf arfr.de. Tippe help für alle Befehle.",
       "cli.help.title": "Verfügbare Befehle:",
@@ -1780,7 +1778,7 @@ section { scroll-margin-top: 72px; }
       "cli.help.linkedin": "LinkedIn öffnen", "cli.help.coffee": "Kaffee kochen", "cli.help.lang": "Sprache wechseln",
       "cli.help.clear": "Bildschirm leeren", "cli.help.exit": "gehen (versuch's ruhig)",
       "cli.help.secret": "Und ein paar versteckte Befehle. Einer davon ist ein Spiel.",
-      "cli.whoami": "alex · Softwareentwickler · KI-gestützt, menschlich geführt · überall",
+      "cli.whoami": "alex · Softwareentwickler · KI-gestützt, menschlich geführt",
       "cli.denied": "Zugriff verweigert. Netter Versuch.",
       "cli.noFile": "{f}: Datei oder Verzeichnis nicht gefunden",
       "cli.quiz": "Starte das Quiz neu … viel Glück. Die KI lobt dich so oder so.",
@@ -1817,7 +1815,7 @@ section { scroll-margin-top: 72px; }
       "sound.label": "Soundtrack zur Seite", "sound.playlist": "+ Playlist: Die besten Songs von 1984",
       "sound.play": "Soundtrack abspielen", "sound.open": "Auf YouTube öffnen",
       "sound.note": "Beim Abspielen wird der YouTube-Player geladen. Dabei überträgt dein Browser Daten an Google.",
-      "cli.help.music": "Soundtrack starten", "cli.music": "Lade den Soundtrack … Lautstärke hoch."
+      "cli.help.music": "Soundtrack starten", "cli.music": "Geheimer Soundtrack freigeschaltet … Lautstärke hoch."
     },
     ru: {
       "meta.description": "Alexander Fuhr – разработчик ПО. ИИ помогает, решает человек.",
@@ -1887,11 +1885,11 @@ section { scroll-margin-top: 72px; }
       "score.text": "{n} из {total} верно. ИИ понравился каждый ответ. Поэтому последнее слово за человеком.",
       "score.again": "Ещё раз",
       "next.title": "Ты решаешь,", "next.lede": "что будет дальше!",
-      "next.a": "Обсудить проект", "next.b": "Связаться в LinkedIn", "next.c": "Пройти квиз ещё раз", "next.d": "Сначала кофе",
+      "next.a": "Связаться", "next.b": "Связаться в LinkedIn", "next.c": "Пройти квиз ещё раз", "next.d": "Сначала кофе",
       "next.ai": "Рекомендую все четыре. Одновременно.",
       "next.alex": "Видишь? Именно поэтому решаешь ты.",
       "next.coffee": "Хорошее решение. Я буду здесь, когда вернёшься.",
-      "next.subject": "Запрос проекта с arfr.de",
+      "next.subject": "Сообщение с arfr.de",
       "cli.label": "Введите команду", "cli.try": "Попробуй:",
       "cli.welcome": "Добро пожаловать на arfr.de. Введи help, чтобы увидеть все команды.",
       "cli.help.title": "Доступные команды:",
@@ -1900,7 +1898,7 @@ section { scroll-margin-top: 72px; }
       "cli.help.linkedin": "открыть LinkedIn", "cli.help.coffee": "сварить кофе", "cli.help.lang": "сменить язык",
       "cli.help.clear": "очистить экран", "cli.help.exit": "выйти (попробуй)",
       "cli.help.secret": "И пара скрытых команд. Одна из них — игра.",
-      "cli.whoami": "alex · разработчик ПО · ИИ помогает, решает человек · везде",
+      "cli.whoami": "alex · разработчик ПО · ИИ помогает, решает человек",
       "cli.denied": "Доступ запрещён. Хорошая попытка.",
       "cli.noFile": "{f}: Нет такого файла или каталога",
       "cli.quiz": "Перезапускаю квиз … удачи. ИИ всё равно тебя похвалит.",
@@ -1937,7 +1935,7 @@ section { scroll-margin-top: 72px; }
       "sound.label": "Саундтрек к сайту", "sound.playlist": "+ плейлист: лучшие песни 1984 года",
       "sound.play": "Включить саундтрек", "sound.open": "Открыть на YouTube",
       "sound.note": "При воспроизведении загружается плеер YouTube, и браузер передаёт данные в Google.",
-      "cli.help.music": "включить саундтрек", "cli.music": "Загружаю саундтрек … сделай погромче."
+      "cli.help.music": "включить саундтрек", "cli.music": "Секретный саундтрек открыт … сделай погромче."
     }
   };
   var LANGS = ['en', 'de', 'ru'];
@@ -2216,7 +2214,9 @@ section { scroll-margin-top: 72px; }
   /* Soundtrack: the YouTube player only loads after a click (privacy-enhanced mode) */
   var soundBox = document.getElementById('sound');
   function playSound() {
-    if (!soundBox || soundBox.classList.contains('playing')) return;
+    if (!soundBox) return;
+    soundBox.hidden = false;
+    if (soundBox.classList.contains('playing')) return;
     var frame = document.getElementById('sound-frame');
     var wrap = document.createElement('div');
     wrap.className = 'sound-video';
@@ -2503,7 +2503,7 @@ section { scroll-margin-top: 72px; }
     var box = document.getElementById('cli');
     var LINKEDIN = 'https://www.linkedin.com/in/alexander-fuhr/';
     var COMMANDS = ['help', 'whoami', 'ls', 'cat', 'cd', 'pwd', 'quiz', 'contact', 'linkedin', 'coffee',
-      'lang', 'music', 'clear', 'exit', 'history', 'date', 'echo', 'ping', 'git', 'sudo', 'vim', 'ai', 'hack', '42'];
+      'lang', 'clear', 'exit', 'history', 'date', 'echo', 'ping', 'git', 'sudo', 'vim', 'ai', 'hack', '42'];
     var hist = [], hIdx = 0, busy = false, inVim = false;
 
     function pad(s, n) { while (s.length < n) s += ' '; return s; }
@@ -2554,7 +2554,7 @@ section { scroll-margin-top: 72px; }
       [['help', 'cli.help.help'], ['whoami', 'cli.help.whoami'], ['ls', 'cli.help.ls'],
        ['cat profile.yml', 'cli.help.cat'], ['quiz', 'cli.help.quiz'], ['contact', 'cli.help.contact'],
        ['linkedin', 'cli.help.linkedin'], ['coffee', 'cli.help.coffee'], ['lang de|en|ru', 'cli.help.lang'],
-       ['music', 'cli.help.music'], ['clear', 'cli.help.clear'], ['exit', 'cli.help.exit']].forEach(function (r) {
+       ['clear', 'cli.help.clear'], ['exit', 'cli.help.exit']].forEach(function (r) {
         line('  ' + pad(r[0], 17) + t(r[1]), 'muted');
       });
       line(t('cli.help.secret'), 'accent');
@@ -2597,7 +2597,6 @@ section { scroll-margin-top: 72px; }
           if (argLow === 'profile.yml') {
             line('name:     Alexander Fuhr');
             line('role:     ' + t('role.title'));
-            line('location: ' + t('term.location'));
             line('mode:     ' + t('term.mode'));
           } else if (argLow === 'about.txt') {
             line(t('about.text'));
@@ -2639,10 +2638,10 @@ section { scroll-margin-top: 72px; }
             });
           }, reduceMotion ? 0 : 700);
           break;
-        case 'music': case 'radio': case 'soundtrack':
+        case 'music': case 'video': case 'radio': case 'soundtrack':
           line(t('cli.music'), 'accent');
-          if (soundBox) soundBox.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
           playSound();
+          if (soundBox) soundBox.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
           break;
         case 'linkedin': line(t('cli.linkedin')); openLink(LINKEDIN); break;
         case 'coffee': case './coffee.exe': case 'brew': case 'make':
