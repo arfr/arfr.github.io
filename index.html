@@ -587,19 +587,25 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
 .ai-text.thinking { color: var(--muted); letter-spacing: 0.2em; }
 .verdict { font-weight: 600; margin-right: 0.35em; }
 .verdict.is-wrong { color: var(--accent); }
+/* the result covers the card once all ten are answered */
+.review-card.carousel { position: relative; }
 .quiz-score {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow-y: auto;
   background: var(--surface);
+  animation: score-in 0.35s ease both;
 }
-.quiz-score-text { margin: 0; font-size: 0.9375rem; line-height: 1.5; max-width: 46ch; }
-.quiz-score-text strong { font-family: var(--font-mono); font-weight: 500; }
+.quiz-score::-webkit-scrollbar { width: 6px; }
+.quiz-score::-webkit-scrollbar-thumb { background: rgba(32, 227, 255, 0.35); border-radius: 3px; }
+@keyframes score-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.quiz-score .comment { margin: 2px 0; }
+/* the two ways on sit side by side, like a final pair of answers; the bonus is the highlighted one */
+.quiz-score .quiz-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 2px; }
+.quiz-score .quiz-bonus { border-color: var(--fg); }
+.quiz-score .quiz-bonus .opt-key { background: var(--bar); color: var(--bar-fg); }
+@media (prefers-reduced-motion: reduce) { .quiz-score { animation: none; } }
 
 /* Finale: "you decide what happens next" as a dark terminal band */
 .next-band { background: var(--term-bg); color: var(--term-fg); border-top-color: var(--term-line); }
@@ -1451,7 +1457,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       <figure class="review" data-ui aria-label="Beispiele für Code-Reviews: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe" data-i18n-aria="review.aria">
         <div class="review-card carousel" aria-roledescription="carousel">
           <div class="track">
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="1 / 11: Leben · Kunde" data-name="Leben · Kunde">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="1 / 10: Leben · Kunde" data-name="Leben · Kunde">
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="rl.quote">Kunde: "NICHTS GEHT MEHR!!!"</span></span>
@@ -1481,7 +1487,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><span data-i18n="rl.fix2">Dann fixen.</span></pre>
               </div>
             </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="2 / 11: PHP" data-name="PHP">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="2 / 10: PHP" data-name="PHP">
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span>$sql = "SELECT * FROM users
@@ -1511,7 +1517,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span>$stmt-&gt;execute(<mark>[$email]</mark>);</pre>
               </div>
             </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="3 / 11: Leben · Navi" data-name="Leben · Navi">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="3 / 10: Leben · Navi" data-name="Leben · Navi">
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="nv.quote">Vor dir: ein See.</span></span>
@@ -1540,7 +1546,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><span data-i18n="nv.fix2">Dann weiterfahren.</span></pre>
               </div>
             </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="4 / 11: MySQL" data-name="MySQL">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="4 / 10: MySQL" data-name="MySQL">
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span>UPDATE customers
@@ -1569,7 +1575,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><mark>WHERE id = 1337</mark>;</pre>
               </div>
             </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="5 / 11: Leben · Verteiler" data-name="Leben · Verteiler">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="5 / 10: Leben · Verteiler" data-name="Leben · Verteiler">
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="ra.quote">Mail an 2.347 Empfänger</span></span>
@@ -1599,7 +1605,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><span data-i18n="ra.fix2">Ruhe im Postfach.</span></pre>
               </div>
             </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="6 / 11: Linux" data-name="Linux">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="6 / 10: Linux" data-name="Linux">
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span>rm -rf $BUILD_DIR/*</pre>
@@ -1625,7 +1631,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <pre class="code"><span class="add">+ </span>rm -rf <mark>"${BUILD_DIR:?}"</mark>/*</pre>
               </div>
             </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="7 / 11: Leben · Angebot" data-name="Leben · Angebot">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="7 / 10: Leben · Angebot" data-name="Leben · Angebot">
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="pl.quote">Angebot an einen Neukunden</span></span>
@@ -1655,7 +1661,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><span data-i18n="pl.ai2">anbei unser Angebot …</span></pre>
               </div>
             </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="8 / 11: C#" data-name="C#">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="8 / 10: C#" data-name="C#">
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span>double total = price + shipping;</pre>
@@ -1681,7 +1687,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <pre class="code"><span class="add">+ </span><mark>decimal</mark> total = price + shipping;</pre>
               </div>
             </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="9 / 11: Leben · Schätzung" data-name="Leben · Schätzung">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="9 / 10: Leben · Schätzung" data-name="Leben · Schätzung">
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="es.quote">„Wie lange dauert der Umbau?“</span></span>
@@ -1710,7 +1716,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><span data-i18n="es.fix2">Also gut eine Woche.</span></pre>
               </div>
             </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="10 / 11: YAML" data-name="YAML">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="10 / 10: YAML" data-name="YAML">
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span><span data-i18n="fin.k1">assistiert:  </span><span data-i18n="fin.ai">KI</span>
@@ -1740,7 +1746,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><span data-i18n="fin.k3">entscheidet: </span><mark data-i18n="fin.human">Mensch</mark></pre>
               </div>
             </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="11 / 11: Kommunikation" data-name="Kommunikation" data-cta>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="Bonus: Kommunikation" data-name="Kommunikation" data-cta>
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="cta.quote">Eine Frage zum eigenen Thema</span></span>
@@ -1771,16 +1777,26 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
               </div>
             </div>
           </div>
+          <div class="quiz-score" hidden>
+            <div class="hunk">
+              <span class="hunk-label" data-i18n="score.label">Ergebnis</span>
+              <pre class="code quiz-score-code" aria-live="polite"></pre>
+              <div class="comment">
+                <span class="avatar" aria-hidden="true">AF</span>
+                <p><b>Alex</b> · <span class="quiz-score-text"></span></p>
+              </div>
+              <div class="quiz-opts">
+                <button type="button" class="opt quiz-again"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="score.again">Nochmal</span></button>
+                <button type="button" class="opt quiz-bonus"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="score.bonus">Bonusfrage</span></button>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="carousel-nav">
           <button class="nav-btn prev" type="button" aria-label="Vorheriges Beispiel" data-i18n-aria="carousel.prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
           <div class="dots" role="group" aria-label="Beispiele" data-i18n-aria="carousel.label"></div>
           <button class="nav-btn next" type="button" aria-label="Nächstes Beispiel" data-i18n-aria="carousel.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-          <span class="counter" aria-hidden="true">01 / 11</span>
-        </div>
-        <div class="quiz-score" hidden>
-          <p class="quiz-score-text" aria-live="polite"></p>
-          <button type="button" class="btn btn-ghost quiz-again" data-i18n="score.again">Nochmal</button>
+          <span class="counter" aria-hidden="true">01 / 10</span>
         </div>
       </figure>
     </div>
@@ -2083,7 +2099,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "ai.r5": "Great call! I agree 100 %.",
       "v.right": "Correct.", "v.wrong": "Wrong.",
       "score.text": "{n} of {total} correct. The AI loved every single answer. That's why a human makes the final call.",
-      "score.again": "Play again",
+      "score.again": "Play again", "score.label": "Result", "score.k1": "correct:", "score.k2": "AI praise:", "score.bonus": "Bonus question",
       "next.title": "You decide", "next.lede": "what happens next!",
       "next.a": "Get in touch", "next.b": "Connect on LinkedIn", "next.c": "Play the quiz again", "next.d": "Coffee first",
       "next.ai": "I recommend all three. At the same time.",
@@ -2302,7 +2318,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "ai.r5": "Starke Entscheidung! Ich stimme dir zu 100 % zu.",
       "v.right": "Richtig.", "v.wrong": "Daneben.",
       "score.text": "{n} von {total} richtig. Die KI fand jede einzelne Antwort großartig. Deshalb entscheidet am Ende ein Mensch.",
-      "score.again": "Nochmal",
+      "score.again": "Nochmal", "score.label": "Ergebnis", "score.k1": "richtig:", "score.k2": "KI-Lob:", "score.bonus": "Bonusfrage",
       "next.title": "Du entscheidest darüber,", "next.lede": "wie es weitergeht!",
       "next.a": "Kontakt aufnehmen", "next.b": "Auf LinkedIn vernetzen", "next.c": "Quiz nochmal spielen", "next.d": "Erstmal Kaffee",
       "next.ai": "Ich empfehle alle drei. Gleichzeitig.",
@@ -2521,7 +2537,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "ai.r5": "Сильное решение! Согласен на все 100 %.",
       "v.right": "Верно.", "v.wrong": "Мимо.",
       "score.text": "{n} из {total} верно. ИИ понравился каждый ответ. Поэтому последнее слово за человеком.",
-      "score.again": "Ещё раз",
+      "score.again": "Ещё раз", "score.label": "Итог", "score.k1": "верно:", "score.k2": "похвала ИИ:", "score.bonus": "Бонусный вопрос",
       "next.title": "Ты решаешь,", "next.lede": "что будет дальше!",
       "next.a": "Связаться", "next.b": "Связаться в LinkedIn", "next.c": "Пройти квиз ещё раз", "next.d": "Сначала кофе",
       "next.ai": "Рекомендую все три. Одновременно.",
@@ -2784,7 +2800,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "v.right": "Tačno.",
       "v.wrong": "Promašaj.",
       "score.text": "{n} od {total} tačno. AI je bio oduševljen svakim odgovorom. Zato na kraju odlučuje čovek.",
-      "score.again": "Ponovo",
+      "score.again": "Ponovo", "score.label": "Rezultat", "score.k1": "tačno:", "score.k2": "pohvala AI-ja:", "score.bonus": "Bonus pitanje",
       "next.title": "Ti odlučuješ",
       "next.lede": "šta će biti dalje!",
       "next.a": "Stupi u kontakt",
@@ -3073,7 +3089,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "v.right": "Σωστό.",
       "v.wrong": "Λάθος.",
       "score.text": "{n} από {total} σωστές. Η AI ενθουσιάστηκε με κάθε απάντηση. Γι' αυτό στο τέλος αποφασίζει ένας άνθρωπος.",
-      "score.again": "Ξανά",
+      "score.again": "Ξανά", "score.label": "Αποτέλεσμα", "score.k1": "σωστά:", "score.k2": "έπαινος AI:", "score.bonus": "Ερώτηση μπόνους",
       "next.title": "Εσύ αποφασίζεις",
       "next.lede": "τι θα γίνει μετά!",
       "next.a": "Επικοινώνησε",
@@ -3493,12 +3509,38 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     var box = quizFig.querySelector('.quiz-score');
     var graded = quizState.filter(function (s, k) { return !quizSlides[k].hasAttribute('data-cta'); });
     var done = graded.filter(function (s) { return s && s.revealed; });
-    if (done.length < graded.length) { box.hidden = true; return; }
+    var complete = done.length === graded.length;
+    var fresh = complete && !quizDone;
+    quizDone = complete;
+    if (!complete) { hideResult(); return; }
     var right = done.filter(function (s) { return s.right; }).length;
-    box.querySelector('.quiz-score-text').textContent =
-      t('score.text').replace('{n}', right).replace('{total}', graded.length);
-    box.hidden = false;
+    /* > quiz --score / + correct: 3/10 / + AI praise: 10/10 ; Alex adds the moral */
+    var code = box.querySelector('.quiz-score-code');
+    var k1 = t('score.k1'), k2 = t('score.k2'), w = Math.max(k1.length, k2.length) + 1;
+    function row(label, value, hi) {
+      var add = document.createElement('span'); add.className = 'add'; add.textContent = '+ ';
+      var l = document.createElement('span'); l.textContent = (label + '                ').slice(0, w);
+      var v = document.createElement(hi ? 'mark' : 'span'); v.textContent = value;
+      code.appendChild(add); code.appendChild(l); code.appendChild(v);
+    }
+    code.textContent = '';
+    var q = document.createElement('span'); q.className = 'quote';
+    var qa = document.createElement('span'); qa.className = 'add'; qa.textContent = '> ';
+    q.appendChild(qa); q.appendChild(document.createTextNode('quiz --score'));
+    code.appendChild(q); code.appendChild(document.createTextNode('\n'));
+    row(k1, right + '/' + graded.length, true);
+    code.appendChild(document.createTextNode('\n'));
+    row(k2, graded.length + '/' + graded.length, false);
+    var full = t('score.text').replace('{n}', right).replace('{total}', graded.length);
+    var cut = full.indexOf('. ');
+    box.querySelector('.quiz-score-text').textContent = cut > 0 ? full.slice(cut + 2) : full;
+    if (fresh) { clearTimeout(resultTimer); resultTimer = setTimeout(showResult, reduceMotion ? 300 : 2400); }
   }
+  var quizDone = false, resultTimer = 0;
+  function quizComplete() { return quizDone; }
+  function resultOpen() { var b = quizFig && quizFig.querySelector('.quiz-score'); return !!(b && !b.hidden); }
+  function showResult() { var b = quizFig && quizFig.querySelector('.quiz-score'); if (b && quizDone) b.hidden = false; }
+  function hideResult() { clearTimeout(resultTimer); var b = quizFig && quizFig.querySelector('.quiz-score'); if (b) b.hidden = true; }
   function refreshQuiz() {
     quizSlides.forEach(function (s, k) {
       var st = quizState[k];
@@ -3562,7 +3604,13 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         b.addEventListener('click', function () { answer(k, b); });
       });
     });
+    quizFig.querySelector('.quiz-bonus').addEventListener('click', function () {
+      hideResult();
+      document.dispatchEvent(new CustomEvent('arfr:bonus', { detail: { unlock: true } }));
+    });
     quizFig.querySelector('.quiz-again').addEventListener('click', function () {
+      hideResult();
+      document.dispatchEvent(new CustomEvent('arfr:bonus', { detail: { unlock: false } }));
       quizState = quizSlides.map(function () { return null; });
       quizSlides.forEach(function (s) {
         s.classList.remove('answered');
@@ -5018,17 +5066,38 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     var dotsWrap = fig.querySelector('.dots');
     var counter = fig.querySelector('.counter');
     var n = slides.length, i = 0, timer = null, paused = false;
+    var bonusIdx = -1;
+    slides.forEach(function (s, k) { if (s.hasAttribute('data-cta')) bonusIdx = k; });
+    var unlocked = bonusIdx < 0;
+    function count() { return unlocked ? slides.length : bonusIdx; }
     function pad(x) { return (x < 10 ? '0' : '') + x; }
     var dots = slides.map(function (s, k) {
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'dot';
       b.setAttribute('aria-label', s.getAttribute('data-name'));
-      b.addEventListener('click', function () { goTo(k, true); });
+      b.addEventListener('click', function () { hideResult(); goTo(k, true); });
       dotsWrap.appendChild(b);
       return b;
     });
+    function lockDots() { if (bonusIdx >= 0) dots[bonusIdx].hidden = !unlocked; }
+    lockDots();
+    document.addEventListener('arfr:bonus', function (e) {
+      unlocked = !!(e.detail && e.detail.unlock) || bonusIdx < 0;
+      lockDots();
+      if (unlocked) goTo(bonusIdx, true); else if (i >= count()) goTo(0, true);
+    });
+    function next() {
+      if (resultOpen()) { hideResult(); goTo(i + 1, true); return; }
+      if (i === count() - 1 && quizComplete()) { showResult(); return; }
+      goTo(i + 1, true);
+    }
+    function prev() {
+      if (resultOpen()) { hideResult(); return; }
+      goTo(i - 1, true);
+    }
     function goTo(k, byUser) {
+      n = count();
       i = (k + n) % n;
       track.style.transform = 'translateX(' + (-100 * i) + '%)';
       slides.forEach(function (s, j) {
@@ -5082,8 +5151,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     window.addEventListener('resize', function () { queueFit(false); });
     document.addEventListener('arfr:lang', function () { queueFit(true); });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { queueFit(true); });
-    fig.querySelector('.nav-btn.prev').addEventListener('click', function () { goTo(i - 1, true); });
-    fig.querySelector('.nav-btn.next').addEventListener('click', function () { goTo(i + 1, true); });
+    fig.querySelector('.nav-btn.prev').addEventListener('click', prev);
+    fig.querySelector('.nav-btn.next').addEventListener('click', next);
     fig.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') paused = true; });
     fig.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') paused = false; });
     fig.addEventListener('focusin', function () { paused = true; });
@@ -5094,7 +5163,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       if (x0 === null) return;
       var dx = e.clientX - x0;
       x0 = null;
-      if (Math.abs(dx) > 40) goTo(i + (dx < 0 ? 1 : -1), true);
+      if (Math.abs(dx) > 40) { if (dx < 0) next(); else prev(); }
     });
     track.addEventListener('pointercancel', function () { x0 = null; });
     goTo(0, false);
