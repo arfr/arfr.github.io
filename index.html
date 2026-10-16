@@ -673,99 +673,167 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
 .cli-line.accent, .cli-line.err { color: var(--term-accent); }
 .cli-line .ok { color: #5EE6A8; }
 .cli-line.chat-in .who { color: var(--term-accent); }
-/* Live chat: the terminal's look, as a dialog opened from the contact section */
+/* Live chat: a movable chat window; the header is the drag handle */
 .chat-open svg { width: 18px; height: 18px; }
-.chatbox { padding: 0; border: 0; background: transparent; width: min(560px, calc(100vw - 24px)); max-width: none; max-height: none; color: var(--term-fg); overflow: visible; }
-.chatbox::backdrop { background: rgba(5, 5, 8, 0.62); }
-.chatbox-win {
+.chatw {
+  position: fixed;
+  inset: auto 24px 24px auto;
+  z-index: 45;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  height: min(540px, calc(100dvh - 48px));
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  overflow: visible;
+}
+.chatw-win {
+  height: 100%;
   display: flex;
   flex-direction: column;
-  height: min(560px, calc(100dvh - 48px));
-  background: var(--term-surface);
-  border: 1px solid var(--term-line);
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-  font-family: var(--font-mono);
-  font-size: 15px;
-  line-height: 1.6;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3), 0 2px 10px rgba(0, 0, 0, 0.12);
+  font-family: var(--font-body);
 }
-@media (pointer: coarse) { .chatbox-win { font-size: 16px; } }
-.chatbox .cli-head { flex: none; }
-.chatbox-close {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 30px;
-  height: 26px;
+.chatw-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 10px 12px 16px;
+  border-bottom: 1px solid var(--line);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.chatw-head.dragging { cursor: grabbing; }
+.chatw-avatar { flex: none; width: 36px; height: 36px; border-radius: 50%; object-fit: cover; filter: grayscale(1); background: var(--surface); }
+.chatw-id { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.chatw-name { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 0.9375rem; line-height: 1.3; }
+.chatw-status { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; line-height: 1.3; color: var(--muted); }
+.chatw-dot { width: 7px; height: 7px; border-radius: 50%; background: #F2B24C; }
+.chatw-status[data-state="online"] .chatw-dot { background: #3DD68C; }
+.chatw-status[data-state="offline"] .chatw-dot { background: #9A9599; }
+.chatw-close {
+  flex: none;
+  align-self: flex-start;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   padding: 0;
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: var(--term-muted);
+  color: var(--muted);
   cursor: pointer;
 }
-.chatbox-close:hover { color: var(--term-fg); background: rgba(255, 255, 255, 0.06); }
-.chatbox-close svg { width: 16px; height: 16px; }
-.chatbox-log { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 14px; scrollbar-width: thin; scrollbar-color: var(--term-line) transparent; }
-.chatbox-log .own .who { color: var(--term-muted); }
-.chatbox-in { flex: none; display: flex; align-items: center; padding: 8px 8px 8px 14px; border-top: 1px solid var(--term-line); }
-.chatbox-in:focus-within { border-top-color: rgba(180, 140, 255, 0.45); }
-.chatbox-in input { flex: 1; min-width: 0; padding: 6px 0; border: 0; outline: 0; background: transparent; color: var(--term-fg); font: inherit; caret-color: var(--term-accent); }
-.chatbox-send { flex: none; width: 38px; height: 34px; margin-left: 8px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: var(--term-accent); color: var(--term-bg); cursor: pointer; transition: transform 0.12s ease; }
-.chatbox-send:active { transform: scale(0.94); }
-.chatbox-send svg { width: 18px; height: 18px; }
-
-.cli-art {
-  margin: 0;
-  font-family: inherit;
-  font-size: inherit;
-  line-height: 1.15;
-  color: var(--term-fg);
-  white-space: pre;
-  overflow: hidden;
+.chatw-close:hover { color: var(--fg); background: var(--surface); }
+.chatw-close svg { width: 18px; height: 18px; }
+.chatw-log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
 }
-.cli-art .r { color: var(--term-fg); text-shadow: 0 0 6px rgba(180, 140, 255, 0.5); }
-.cli-art .f { color: #FFB454; text-shadow: 0 0 8px rgba(255, 180, 84, 0.75); }
-.cli-art .s, .cli-art .m { color: var(--term-muted); }
-.cli-art .g { color: var(--term-accent); }
-.cli-in { display: flex; align-items: center; margin: 0; }
-.cli-prompt { flex: none; margin-right: 1ch; color: var(--term-muted); white-space: pre; }
-.cli-prompt .host { color: var(--term-accent); }
-.cli-field { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; }
-.cli-in input {
-  width: calc((var(--len, 0) + 1) * 1ch);
-  min-width: 1ch;
-  max-width: 100%;
+.cnote { margin: 0; font-size: 0.8125rem; line-height: 1.5; color: var(--muted); }
+.cnote.err { color: var(--accent); }
+.cnote a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.cnote a:hover { text-decoration-thickness: 2px; }
+/* messages as a thread, like the comments elsewhere on the page */
+.cmsg { display: flex; gap: 12px; align-items: flex-start; }
+.cmsg-av {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.8125rem;
+}
+.cmsg-in .cmsg-av { background: var(--fg); color: var(--bg); }
+.cmsg-out .cmsg-av { border: 1px solid var(--muted); color: var(--muted); }
+.cmsg-body { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cmsg-meta { margin: 0; display: flex; align-items: baseline; gap: 8px; font-size: 0.875rem; }
+.cmsg-meta b { font-family: var(--font-display); font-weight: 600; }
+.cmsg-time { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cmsg-text { margin: 0; font-size: 0.9375rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.chatw-in {
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 0 12px 12px;
+  padding: 4px 4px 4px 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+}
+.chatw-in:focus-within { border-color: var(--accent); }
+.chatw-in textarea {
+  flex: 1;
+  min-width: 0;
+  max-height: 120px;
+  padding: 9px 0;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+.chatw-in textarea::placeholder { color: var(--muted); }
+.chatw-send {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
   padding: 0;
   border: 0;
-  outline: none;
-  background: transparent;
-  color: var(--term-fg);
-  caret-color: var(--term-accent);
-  font-family: var(--font-mono);
-  font-size: inherit;
-  line-height: inherit;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.12s ease;
 }
-.cli-block {
-  display: inline-block;
-  width: 1ch;
-  height: 1.15em;
-  margin-left: -1ch;
-  background: var(--term-accent);
-  animation: blink 1.1s steps(1) infinite;
-  pointer-events: none;
+.chatw-send:disabled { opacity: 0.35; cursor: default; }
+.chatw-send:not(:disabled):active { transform: scale(0.94); }
+.chatw-send svg { width: 18px; height: 18px; }
+/* variant b: light/dark like the page, no colour band, quiet bubbles */
+.chatw[data-v="b"] .chatw-prompt, .chatw[data-v="b"] .chatw-title { display: none; }
+.chatw[data-v="b"] .cmsg-av { display: none; }
+.chatw[data-v="b"] .cmsg { max-width: 82%; }
+.chatw[data-v="b"] .cmsg-out { align-self: flex-end; }
+.chatw[data-v="b"] .cmsg-out .cmsg-meta { justify-content: flex-end; }
+.chatw[data-v="b"] .cmsg-body { width: 100%; }
+.chatw[data-v="b"] .cmsg-meta { order: 2; padding: 0 4px; }
+.chatw[data-v="b"] .cmsg-meta b { display: none; }
+.chatw[data-v="b"] .cmsg-text { padding: 10px 14px; border-radius: 14px; background: var(--surface); }
+.chatw[data-v="b"] .cmsg-in .cmsg-text { border-bottom-left-radius: 4px; }
+.chatw[data-v="b"] .cmsg-out .cmsg-text { background: var(--bar); color: var(--bar-fg); border-bottom-right-radius: 4px; }
+.chatw[data-v="b"] .chatw-log { gap: 10px; }
+@media (max-width: 560px) {
+  .chatw { inset: auto 8px 8px 8px; width: auto; max-width: none; height: min(560px, calc(100dvh - 16px)); }
+  .chatw-head { cursor: default; }
 }
-.cli:focus-within .cli-block { display: none; }
-@media (max-width: 480px) {
-  .cli-dots { display: none; }
-  .cli-title { padding: 0; }
-  .cli-screen { height: 280px; }
-}
-@media (prefers-reduced-motion: reduce) { .cli { transition: none; } .cli-block { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .chatw-send { transition: none; } }
 
 /* Hidden command `smart`: the page compressed to its minimum */
 html.smart main, html.smart .site-foot, html.smart .nav { display: none !important; }
@@ -1775,18 +1843,23 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
   </div>
 </footer>
 
-<dialog class="chatbox" id="chat-dialog" aria-labelledby="chat-title">
-  <div class="chatbox-win">
-    <div class="cli-head">
-      <span class="cli-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span class="cli-title" id="chat-title">alex@arfr — chat</span>
-      <button type="button" class="chatbox-close" id="chat-close" aria-label="Chat schließen" data-i18n-aria="chat.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+<dialog class="chatw" id="chat-dialog" data-v="b" aria-labelledby="chat-title">
+  <div class="chatw-win">
+    <div class="chatw-head" id="chat-drag">
+      <img class="chatw-avatar" id="chat-avatar" alt="" width="36" height="36">
+      <div class="chatw-id">
+        <p class="chatw-name" id="chat-title">Alex Fuhr</p>
+        <p class="chatw-status" data-state="connecting"><span class="chatw-dot" aria-hidden="true"></span><span id="chat-status" data-i18n="chat.status.connecting">Verbinde …</span></p>
+      </div>
+      <button type="button" class="chatw-close" id="chat-close" aria-label="Chat schließen" data-i18n-aria="chat.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
-    <div class="chatbox-log" id="chat-log" role="log" aria-live="polite"></div>
-    <form class="chatbox-in" id="chat-form" autocomplete="off">
-      <label for="chat-input" class="cli-prompt"><span class="host">guest</span>&gt;<span class="sr-only" data-i18n="chat.label">Nachricht an Alex</span></label>
-      <input id="chat-input" type="text" maxlength="500" enterkeyhint="send" spellcheck="true">
-      <button type="submit" class="chatbox-send" aria-label="Senden" data-i18n-aria="chat.send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    <div class="chatw-log" id="chat-log" role="log" aria-live="polite">
+      <p class="cnote" data-i18n="chat.intro">Schreib Alex direkt hier. Die Antwort erscheint in diesem Fenster.</p>
+    </div>
+    <form class="chatw-in" id="chat-form" autocomplete="off">
+      <label for="chat-input" class="sr-only" data-i18n="chat.label">Nachricht an Alex</label>
+      <textarea id="chat-input" rows="1" maxlength="500" enterkeyhint="send" placeholder="Nachricht schreiben …" data-i18n-ph="chat.placeholder"></textarea>
+      <button type="submit" class="chatw-send" aria-label="Senden" data-i18n-aria="chat.send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </form>
   </div>
 </dialog>
@@ -1921,8 +1994,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "The answer to everything. You'll have to ask the question yourself.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Alex replies to email almost as fast.",
       "cli.hello": "Hello back! Type help if you're stuck.",
-      "cli.chat.connect": "Connecting to alex@arfr …",
-      "cli.chat.hint": "Connected. Just start typing.",
       "cli.chat.wait": "Alex seems to be away from his phone. He'll reply as soon as he can, or write to hello@arfr.de.",
       "cli.chat.offline": "Can't reach the chat right now. Just write to hello@arfr.de.",
       "cli.chat.error": "Transmission failed. Try again or use hello@arfr.de.",
@@ -1933,6 +2004,12 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "chat.close": "Close chat",
       "chat.label": "Message to Alex",
       "chat.send": "Send",
+      "chat.placeholder": "Write a message …",
+      "chat.status.connecting": "Connecting …",
+      "chat.status.online": "Live chat",
+      "chat.status.offline": "Unavailable right now",
+      "chat.intro": "Write to Alex right here. The reply shows up in this window.",
+      "chat.me": "You",
       "cli.notFound": "command not found: {cmd}. Hint: help",
       "cli.enter3": "Three times Enter, nothing happened. Try help instead? [Y/n]", "cli.enter3.no": "Fair enough. Keep guessing.",
       "cli.unknown3": "Three unknown commands in a row. Try help instead? [Y/n]",
@@ -2063,8 +2140,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "Die Antwort auf alles. Die Frage musst du selbst stellen.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Alex antwortet auf Mails fast genauso schnell.",
       "cli.hello": "Hallo zurück! Tippe help, wenn du nicht weiterweißt.",
-      "cli.chat.connect": "Verbinde mit alex@arfr …",
-      "cli.chat.hint": "Verbunden. Einfach lostippen.",
       "cli.chat.wait": "Alex ist gerade wohl nicht am Handy. Er antwortet, sobald er kann, oder schreib an hello@arfr.de.",
       "cli.chat.offline": "Der Chat ist gerade nicht erreichbar. Schreib einfach an hello@arfr.de.",
       "cli.chat.error": "Übertragung fehlgeschlagen. Nochmal versuchen oder hello@arfr.de.",
@@ -2075,6 +2150,12 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "chat.close": "Chat schließen",
       "chat.label": "Nachricht an Alex",
       "chat.send": "Senden",
+      "chat.placeholder": "Nachricht schreiben …",
+      "chat.status.connecting": "Verbinde …",
+      "chat.status.online": "Live-Chat",
+      "chat.status.offline": "Gerade nicht erreichbar",
+      "chat.intro": "Schreib Alex direkt hier. Die Antwort erscheint in diesem Fenster.",
+      "chat.me": "Du",
       "cli.notFound": "Befehl nicht gefunden: {cmd}. Tipp: help",
       "cli.enter3": "Dreimal Enter, nichts passiert. Doch lieber help? [J/n]", "cli.enter3.no": "Alles klar. Dann weiter raten.",
       "cli.unknown3": "Dreimal unbekannt. Doch lieber help? [J/n]",
@@ -2205,8 +2286,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "Ответ на всё. Вопрос придётся задать самому.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Алекс отвечает на письма почти так же быстро.",
       "cli.hello": "И тебе привет! Введи help, если не знаешь, что дальше.",
-      "cli.chat.connect": "Подключаюсь к alex@arfr …",
-      "cli.chat.hint": "Подключено. Просто начни печатать.",
       "cli.chat.wait": "Похоже, Алекс сейчас не у телефона. Он ответит, как только сможет, или напиши на hello@arfr.de.",
       "cli.chat.offline": "Чат сейчас недоступен. Просто напиши на hello@arfr.de.",
       "cli.chat.error": "Не удалось отправить. Попробуй ещё раз или напиши на hello@arfr.de.",
@@ -2217,6 +2296,12 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "chat.close": "Закрыть чат",
       "chat.label": "Сообщение Алексу",
       "chat.send": "Отправить",
+      "chat.placeholder": "Напиши сообщение …",
+      "chat.status.connecting": "Подключение …",
+      "chat.status.online": "Живой чат",
+      "chat.status.offline": "Сейчас недоступен",
+      "chat.intro": "Напиши Алексу прямо здесь. Ответ появится в этом окне.",
+      "chat.me": "Ты",
       "cli.notFound": "команда не найдена: {cmd}. Подсказка: help",
       "cli.enter3": "Трижды Enter — и ничего. Может, всё-таки help? [Д/н]", "cli.enter3.no": "Ладно. Угадывай дальше.",
       "cli.unknown3": "Три неизвестные команды подряд. Может, всё-таки help? [Д/н]",
@@ -2405,8 +2490,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "Odgovor na sve. Pitanje moraš sam da postaviš.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Alex na mejlove odgovara skoro isto tako brzo.",
       "cli.hello": "Zdravo i tebi! Ukucaj help ako ne znaš dalje.",
-      "cli.chat.connect": "Povezujem se sa alex@arfr …",
-      "cli.chat.hint": "Povezano. Samo počni da kucaš.",
       "cli.chat.wait": "Alex izgleda trenutno nije uz telefon. Odgovoriće čim bude mogao, ili piši na hello@arfr.de.",
       "cli.chat.offline": "Čet trenutno nije dostupan. Samo piši na hello@arfr.de.",
       "cli.chat.error": "Slanje nije uspelo. Pokušaj ponovo ili piši na hello@arfr.de.",
@@ -2417,6 +2500,12 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "chat.close": "Zatvori čet",
       "chat.label": "Poruka za Alexa",
       "chat.send": "Pošalji",
+      "chat.placeholder": "Napiši poruku …",
+      "chat.status.connecting": "Povezivanje …",
+      "chat.status.online": "Čet uživo",
+      "chat.status.offline": "Trenutno nedostupno",
+      "chat.intro": "Piši Alexu ovde. Odgovor stiže u ovaj prozor.",
+      "chat.me": "Ti",
       "cli.notFound": "komanda nije pronađena: {cmd}. Savet: help",
       "cli.enter3": "Tri puta Enter, ništa se nije desilo. Ipak help? [D/n]",
       "cli.enter3.no": "U redu. Pogađaj dalje.",
@@ -2617,8 +2706,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "Η απάντηση σε όλα. Την ερώτηση πρέπει να την κάνεις εσύ.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Ο Alex απαντά στα email σχεδόν το ίδιο γρήγορα.",
       "cli.hello": "Γεια και σε σένα! Γράψε help αν κόλλησες.",
-      "cli.chat.connect": "Σύνδεση με alex@arfr …",
-      "cli.chat.hint": "Συνδέθηκε. Απλώς άρχισε να γράφεις.",
       "cli.chat.wait": "Ο Alex μάλλον δεν είναι στο κινητό τώρα. Θα απαντήσει μόλις μπορέσει, ή γράψε στο hello@arfr.de.",
       "cli.chat.offline": "Η συνομιλία δεν είναι διαθέσιμη τώρα. Γράψε απλώς στο hello@arfr.de.",
       "cli.chat.error": "Η αποστολή απέτυχε. Δοκίμασε ξανά ή γράψε στο hello@arfr.de.",
@@ -2629,6 +2716,12 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "chat.close": "Κλείσιμο συνομιλίας",
       "chat.label": "Μήνυμα στον Alex",
       "chat.send": "Αποστολή",
+      "chat.placeholder": "Γράψε ένα μήνυμα …",
+      "chat.status.connecting": "Σύνδεση …",
+      "chat.status.online": "Live συνομιλία",
+      "chat.status.offline": "Μη διαθέσιμο τώρα",
+      "chat.intro": "Γράψε στον Alex εδώ. Η απάντηση θα εμφανιστεί σε αυτό το παράθυρο.",
+      "chat.me": "Εσύ",
       "cli.notFound": "η εντολή δεν βρέθηκε: {cmd}. Συμβουλή: help",
       "cli.enter3": "Τρεις φορές Enter και τίποτα. Μήπως καλύτερα help; [Ν/ο]",
       "cli.enter3.no": "Εντάξει. Συνέχισε να μαντεύεις.",
@@ -2684,6 +2777,10 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       var v = dict[el.getAttribute('data-i18n')];
       if (v != null) el.textContent = v;
     });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
+      var v = dict[el.getAttribute('data-i18n-ph')];
+      if (v != null) el.setAttribute('placeholder', v);
+    });
     document.querySelectorAll('[data-i18n-aria]').forEach(function (el) {
       var v = dict[el.getAttribute('data-i18n-aria')];
       if (v != null) el.setAttribute('aria-label', v);
@@ -2702,6 +2799,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     refreshQuiz();
     refreshNext();
     refreshSmart();
+    document.dispatchEvent(new CustomEvent('arfr:lang'));
     if (save) {
       try { localStorage.setItem('arfr-lang', lang); } catch (e) {}
     }
@@ -3011,7 +3109,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
   function refreshNext() {
     /* every mail link carries the subject, so mails from the site are easy to spot */
     var href = 'mailto:hello@arfr.de?subject=' + encodeURIComponent(t('next.subject'));
-    document.querySelectorAll('a[href^="mailto:hello@arfr.de"]').forEach(function (a) { a.setAttribute('href', href); });
+    document.querySelectorAll('a[href^="mailto:hello@arfr.de"]:not(.chat-mail)').forEach(function (a) { a.setAttribute('href', href); });
     if (nextStatus && nextStatus.textContent) nextStatus.textContent = t('next.coffee');
   }
   (function nextBlock() {
@@ -3367,7 +3465,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     }
     function collect() {
       var nodes = [];
-      var skip = 'script, style, svg, canvas, .cli, #game, .site-head, .lang-menu, .sr-only, [hidden], .slide[aria-hidden="true"], .bug-sprite, .chatbox';
+      var skip = 'script, style, svg, canvas, .cli, #game, .site-head, .lang-menu, .sr-only, [hidden], .slide[aria-hidden="true"], .bug-sprite, .chatw';
       var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
         acceptNode: function (n) {
           if (!n.nodeValue || !/\S/.test(n.nodeValue)) return NodeFilter.FILTER_REJECT;
@@ -4332,38 +4430,95 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 
 
   /* Live chat with Alex, opened from the contact section ("Chat starten").
-     Messages go through the proxy to Alex; he sees when a window opens and can write first.
+     A movable chat card; messages go through the proxy to Alex, who sees when a window opens and can write first.
      His replies come back here (and reopen the window). Plain text only, rate limited. */
   (function liveChat() {
     var openBtn = document.getElementById('chat-open');
     var dlg = document.getElementById('chat-dialog');
     if (!openBtn || !dlg) return;
-    if (typeof dlg.showModal !== 'function') { openBtn.hidden = true; return; }
+    if (typeof dlg.show !== 'function') { openBtn.hidden = true; return; }
     var log = document.getElementById('chat-log');
     var form = document.getElementById('chat-form');
     var input = document.getElementById('chat-input');
+    var sendBtn = form.querySelector('.chatw-send');
     var closeBtn = document.getElementById('chat-close');
+    var head = document.getElementById('chat-drag');
+    var statusWrap = dlg.querySelector('.chatw-status');
+    var statusText = document.getElementById('chat-status');
+    var avatar = document.getElementById('chat-avatar');
+    var photo = document.querySelector('.portrait-img');
+    if (avatar && photo) avatar.src = photo.currentSrc || photo.src;
     var TG_API = 'https://inot.app/api/telegram/proxy';
     var TG_ADMIN = '5741725666';
-    var st = { started: false, ready: false, session: null, offset: 0, sent: {}, polling: false, lastSend: 0, count: 0, heard: false, waitTimer: 0 };
+    var st = { started: false, ready: false, connecting: false, session: null, offset: 0, sent: {}, polling: false, lastSend: 0, count: 0, heard: false, waitTimer: 0, state: 'connecting' };
 
-    function add(text, cls) {
-      var d = document.createElement('div');
-      d.className = 'cli-line' + (cls ? ' ' + cls : '');
-      d.textContent = text;
-      log.appendChild(d);
-      log.scrollTop = log.scrollHeight;
+    function setState(state) {
+      st.state = state;
+      statusWrap.setAttribute('data-state', state);
+      statusText.setAttribute('data-i18n', 'chat.status.' + state);
+      statusText.textContent = t('chat.status.' + state);
     }
-    function addWho(who, text, cls) {
-      var d = document.createElement('div');
-      d.className = 'cli-line chat-in' + (cls ? ' ' + cls : '');
-      var w = document.createElement('span');
-      w.className = 'who';
-      w.textContent = '<' + who + '> ';
-      d.appendChild(w);
-      d.appendChild(document.createTextNode(text));
-      log.appendChild(d);
-      log.scrollTop = log.scrollHeight;
+    function scrollDown() { log.scrollTop = log.scrollHeight; }
+    /* system notes; the email address becomes a link whose subject marks it as coming from the chat */
+    var MAIL = 'hello@arfr.de';
+    /* a note keeps its i18n key, so a language switch rewrites it like the rest of the page */
+    function fillNote(p) {
+      var parts = t(p.getAttribute('data-note')).split(MAIL);
+      p.textContent = '';
+      parts.forEach(function (part, i) {
+        if (part) p.appendChild(document.createTextNode(part));
+        if (i < parts.length - 1) {
+          var a = document.createElement('a');
+          a.className = 'chat-mail';
+          a.href = 'mailto:' + MAIL + '?subject=' + encodeURIComponent(t('next.subject') + ' (Chat)');
+          a.textContent = MAIL;
+          p.appendChild(a);
+        }
+      });
+    }
+    function note(key, err) {
+      var p = document.createElement('p');
+      p.className = 'cnote' + (err ? ' err' : '');
+      p.setAttribute('data-note', key);
+      fillNote(p);
+      log.appendChild(p);
+      scrollDown();
+    }
+    document.addEventListener('arfr:lang', function () {
+      log.querySelectorAll('.cnote[data-note]').forEach(fillNote);
+    });
+    function clock() {
+      try { return new Date().toLocaleTimeString(HTML_LANG[current] || current, { hour: '2-digit', minute: '2-digit' }); }
+      catch (e) { var d = new Date(); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+    }
+    function bubble(text, out) {
+      var name = out ? t('chat.me') : 'Alex';
+      var m = document.createElement('div');
+      m.className = 'cmsg ' + (out ? 'cmsg-out' : 'cmsg-in');
+      var av = document.createElement('span');
+      av.className = 'cmsg-av';
+      av.setAttribute('aria-hidden', 'true');
+      av.textContent = out ? name.charAt(0).toUpperCase() : 'AF';
+      var body = document.createElement('div');
+      body.className = 'cmsg-body';
+      var meta = document.createElement('p');
+      meta.className = 'cmsg-meta';
+      var b = document.createElement('b');
+      b.textContent = name;
+      var tm = document.createElement('span');
+      tm.className = 'cmsg-time';
+      tm.textContent = clock();
+      meta.appendChild(b);
+      meta.appendChild(tm);
+      var p = document.createElement('p');
+      p.className = 'cmsg-text';
+      p.textContent = text;
+      body.appendChild(meta);
+      body.appendChild(p);
+      m.appendChild(av);
+      m.appendChild(body);
+      log.appendChild(m);
+      scrollDown();
     }
     function tg(method, params) {
       return fetch(TG_API, {
@@ -4377,20 +4532,28 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         .then(function (d) { if (d && d.ok && d.result) st.sent[d.result.message_id] = true; return !!(d && d.ok); })
         .catch(function () { return false; });
     }
-    function connect() {
-      st.started = true;
-      if (!st.session) st.session = 'web_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
-      add(t('cli.chat.connect'), 'muted');
-      /* skip whatever is already waiting on the bot, and check the line works */
-      tg('getUpdates', { offset: -1 }).then(function (d) {
+    function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+    /* the newest update id, so old messages are skipped; tolerant of a busy bot (another tab polling) */
+    function fetchOffset(tries) {
+      return tg('getUpdates', { offset: -1 }).then(function (d) {
         if (d && d.ok && d.result && d.result.length) st.offset = d.result[d.result.length - 1].update_id;
+        return true;
+      }).catch(function () { return tries > 1 ? wait(900).then(function () { return fetchOffset(tries - 1); }) : false; });
+    }
+    function connect() {
+      if (st.connecting || st.ready) return;
+      st.connecting = true;
+      st.started = true;
+      setState('connecting');
+      if (!st.session) st.session = 'web_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+      fetchOffset(3).then(function () {
+        return tgSend('🌐 [' + st.session + ']\n📡 New communication channel opened · ' + current.toUpperCase());
+      }).then(function (ok) {
+        st.connecting = false;
+        if (!ok) { setState('offline'); note('cli.chat.offline', true); st.started = false; return; }
         st.ready = true;
-        tgSend('🌐 [' + st.session + ']\n📡 New communication channel opened · ' + current.toUpperCase());
-        add(t('cli.chat.hint'), 'muted');
+        setState('online');
         poll();
-      }).catch(function () {
-        st.started = false;
-        add(t('cli.chat.offline'), 'err');
       });
     }
     function poll() {
@@ -4411,8 +4574,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
           else if (m.text.indexOf('[' + st.session) !== -1) text = m.text.replace(/^[^\[]*\[[^\]]*\]\s*/, '');
           if (text) {
             st.heard = true;
-            if (!dlg.open) show();
-            addWho('alex', text);
+            if (!dlg.open) dlg.show();
+            bubble(text, false);
           }
         });
       }).catch(function () { failed = true; }).then(function () {
@@ -4420,41 +4583,80 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         if (st.ready) setTimeout(poll, failed ? 5000 : 600);
       });
     }
-    function show() {
-      if (!dlg.open) dlg.showModal();
-      setTimeout(function () { input.focus(); }, 0);
-    }
     function openChat() {
-      var wasStarted = st.started;
-      show();
-      if (!wasStarted) connect();
-      else if (st.ready) tgSend('📡 [' + st.session + '] Chat window reopened');
+      var reopen = st.ready && !dlg.open;
+      if (!dlg.open) dlg.show();
+      input.focus({ preventScroll: true });
+      if (!st.started) connect();
+      else if (reopen) tgSend('📡 [' + st.session + '] Chat window reopened');
     }
+    function closeChat() { if (dlg.open) dlg.close(); }
     openBtn.addEventListener('click', openChat);
-    closeBtn.addEventListener('click', function () { dlg.close(); });
-    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    closeBtn.addEventListener('click', closeChat);
+    dlg.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); closeChat(); } });
     dlg.addEventListener('close', function () {
       if (st.ready) tgSend('🔌 [' + st.session + '] Chat window closed');
-      openBtn.focus({ preventScroll: true });
+      if (dlg.contains(document.activeElement) || document.activeElement === document.body) openBtn.focus({ preventScroll: true });
+    });
+
+    /* composer: grows with the text, Enter sends, Shift+Enter breaks the line */
+    function fit() {
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+      sendBtn.disabled = !input.value.trim();
+    }
+    input.addEventListener('input', fit);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit')); }
     });
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var text = input.value.trim();
       if (!text) return;
-      if (!st.ready) { if (!st.started) connect(); return; }
+      if (!st.ready) { connect(); return; }
       var now = Date.now();
-      if (now - st.lastSend < 1500) { add(t('cli.chat.slow'), 'muted'); return; }
-      if (st.count >= 30) { add(t('cli.chat.limit'), 'err'); return; }
-      if (text.length > 500) { text = text.slice(0, 500); add(t('cli.chat.long'), 'muted'); }
+      if (now - st.lastSend < 1500) { note('cli.chat.slow'); return; }
+      if (st.count >= 30) { note('cli.chat.limit', true); return; }
+      if (text.length > 500) { text = text.slice(0, 500); note('cli.chat.long'); }
       input.value = '';
+      fit();
       st.lastSend = now;
       st.count += 1;
-      addWho('guest', text, 'own');
-      tgSend('🌐 [' + st.session + ']\n' + text).then(function (ok) { if (!ok) add(t('cli.chat.error'), 'err'); });
+      bubble(text, true);
+      tgSend('🌐 [' + st.session + ']\n' + text).then(function (ok) { if (!ok) note('cli.chat.error', true); });
       if (st.count === 1) {
         clearTimeout(st.waitTimer);
-        st.waitTimer = setTimeout(function () { if (!st.heard) add(t('cli.chat.wait'), 'muted'); }, 90000);
+        st.waitTimer = setTimeout(function () { if (!st.heard) note('cli.chat.wait'); }, 90000);
       }
+    });
+
+    /* move the window by its header (not on phones, where it is a bottom sheet) */
+    var drag = null;
+    function narrow() { return window.matchMedia('(max-width: 560px)').matches; }
+    function place(x, y) {
+      var w = dlg.offsetWidth, h = dlg.offsetHeight;
+      x = Math.min(Math.max(8, x), window.innerWidth - w - 8);
+      y = Math.min(Math.max(8, y), window.innerHeight - h - 8);
+      dlg.style.left = x + 'px';
+      dlg.style.top = y + 'px';
+      dlg.style.right = 'auto';
+      dlg.style.bottom = 'auto';
+    }
+    head.addEventListener('pointerdown', function (e) {
+      if (narrow() || e.button !== 0 || (e.target.closest && e.target.closest('button'))) return;
+      var r = dlg.getBoundingClientRect();
+      drag = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+      head.setPointerCapture(e.pointerId);
+      head.classList.add('dragging');
+      e.preventDefault();
+    });
+    head.addEventListener('pointermove', function (e) { if (drag) place(e.clientX - drag.dx, e.clientY - drag.dy); });
+    function endDrag() { drag = null; head.classList.remove('dragging'); }
+    head.addEventListener('pointerup', endDrag);
+    head.addEventListener('pointercancel', endDrag);
+    window.addEventListener('resize', function () {
+      if (narrow()) { dlg.style.left = dlg.style.top = dlg.style.right = dlg.style.bottom = ''; return; }
+      if (dlg.style.left) { var r = dlg.getBoundingClientRect(); place(r.left, r.top); }
     });
   })();
 
