@@ -415,6 +415,10 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
 }
 .chip-ok { background: var(--bar); color: var(--bar-fg); border-color: var(--bar); }
 .chip svg { width: 12px; height: 12px; }
+.cta-chat { min-height: 32px; padding: 4px 14px; font: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: transform 0.15s ease; }
+.cta-chat svg { width: 14px; height: 14px; }
+.cta-chat:hover { transform: translateY(-1px); }
+@media (prefers-reduced-motion: reduce) { .cta-chat { transition: none; } .cta-chat:hover { transform: none; } }
 .hunk { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
 .hunk + .hunk { border-top: 1px dashed var(--line); }
 .hunk-label { color: var(--muted); font-size: 0.8125rem; }
@@ -735,6 +739,13 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
 .chatw-close:focus-visible { color: var(--fg); }
 .chatw-close svg { width: 18px; height: 18px; }
 .chatw-min { margin-right: -8px; }
+.chatw-dock svg { transition: transform 0.2s ease; }
+.chatw-dock[data-next="bl"] svg { transform: rotate(90deg); }
+.chatw-dock[data-next="tl"] svg { transform: rotate(180deg); }
+.chatw-dock[data-next="tr"] svg { transform: rotate(-90deg); }
+.chatw.snapping { transition: left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), top 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@media (max-width: 560px) { .chatw-dock { display: none; } }
+@media (prefers-reduced-motion: reduce) { .chatw-dock svg, .chatw.snapping { transition: none; } }
 .chatw-min .ico-max, .chatw.min .chatw-min .ico-min { display: none; }
 .chatw.min .chatw-min .ico-max { display: inline; }
 .chatw-unread {
@@ -1418,255 +1429,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       <figure class="review" data-ui aria-label="Beispiele für Code-Reviews: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe" data-i18n-aria="review.aria">
         <div class="review-card carousel" aria-roledescription="carousel">
           <div class="track">
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="1 / 9: PHP" data-name="PHP">
-              <div class="review-head">
-                <span class="chip">PHP</span>
-              </div>
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="add">+ </span>$sql = "SELECT * FROM users
-<span class="add">+ </span>        WHERE email = '$email'";</pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.php.a">Fehlt ein Semikolon</span></button>
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.php.b">SQL-Injection</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.php.c">Nichts, läuft doch</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
-                </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.php">Grüße von Little Bobby Tables. Bitte mit Prepared Statement.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span>$stmt = $pdo-&gt;prepare(
-<span class="add">+ </span>  'SELECT * FROM users
-<span class="add">+ </span>   WHERE email = <mark>?</mark>');
-<span class="add">+ </span>$stmt-&gt;execute(<mark>[$email]</mark>);</pre>
-              </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
-            </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="2 / 9: MySQL" data-name="MySQL">
-              <div class="review-head">
-                <span class="chip">MySQL</span>
-              </div>
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="add">+ </span>UPDATE customers
-<span class="add">+ </span>SET newsletter = 0;</pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.sql.a">Das WHERE fehlt</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.sql.b">0 sollte FALSE sein</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.sql.c">Alles okay</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
-                </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.sql">Damit meldest du jeden einzelnen Kunden ab. Bitte nur den, der gefragt hat.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span>UPDATE customers
-<span class="add">+ </span>SET newsletter = 0
-<span class="add">+ </span><mark>WHERE id = 1337</mark>;</pre>
-              </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
-            </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="3 / 9: Linux" data-name="Linux">
-              <div class="review-head">
-                <span class="chip">Bash</span>
-              </div>
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="add">+ </span>rm -rf $BUILD_DIR/*</pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.sh.a">Zu wenig sudo</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.sh.b">Kein Problem</span></button>
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.sh.c">Leere Variable heißt /*</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
-                </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.sh">Ist BUILD_DIR leer, löscht das /*. Den Server hätte ich gern noch.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span>rm -rf <mark>"${BUILD_DIR:?}"</mark>/*</pre>
-              </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
-            </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="4 / 9: TypeScript" data-name="TypeScript">
-              <div class="review-head">
-                <span class="chip">TypeScript</span>
-              </div>
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="add">+ </span>const total = items.reduce(
-<span class="add">+ </span>  (sum, i) =&gt; sum + i.price,
-<span class="add">+ </span>  0);</pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.ts.a">reduce ist zu langsam</span></button>
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.ts.b">Die Menge fehlt</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.ts.c">Sollte var sein</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
-                </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="review.comment">Die Menge fehlt. Jede Bestellung mit zwei oder mehr Artikeln wäre falsch.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span>const total = items.reduce(
-<span class="add">+ </span>  (sum, i) =&gt; sum + i.price <mark>* i.qty</mark>,
-<span class="add">+ </span>  0);</pre>
-              </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
-            </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="5 / 9: C#" data-name="C#">
-              <div class="review-head">
-                <span class="chip">C#</span>
-              </div>
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="add">+ </span>double total = price + shipping;</pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.cs.a">double ist falsch für Geld</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.cs.b">Sollte ein string sein</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.cs.c">Passt, die Bank rundet</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
-                </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.cs">double für Geld? Dann ist 0,1 + 0,2 = 0,30000000000000004 €. Bitte decimal.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span><mark>decimal</mark> total = price + shipping;</pre>
-              </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
-            </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="6 / 9: Java" data-name="Java">
-              <div class="review-head">
-                <span class="chip">Java</span>
-              </div>
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="add">+ </span>if (input == "yes") {
-<span class="add">+ </span>    deleteAccount(user);
-<span class="add">+ </span>}</pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.java.a">== statt equals()</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.java.b">Klammern fehlen</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.java.c">"yes" muss "YES" sein</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
-                </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.java">== vergleicht Referenzen, nicht Text. Im Test grün, in Produktion rot.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span>if (<mark>"yes".equals(input)</mark>) {
-<span class="add">+ </span>    deleteAccount(user);
-<span class="add">+ </span>}</pre>
-              </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
-            </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="7 / 9: Pseudocode" data-name="Pseudocode">
-              <div class="review-head">
-                <span class="chip" data-i18n="lang.pseudo">Pseudocode</span>
-              </div>
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="add">+ </span>estimate = gut_feeling()
-<span class="add">+ </span>RETURN estimate</pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.pseudo.a">Bauchgefühl ist exakt</span></button>
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.pseudo.b">Viel zu optimistisch</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.pseudo.c">RETURN fehlt</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
-                </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.pseudo">Klassiker. Mal π nehmen, dann wird's realistisch.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span>estimate = gut_feeling()
-<span class="add">+ </span>RETURN estimate <mark>* π</mark></pre>
-              </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
-            </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="8 / 9: Echtes Leben" data-name="Echtes Leben">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="1 / 11: Echtes Leben · Kunde" data-name="Echtes Leben · Kunde">
               <div class="review-head">
                 <span class="chip" data-i18n="lang.real">Echtes Leben</span>
               </div>
@@ -1703,9 +1466,294 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
                 <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
               </div>
             </div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="9 / 9: Fazit" data-name="Fazit">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="2 / 11: PHP" data-name="PHP">
               <div class="review-head">
-                <span class="chip" data-i18n="lang.final">Fazit</span>
+                <span class="chip">PHP</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="add">+ </span>$sql = "SELECT * FROM users
+<span class="add">+ </span>        WHERE email = '$email'";</pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.php.a">Fehlt ein Semikolon</span></button>
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.php.b">SQL-Injection</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.php.c">Nichts, läuft doch</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.php">Grüße von Little Bobby Tables. Bitte mit Prepared Statement.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span>$stmt = $pdo-&gt;prepare(
+<span class="add">+ </span>  'SELECT * FROM users
+<span class="add">+ </span>   WHERE email = <mark>?</mark>');
+<span class="add">+ </span>$stmt-&gt;execute(<mark>[$email]</mark>);</pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="3 / 11: Echtes Leben · Navi" data-name="Echtes Leben · Navi">
+              <div class="review-head">
+                <span class="chip" data-i18n="lang.real">Echtes Leben</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="nv.quote">Vor dir: ein See.</span></span>
+<span class="add">+ </span><span data-i18n="nv.ai1">Navi: „Weiter geradeaus.“</span></pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.nv.a">Dem Navi folgen</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.nv.b">Navi lauter stellen</span></button>
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.nv.c">Bremsen, selbst hinschauen</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.nv">Das Navi kennt die Karte, nicht den See. Hinschauen bleibt dein Job.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="nv.quote">Vor dir: ein See.</span></span>
+<span class="add">+ </span><mark data-i18n="nv.fix1">Bremsen. Hinschauen.</mark>
+<span class="add">+ </span><span data-i18n="nv.fix2">Dann weiterfahren.</span></pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="4 / 11: MySQL" data-name="MySQL">
+              <div class="review-head">
+                <span class="chip">MySQL</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="add">+ </span>UPDATE customers
+<span class="add">+ </span>SET newsletter = 0;</pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.sql.a">Das WHERE fehlt</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.sql.b">0 sollte FALSE sein</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.sql.c">Alles okay</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.sql">Damit meldest du jeden einzelnen Kunden ab. Bitte nur den, der gefragt hat.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span>UPDATE customers
+<span class="add">+ </span>SET newsletter = 0
+<span class="add">+ </span><mark>WHERE id = 1337</mark>;</pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="5 / 11: Echtes Leben · Verteiler" data-name="Echtes Leben · Verteiler">
+              <div class="review-head">
+                <span class="chip" data-i18n="lang.real">Echtes Leben</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="ra.quote">Mail an 2.347 Empfänger</span></span>
+<span class="add">+ </span><span data-i18n="ra.ai1">Allen antworten:</span>
+<span class="add">+ </span><span data-i18n="ra.ai2">„Bitte nehmt mich raus.“</span></pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.ra.a">Nur dem Absender antworten</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.ra.b">Abschicken</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.ra.c">Nochmal an alle, in GROSS</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.ra">Sonst schreiben gleich 2.346 andere dasselbe. An alle.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="ra.quote">Mail an 2.347 Empfänger</span></span>
+<span class="add">+ </span><mark data-i18n="ra.fix1">Nur an den Absender.</mark>
+<span class="add">+ </span><span data-i18n="ra.fix2">Ruhe im Postfach.</span></pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="6 / 11: Linux" data-name="Linux">
+              <div class="review-head">
+                <span class="chip">Bash</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="add">+ </span>rm -rf $BUILD_DIR/*</pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.sh.a">Zu wenig sudo</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.sh.b">Kein Problem</span></button>
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.sh.c">Leere Variable heißt /*</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.sh">Ist BUILD_DIR leer, löscht das /*. Den Server hätte ich gern noch.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span>rm -rf <mark>"${BUILD_DIR:?}"</mark>/*</pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="7 / 11: Echtes Leben · Angebot" data-name="Echtes Leben · Angebot">
+              <div class="review-head">
+                <span class="chip" data-i18n="lang.real">Echtes Leben</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="pl.quote">Angebot an einen Neukunden</span></span>
+<span class="add">+ </span><span data-i18n="pl.ai1">Sehr geehrter Herr [NAME],</span>
+<span class="add">+ </span><span data-i18n="pl.ai2">anbei unser Angebot …</span></pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.pl.a">Sofort abschicken</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.pl.b">Ein paar Emojis dazu</span></button>
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.pl.c">Erst den Namen einsetzen</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.pl">Einen Platzhalter verschickt man genau einmal. Danach wird jede Mail gegengelesen.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="pl.quote">Angebot an einen Neukunden</span></span>
+<span class="add">+ </span><span data-i18n="pl.fix1">Sehr geehrter Herr </span><mark data-i18n="pl.name">Weber</mark>,
+<span class="add">+ </span><span data-i18n="pl.ai2">anbei unser Angebot …</span></pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="8 / 11: C#" data-name="C#">
+              <div class="review-head">
+                <span class="chip">C#</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="add">+ </span>double total = price + shipping;</pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.cs.a">double ist falsch für Geld</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.cs.b">Sollte ein string sein</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.cs.c">Passt, die Bank rundet</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.cs">double für Geld? Dann ist 0,1 + 0,2 = 0,30000000000000004 €. Bitte decimal.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span><mark>decimal</mark> total = price + shipping;</pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="9 / 11: Echtes Leben · Schätzung" data-name="Echtes Leben · Schätzung">
+              <div class="review-head">
+                <span class="chip" data-i18n="lang.real">Echtes Leben</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="es.quote">„Wie lange dauert der Umbau?“</span></span>
+<span class="add">+ </span><span data-i18n="es.ai1">Zwei Tage. Höchstens.</span></pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.es.a">Passt genau</span></button>
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.es.b">Viel zu optimistisch</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.es.c">Eher zu lang geschätzt</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.pseudo">Klassiker. Mal π nehmen, dann wird's realistisch.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="es.quote">„Wie lange dauert der Umbau?“</span></span>
+<span class="add">+ </span><span data-i18n="es.fix1">Zwei Tage</span> <mark>× π</mark>
+<span class="add">+ </span><span data-i18n="es.fix2">Also gut eine Woche.</span></pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="review.by">von einem Menschen geprüft</span>
+                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
+              </div>
+            </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="10 / 11: YAML" data-name="YAML">
+              <div class="review-head">
+                <span class="chip">YAML</span>
               </div>
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
@@ -1713,11 +1761,11 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><span data-i18n="fin.k2">lenkt:       </span><span data-i18n="fin.ai">KI</span>
 <span class="add">+ </span><span data-i18n="fin.k3">entscheidet: </span><span data-i18n="fin.ai">KI</span></pre>
                 <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.final">Wer entscheidet?</p>
+                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
                   <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.final.a">Die KI</span></button>
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.final.b">Der Mensch</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.final.c">Wer zuerst committet</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.yml.a">Die Einrückung</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.yml.b">Nichts, läuft von allein</span></button>
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.yml.c">Wer lenkt und entscheidet</span></button>
                   </div>
                   <div class="ai-reply" hidden>
                     <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
@@ -1740,13 +1788,50 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
                 <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
               </div>
             </div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="11 / 11: Kommunikation" data-name="Kommunikation" data-cta>
+              <div class="review-head">
+                <span class="chip" data-i18n="lang.comm">Kommunikation</span>
+              </div>
+              <div class="hunk">
+                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="cta.quote">Eine Frage zum eigenen Thema</span></span>
+<span class="add">+ </span><span data-i18n="cta.ai1">Kontaktformular ausfüllen,</span>
+<span class="add">+ </span><span data-i18n="cta.ai2">Antwort in 3–5 Werktagen …</span></pre>
+                <div class="quiz">
+                  <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
+                  <div class="quiz-opts">
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.cta.a">Formular ausfüllen</span></button>
+                    <button type="button" class="opt" data-correct="1" data-chat><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.cta.b">Chat starten</span></button>
+                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.cta.c">Drei Werktage warten</span></button>
+                  </div>
+                  <div class="ai-reply" hidden>
+                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
+                  </div>
+                </div>
+                <div class="comment">
+                  <span class="avatar" aria-hidden="true">AF</span>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.cta">Geht schneller: einfach fragen. Die Antwort kommt von einem Menschen, direkt hier im Chat.</span></p>
+                </div>
+              </div>
+              <div class="hunk hunk-fix">
+                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="cta.quote">Eine Frage zum eigenen Thema</span></span>
+<span class="add">+ </span><mark data-i18n="cta.fix1">Chat starten.</mark>
+<span class="add">+ </span><span data-i18n="cta.fix2">Direkt fragen.</span></pre>
+              </div>
+              <div class="review-foot">
+                <span data-i18n="cta.foot">Antwort von einem Menschen</span>
+                <button type="button" class="chip chip-ok cta-chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span data-i18n="contact.chat">Chat starten</span></button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="carousel-nav">
           <button class="nav-btn prev" type="button" aria-label="Vorheriges Beispiel" data-i18n-aria="carousel.prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
           <div class="dots" role="group" aria-label="Beispiele" data-i18n-aria="carousel.label"></div>
           <button class="nav-btn next" type="button" aria-label="Nächstes Beispiel" data-i18n-aria="carousel.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-          <span class="counter" aria-hidden="true">01 / 09</span>
+          <span class="counter" aria-hidden="true">01 / 11</span>
         </div>
         <div class="quiz-score" hidden>
           <p class="quiz-score-text" aria-live="polite"></p>
@@ -1898,6 +1983,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
   <div class="chatw-win">
     <div class="chatw-head" id="chat-drag">
       <p class="chatw-status" data-state="connecting"><span class="chatw-dot" aria-hidden="true"></span><span id="chat-status" data-i18n="chat.status.connecting">Verbinde …</span><span class="chatw-unread" id="chat-unread" hidden></span></p>
+      <button type="button" class="chatw-close chatw-min chatw-dock" id="chat-dock" aria-label="In die Ecke schieben" title="In die Ecke schieben" data-i18n-aria="chat.dock" data-next="bl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7l10 10"/><path d="M17 9v8H9"/></svg></button>
       <button type="button" class="chatw-close chatw-min" id="chat-min" aria-label="Chat einklappen" data-i18n-aria="chat.min" aria-expanded="true" aria-controls="chat-log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ico-min" d="M6 12h12"/><path class="ico-max" d="M6 15l6-6 6 6"/></svg></button>
       <button type="button" class="chatw-close" id="chat-close" aria-label="Chat schließen" data-i18n-aria="chat.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
@@ -1987,6 +2073,53 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "fin.k1": "assists: ", "fin.k2": "steers:  ", "fin.k3": "decides: ",
       "fin.ai": "AI", "fin.human": "human",
       "c.final": "AI assists, sure. But steering and deciding is the human's job.",
+      "nv.quote": "Ahead: a lake.",
+      "nv.ai1": "Sat nav: \"Continue straight ahead.\"",
+      "nv.fix1": "Brake. Look.",
+      "nv.fix2": "Then drive on.",
+      "o.nv.a": "Follow the sat nav",
+      "o.nv.b": "Turn the sat nav up",
+      "o.nv.c": "Brake and look yourself",
+      "c.nv": "The sat nav knows the map, not the lake. Looking is still your job.",
+      "ra.quote": "Email to 2,347 recipients",
+      "ra.ai1": "Reply all:",
+      "ra.ai2": "\"Please take me off the list.\"",
+      "ra.fix1": "To the sender only.",
+      "ra.fix2": "Peace in the inbox.",
+      "o.ra.a": "Reply to the sender only",
+      "o.ra.b": "Send it",
+      "o.ra.c": "Again to everyone, in CAPS",
+      "c.ra": "Otherwise 2,346 others write the same thing. To everyone.",
+      "pl.quote": "Quote for a new client",
+      "pl.ai1": "Dear Mr [NAME],",
+      "pl.ai2": "please find our quote attached …",
+      "pl.fix1": "Dear Mr ",
+      "pl.name": "Miller",
+      "o.pl.a": "Send it right away",
+      "o.pl.b": "Add a few emojis",
+      "o.pl.c": "Fill in the name first",
+      "c.pl": "You send a placeholder exactly once. After that, every email gets proofread.",
+      "es.quote": "\"How long will the renovation take?\"",
+      "es.ai1": "Two days. Tops.",
+      "es.fix1": "Two days",
+      "es.fix2": "So, a good week.",
+      "o.es.a": "Spot on",
+      "o.es.b": "Far too optimistic",
+      "o.es.c": "Probably too long",
+      "o.yml.a": "The indentation",
+      "o.yml.b": "Nothing, runs by itself",
+      "o.yml.c": "Who steers and decides",
+      "cta.quote": "A question about your own topic",
+      "lang.comm": "Communication",
+      "cta.ai1": "Fill in the contact form,",
+      "cta.ai2": "reply within 3–5 business days …",
+      "cta.fix1": "Start chat.",
+      "cta.fix2": "Ask directly.",
+      "o.cta.a": "Fill in the form",
+      "o.cta.b": "Start chat",
+      "o.cta.c": "Wait three business days",
+      "c.cta": "Faster: just ask. A human replies, right here in the chat.",
+      "cta.foot": "Answered by a human",
       "q.code": "What's the problem?", "q.real": "What do you do?", "q.final": "Who decides?",
       "o.php.a": "A missing semicolon", "o.php.b": "SQL injection", "o.php.c": "Nothing, it runs",
       "o.sql.a": "The WHERE is missing", "o.sql.b": "0 should be FALSE", "o.sql.c": "All good",
@@ -2032,7 +2165,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.exit2": "Connection to arfr.de closed.",
       "cli.exit3": "… just kidding. Nobody leaves without a decision. Hint: contact",
       "cli.rm1": "Deleting everything …",
-      "cli.rm2": "Kidding. See example 03 in the quiz: the server is still needed.",
+      "cli.rm2": "Kidding. See example 06 in the quiz: the server is still needed.",
       "cli.sudo": "guest is not in the sudoers file. This incident will be reported.",
       "cli.vim": "You are now in vim. Good luck getting out. (Hint: :q!)",
       "cli.vimExit": "Respect. You exited vim. Not everyone makes it.",
@@ -2052,6 +2185,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "chat.close": "Close chat",
       "chat.min": "Minimize chat",
       "chat.max": "Expand chat",
+      "chat.dock": "Snap to corner",
       "chat.label": "Message",
       "chat.send": "Send",
       "chat.placeholder": "Write a message …",
@@ -2136,6 +2270,53 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "fin.k1": "assistiert:  ", "fin.k2": "lenkt:       ", "fin.k3": "entscheidet: ",
       "fin.ai": "KI", "fin.human": "Mensch",
       "c.final": "KI assistiert, ja. Aber lenken und entscheiden tut der Mensch.",
+      "nv.quote": "Vor dir: ein See.",
+      "nv.ai1": "Navi: „Weiter geradeaus.“",
+      "nv.fix1": "Bremsen. Hinschauen.",
+      "nv.fix2": "Dann weiterfahren.",
+      "o.nv.a": "Dem Navi folgen",
+      "o.nv.b": "Navi lauter stellen",
+      "o.nv.c": "Bremsen, selbst hinschauen",
+      "c.nv": "Das Navi kennt die Karte, nicht den See. Hinschauen bleibt dein Job.",
+      "ra.quote": "Mail an 2.347 Empfänger",
+      "ra.ai1": "Allen antworten:",
+      "ra.ai2": "„Bitte nehmt mich raus.“",
+      "ra.fix1": "Nur an den Absender.",
+      "ra.fix2": "Ruhe im Postfach.",
+      "o.ra.a": "Nur dem Absender antworten",
+      "o.ra.b": "Abschicken",
+      "o.ra.c": "Nochmal an alle, in GROSS",
+      "c.ra": "Sonst schreiben gleich 2.346 andere dasselbe. An alle.",
+      "pl.quote": "Angebot an einen Neukunden",
+      "pl.ai1": "Sehr geehrter Herr [NAME],",
+      "pl.ai2": "anbei unser Angebot …",
+      "pl.fix1": "Sehr geehrter Herr ",
+      "pl.name": "Weber",
+      "o.pl.a": "Sofort abschicken",
+      "o.pl.b": "Ein paar Emojis dazu",
+      "o.pl.c": "Erst den Namen einsetzen",
+      "c.pl": "Einen Platzhalter verschickt man genau einmal. Danach wird jede Mail gegengelesen.",
+      "es.quote": "„Wie lange dauert der Umbau?“",
+      "es.ai1": "Zwei Tage. Höchstens.",
+      "es.fix1": "Zwei Tage",
+      "es.fix2": "Also gut eine Woche.",
+      "o.es.a": "Passt genau",
+      "o.es.b": "Viel zu optimistisch",
+      "o.es.c": "Eher zu lang geschätzt",
+      "o.yml.a": "Die Einrückung",
+      "o.yml.b": "Nichts, läuft von allein",
+      "o.yml.c": "Wer lenkt und entscheidet",
+      "cta.quote": "Eine Frage zum eigenen Thema",
+      "lang.comm": "Kommunikation",
+      "cta.ai1": "Kontaktformular ausfüllen,",
+      "cta.ai2": "Antwort in 3–5 Werktagen …",
+      "cta.fix1": "Chat starten.",
+      "cta.fix2": "Direkt fragen.",
+      "o.cta.a": "Formular ausfüllen",
+      "o.cta.b": "Chat starten",
+      "o.cta.c": "Drei Werktage warten",
+      "c.cta": "Geht schneller: einfach fragen. Die Antwort kommt von einem Menschen, direkt hier im Chat.",
+      "cta.foot": "Antwort von einem Menschen",
       "q.code": "Was ist das Problem?", "q.real": "Was tust du?", "q.final": "Wer entscheidet?",
       "o.php.a": "Fehlt ein Semikolon", "o.php.b": "SQL-Injection", "o.php.c": "Nichts, läuft doch",
       "o.sql.a": "Das WHERE fehlt", "o.sql.b": "0 sollte FALSE sein", "o.sql.c": "Alles okay",
@@ -2181,7 +2362,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.exit2": "Verbindung zu arfr.de geschlossen.",
       "cli.exit3": "… war nur Spaß. Ohne Entscheidung geht hier keiner. Tipp: contact",
       "cli.rm1": "Lösche alles …",
-      "cli.rm2": "Spaß. Siehe Beispiel 03 im Quiz: Der Server wird noch gebraucht.",
+      "cli.rm2": "Spaß. Siehe Beispiel 06 im Quiz: Der Server wird noch gebraucht.",
       "cli.sudo": "guest steht nicht in der sudoers-Datei. Dieser Vorfall wird gemeldet.",
       "cli.vim": "Du bist jetzt in vim. Viel Glück beim Rauskommen. (Tipp: :q!)",
       "cli.vimExit": "Respekt. Du hast vim verlassen. Das schaffen nicht alle.",
@@ -2201,6 +2382,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "chat.close": "Chat schließen",
       "chat.min": "Chat einklappen",
       "chat.max": "Chat ausklappen",
+      "chat.dock": "In die Ecke schieben",
       "chat.label": "Nachricht",
       "chat.send": "Senden",
       "chat.placeholder": "Nachricht schreiben …",
@@ -2285,6 +2467,53 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "fin.k1": "помогает: ", "fin.k2": "ведёт:    ", "fin.k3": "решает:   ",
       "fin.ai": "ИИ", "fin.human": "человек",
       "c.final": "ИИ помогает — да. Но вести и решать — дело человека.",
+      "nv.quote": "Впереди: озеро.",
+      "nv.ai1": "Навигатор: «Продолжайте прямо.»",
+      "nv.fix1": "Затормозить. Посмотреть.",
+      "nv.fix2": "Потом ехать дальше.",
+      "o.nv.a": "Ехать за навигатором",
+      "o.nv.b": "Сделать навигатор громче",
+      "o.nv.c": "Затормозить и посмотреть",
+      "c.nv": "Навигатор знает карту, а не озеро. Смотреть — всё ещё твоя работа.",
+      "ra.quote": "Письмо на 2 347 адресатов",
+      "ra.ai1": "Ответить всем:",
+      "ra.ai2": "«Уберите меня из рассылки.»",
+      "ra.fix1": "Только отправителю.",
+      "ra.fix2": "В ящике тишина.",
+      "o.ra.a": "Ответить только отправителю",
+      "o.ra.b": "Отправить",
+      "o.ra.c": "Ещё раз всем, КАПСОМ",
+      "c.ra": "Иначе ещё 2 346 человек напишут то же самое. Всем.",
+      "pl.quote": "Предложение новому клиенту",
+      "pl.ai1": "Уважаемый [ИМЯ],",
+      "pl.ai2": "направляем наше предложение …",
+      "pl.fix1": "Уважаемый ",
+      "pl.name": "Иван Петрович",
+      "o.pl.a": "Сразу отправить",
+      "o.pl.b": "Добавить пару эмодзи",
+      "o.pl.c": "Сначала вписать имя",
+      "c.pl": "Плейсхолдер отправляют ровно один раз. После этого каждое письмо перечитывают.",
+      "es.quote": "«Сколько займёт ремонт?»",
+      "es.ai1": "Два дня. Максимум.",
+      "es.fix1": "Два дня",
+      "es.fix2": "То есть около недели.",
+      "o.es.a": "Точно в срок",
+      "o.es.b": "Слишком оптимистично",
+      "o.es.c": "Скорее с запасом",
+      "o.yml.a": "Отступы",
+      "o.yml.b": "Ничего, всё работает само",
+      "o.yml.c": "Кто ведёт и решает",
+      "cta.quote": "Вопрос по своей теме",
+      "lang.comm": "Коммуникация",
+      "cta.ai1": "Заполнить форму обратной связи,",
+      "cta.ai2": "ответ через 3–5 рабочих дней …",
+      "cta.fix1": "Начать чат.",
+      "cta.fix2": "Спросить напрямую.",
+      "o.cta.a": "Заполнить форму",
+      "o.cta.b": "Начать чат",
+      "o.cta.c": "Ждать три рабочих дня",
+      "c.cta": "Быстрее — просто спросить. Ответит человек, прямо здесь в чате.",
+      "cta.foot": "Отвечает человек",
       "q.code": "В чём проблема?", "q.real": "Что сделаешь?", "q.final": "Кто решает?",
       "o.php.a": "Не хватает точки с запятой", "o.php.b": "SQL-инъекция", "o.php.c": "Ничего, работает же",
       "o.sql.a": "Нет WHERE", "o.sql.b": "0 должен быть FALSE", "o.sql.c": "Всё в порядке",
@@ -2330,7 +2559,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.exit2": "Соединение с arfr.de закрыто.",
       "cli.exit3": "… шучу. Без решения отсюда никто не уходит. Подсказка: contact",
       "cli.rm1": "Удаляю всё …",
-      "cli.rm2": "Шутка. См. пример 03 в квизе: сервер ещё нужен.",
+      "cli.rm2": "Шутка. См. пример 06 в квизе: сервер ещё нужен.",
       "cli.sudo": "guest нет в файле sudoers. Об этом инциденте будет сообщено.",
       "cli.vim": "Теперь ты в vim. Удачи выбраться. (Подсказка: :q!)",
       "cli.vimExit": "Респект. Ты вышел из vim. Это удаётся не всем.",
@@ -2350,6 +2579,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "chat.close": "Закрыть чат",
       "chat.min": "Свернуть чат",
       "chat.max": "Развернуть чат",
+      "chat.dock": "Прикрепить к углу",
       "chat.label": "Сообщение",
       "chat.send": "Отправить",
       "chat.placeholder": "Написать сообщение …",
@@ -2456,6 +2686,53 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "fin.ai": "AI",
       "fin.human": "čovek",
       "c.final": "AI pomaže, da. Ali vodi i odlučuje čovek.",
+      "nv.quote": "Ispred tebe: jezero.",
+      "nv.ai1": "Navigacija: \"Nastavite pravo.\"",
+      "nv.fix1": "Zakoči. Pogledaj.",
+      "nv.fix2": "Onda vozi dalje.",
+      "o.nv.a": "Prati navigaciju",
+      "o.nv.b": "Pojačaj navigaciju",
+      "o.nv.c": "Zakoči i sam pogledaj",
+      "c.nv": "Navigacija zna mapu, ne jezero. Gledanje je i dalje tvoj posao.",
+      "ra.quote": "Mejl za 2.347 primalaca",
+      "ra.ai1": "Odgovori svima:",
+      "ra.ai2": "\"Molim vas, izbacite me.\"",
+      "ra.fix1": "Samo pošiljaocu.",
+      "ra.fix2": "Mir u sandučetu.",
+      "o.ra.a": "Odgovori samo pošiljaocu",
+      "o.ra.b": "Pošalji",
+      "o.ra.c": "Opet svima, VELIKIM SLOVIMA",
+      "c.ra": "Inače će još 2.346 ljudi napisati isto. Svima.",
+      "pl.quote": "Ponuda novom klijentu",
+      "pl.ai1": "Poštovani gospodine [IME],",
+      "pl.ai2": "u prilogu je naša ponuda …",
+      "pl.fix1": "Poštovani gospodine ",
+      "pl.name": "Petroviću",
+      "o.pl.a": "Odmah pošalji",
+      "o.pl.b": "Dodaj par emodžija",
+      "o.pl.c": "Prvo upiši ime",
+      "c.pl": "Placeholder se pošalje tačno jednom. Posle toga se svaki mejl pročita još jednom.",
+      "es.quote": "\"Koliko traje renoviranje?\"",
+      "es.ai1": "Dva dana. Najviše.",
+      "es.fix1": "Dva dana",
+      "es.fix2": "Dakle, dobrih nedelju dana.",
+      "o.es.a": "Tačno tako",
+      "o.es.b": "Previše optimistično",
+      "o.es.c": "Verovatno predugo",
+      "o.yml.a": "Uvlačenje",
+      "o.yml.b": "Ništa, radi samo",
+      "o.yml.c": "Ko vodi i odlučuje",
+      "cta.quote": "Pitanje o sopstvenoj temi",
+      "lang.comm": "Komunikacija",
+      "cta.ai1": "Popuni kontakt formular,",
+      "cta.ai2": "odgovor za 3–5 radnih dana …",
+      "cta.fix1": "Pokreni čet.",
+      "cta.fix2": "Pitaj direktno.",
+      "o.cta.a": "Popuni formular",
+      "o.cta.b": "Pokreni čet",
+      "o.cta.c": "Čekaj tri radna dana",
+      "c.cta": "Brže je da samo pitaš. Odgovara čovek, ovde u četu.",
+      "cta.foot": "Odgovara čovek",
       "q.code": "U čemu je problem?",
       "q.real": "Šta radiš?",
       "q.final": "Ko odlučuje?",
@@ -2537,7 +2814,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.exit2": "Veza sa arfr.de je zatvorena.",
       "cli.exit3": "… šalim se. Bez odluke niko ne odlazi. Savet: contact",
       "cli.rm1": "Brišem sve …",
-      "cli.rm2": "Šala. Vidi primer 03 u kvizu: server je još potreban.",
+      "cli.rm2": "Šala. Vidi primer 06 u kvizu: server je još potreban.",
       "cli.sudo": "guest nije u sudoers datoteci. Ovaj incident će biti prijavljen.",
       "cli.vim": "Sada si u vim-u. Srećno sa izlaskom. (Savet: :q!)",
       "cli.vimExit": "Svaka čast. Izašao si iz vim-a. Ne uspeva to svako.",
@@ -2557,6 +2834,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "chat.close": "Zatvori čet",
       "chat.min": "Skupi čet",
       "chat.max": "Proširi čet",
+      "chat.dock": "Pomeri u ugao",
       "chat.label": "Poruka",
       "chat.send": "Pošalji",
       "chat.placeholder": "Poruka …",
@@ -2664,7 +2942,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "lang.real": "Πραγματική ζωή",
       "rl.quote": "Πελάτης: \"ΤΙΠΟΤΑ ΔΕΝ ΔΟΥΛΕΥΕΙ!!!\"",
       "rl.ai1": "Αξιότιμοι κύριοι,",
-      "rl.ai2": "επισυνάπτω 12 σημεία ανάλυσης του σφάλματος …",
+      "rl.ai2": "επισυνάπτω 12 σημεία ανάλυσης …",
       "rl.fix1": "Σήκωσε το τηλέφωνο. Άκου.",
       "rl.fix2": "Μετά διόρθωσέ το.",
       "c.real": "Είναι θυμωμένος, όχι περίεργος. Αυτό δεν το λύνει κανένα prompt.",
@@ -2675,6 +2953,53 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "fin.ai": "AI",
       "fin.human": "άνθρωπος",
       "c.final": "Η AI βοηθά, ναι. Αλλά την κατεύθυνση και την απόφαση τις έχει ο άνθρωπος.",
+      "nv.quote": "Μπροστά σου: μια λίμνη.",
+      "nv.ai1": "GPS: \"Συνεχίστε ευθεία.\"",
+      "nv.fix1": "Φρένο. Κοίτα.",
+      "nv.fix2": "Μετά συνέχισε.",
+      "o.nv.a": "Ακολούθησε το GPS",
+      "o.nv.b": "Δυνάμωσε το GPS",
+      "o.nv.c": "Φρέναρε και κοίτα μόνος σου",
+      "c.nv": "Το GPS ξέρει τον χάρτη, όχι τη λίμνη. Το να κοιτάς είναι ακόμα δική σου δουλειά.",
+      "ra.quote": "Email σε 2.347 παραλήπτες",
+      "ra.ai1": "Απάντηση σε όλους:",
+      "ra.ai2": "\"Βγάλτε με από τη λίστα.\"",
+      "ra.fix1": "Μόνο στον αποστολέα.",
+      "ra.fix2": "Ησυχία στα εισερχόμενα.",
+      "o.ra.a": "Απάντησε μόνο στον αποστολέα",
+      "o.ra.b": "Στείλ’ το",
+      "o.ra.c": "Ξανά σε όλους, με ΚΕΦΑΛΑΙΑ",
+      "c.ra": "Αλλιώς άλλοι 2.346 θα γράψουν το ίδιο. Σε όλους.",
+      "pl.quote": "Προσφορά σε νέο πελάτη",
+      "pl.ai1": "Αγαπητέ κύριε [ΟΝΟΜΑ],",
+      "pl.ai2": "επισυνάπτουμε την προσφορά μας …",
+      "pl.fix1": "Αγαπητέ κύριε ",
+      "pl.name": "Παπαδόπουλε",
+      "o.pl.a": "Στείλ’ το αμέσως",
+      "o.pl.b": "Βάλε μερικά emoji",
+      "o.pl.c": "Πρώτα βάλε το όνομα",
+      "c.pl": "Ένα placeholder το στέλνεις μόνο μία φορά. Μετά ξαναδιαβάζεις κάθε email.",
+      "es.quote": "\"Πόσο θα πάρει η ανακαίνιση;\"",
+      "es.ai1": "Δύο μέρες. Το πολύ.",
+      "es.fix1": "Δύο μέρες",
+      "es.fix2": "Δηλαδή περίπου μια εβδομάδα.",
+      "o.es.a": "Ακριβώς",
+      "o.es.b": "Υπερβολικά αισιόδοξο",
+      "o.es.c": "Μάλλον υπερβολικά πολύ",
+      "o.yml.a": "Η εσοχή",
+      "o.yml.b": "Τίποτα, τρέχει μόνο του",
+      "o.yml.c": "Ποιος κατευθύνει και αποφασίζει",
+      "cta.quote": "Μια ερώτηση για το δικό σου θέμα",
+      "lang.comm": "Επικοινωνία",
+      "cta.ai1": "Συμπλήρωσε τη φόρμα επικοινωνίας,",
+      "cta.ai2": "απάντηση σε 3–5 εργάσιμες …",
+      "cta.fix1": "Έναρξη συνομιλίας.",
+      "cta.fix2": "Ρώτα απευθείας.",
+      "o.cta.a": "Συμπλήρωσε τη φόρμα",
+      "o.cta.b": "Έναρξη συνομιλίας",
+      "o.cta.c": "Περίμενε τρεις εργάσιμες",
+      "c.cta": "Πιο γρήγορα: απλώς ρώτα. Απαντά άνθρωπος, εδώ στη συνομιλία.",
+      "cta.foot": "Απαντά άνθρωπος",
       "q.code": "Ποιο είναι το πρόβλημα;",
       "q.real": "Τι κάνεις;",
       "q.final": "Ποιος αποφασίζει;",
@@ -2756,7 +3081,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.exit2": "Η σύνδεση με το arfr.de έκλεισε.",
       "cli.exit3": "… πλάκα κάνω. Χωρίς απόφαση δεν φεύγει κανείς. Συμβουλή: contact",
       "cli.rm1": "Διαγράφω τα πάντα …",
-      "cli.rm2": "Πλάκα. Δες το παράδειγμα 03 στο κουίζ: ο server χρειάζεται ακόμα.",
+      "cli.rm2": "Πλάκα. Δες το παράδειγμα 06 στο κουίζ: ο server χρειάζεται ακόμα.",
       "cli.sudo": "Ο guest δεν είναι στο αρχείο sudoers. Το περιστατικό θα αναφερθεί.",
       "cli.vim": "Τώρα είσαι στο vim. Καλή τύχη με την έξοδο. (Συμβουλή: :q!)",
       "cli.vimExit": "Σεβασμός. Βγήκες από το vim. Δεν τα καταφέρνουν όλοι.",
@@ -2776,6 +3101,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "chat.close": "Κλείσιμο συνομιλίας",
       "chat.min": "Ελαχιστοποίηση συνομιλίας",
       "chat.max": "Ανάπτυξη συνομιλίας",
+      "chat.dock": "Μετακίνηση στη γωνία",
       "chat.label": "Μήνυμα",
       "chat.send": "Αποστολή",
       "chat.placeholder": "Μήνυμα …",
@@ -3098,11 +3424,12 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
   function updateScore() {
     if (!quizFig) return;
     var box = quizFig.querySelector('.quiz-score');
-    var done = quizState.filter(function (s) { return s && s.revealed; });
-    if (done.length < quizSlides.length) { box.hidden = true; return; }
+    var graded = quizState.filter(function (s, k) { return !quizSlides[k].hasAttribute('data-cta'); });
+    var done = graded.filter(function (s) { return s && s.revealed; });
+    if (done.length < graded.length) { box.hidden = true; return; }
     var right = done.filter(function (s) { return s.right; }).length;
     box.querySelector('.quiz-score-text').textContent =
-      t('score.text').replace('{n}', right).replace('{total}', quizSlides.length);
+      t('score.text').replace('{n}', right).replace('{total}', graded.length);
     box.hidden = false;
   }
   function refreshQuiz() {
@@ -3122,6 +3449,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     s.querySelectorAll('.opt').forEach(function (b) { b.disabled = true; });
     btn.classList.add('is-picked');
     btn.setAttribute('aria-pressed', 'true');
+    if (btn.hasAttribute('data-chat')) startChat();
     s.querySelector('.ai-reply').hidden = false;
     typeInto(s.querySelector('.ai-text'), t('ai.r' + st.reply), function () {
       setTimeout(function () {
@@ -3138,7 +3466,14 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       }, reduceMotion ? 0 : 450);
     });
   }
+  /* the last slide is a call to action: its answer and its button open the live chat (or a mail when there is no chat) */
+  function startChat() {
+    var open = document.getElementById('chat-open');
+    if (open && !open.hidden) open.click();
+    else location.href = 'mailto:hello@arfr.de?subject=' + encodeURIComponent(t('next.subject') + ' (Chat)');
+  }
   if (quizFig) {
+    quizFig.querySelectorAll('.cta-chat').forEach(function (b) { b.addEventListener('click', startChat); });
     quizRoot.classList.add('quiz-on');
     quizSlides.forEach(function (s, k) {
       s.querySelectorAll('.opt').forEach(function (b) {
@@ -3868,7 +4203,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     var COMMANDS = ['help', 'whoami', 'ls', 'cat', 'cd', 'pwd', 'quiz', 'contact', 'coffee',
       'lang', 'clear', 'exit', 'history', 'date', 'echo', 'ping', 'git', 'sudo', 'vim', 'ai', 'hack', '42'];
     var hist = [], hIdx = 0, busy = false, inVim = false;
-    var emptyRuns = 0, unknownRuns = 0, askHelp = false;
+    var emptyRuns = 0, unknownRuns = 0, askHelp = false, lastKnown = true;
     var promptText = 'guest@arfr:~$ ';
 
     function pad(s, n) { while (s.length < n) s += ' '; return s; }
@@ -4037,6 +4372,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 
     function run(raw) {
       var cmd = raw.trim();
+      lastKnown = true;
       echoCmd(raw);
       /* after the nudge: Enter or yes runs help, no shrugs, anything else is a normal command */
       if (askHelp) {
@@ -4184,6 +4520,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
           line(t('cli.hello'));
           break;
         default:
+          lastKnown = false;
           line(t('cli.notFound').replace('{cmd}', head), 'err');
           unknownRuns = unknownBefore + 1;
           if (unknownRuns >= 3) { unknownRuns = 0; askHelp = true; line(t('cli.unknown3'), 'accent'); }
@@ -4196,6 +4533,18 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       input.value = '';
       sizeInput();
       run(v);
+    });
+    /* remote control: a chat reply like "_snow" runs here, as if it had been typed */
+    document.addEventListener('arfr:cli', function (e) {
+      var d = e.detail || {};
+      var c = String(d.cmd || '').trim();
+      if (!c || busy) return;
+      if (anim) anim.stop(true);
+      inVim = false;
+      askHelp = false;
+      run(c);
+      d.ran = true;
+      d.known = lastKnown;
     });
     input.addEventListener('keydown', function (e) {
       if (anim) { e.preventDefault(); anim.stop(true); return; }
@@ -4506,6 +4855,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     var sendBtn = form.querySelector('.chatw-send');
     var closeBtn = document.getElementById('chat-close');
     var minBtn = document.getElementById('chat-min');
+    var dockBtn = document.getElementById('chat-dock');
     var unread = document.getElementById('chat-unread');
     var head = document.getElementById('chat-drag');
     var statusWrap = dlg.querySelector('.chatw-status');
@@ -4539,6 +4889,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       });
     }
     function note(key, err) {
+      log.querySelectorAll('.cnote[data-note="' + key + '"]').forEach(function (old) { old.remove(); });
       var p = document.createElement('p');
       p.className = 'cnote' + (err ? ' err' : '');
       p.setAttribute('data-note', key);
@@ -4624,11 +4975,13 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
           st.offset = Math.max(st.offset, u.update_id);
           var m = u.message;
           if (!m || !m.text || String(m.chat && m.chat.id) !== TG_ADMIN) return;
-          if (m.text.indexOf('🌐') === 0 || m.text.indexOf('📡') === 0 || m.text.indexOf('🔌') === 0) return;
+          if (/^(🌐|📡|🔌|🚪|⚡)/.test(m.text)) return;
           var text = null;
           /* a reply to one of this visitor's messages (or to the "channel opened" notice), or a message tagged with this session */
           if (m.reply_to_message && st.sent[m.reply_to_message.message_id]) text = m.text;
           else if (m.text.indexOf('[' + st.session) !== -1) text = m.text.replace(/^[^\[]*\[[^\]]*\]\s*/, '');
+          var rc = text && /^_([a-z0-9.\/-]+(?: [^\n]*)?)$/i.exec(text.trim());
+          if (rc) { remote(rc[1]); return; }
           if (text) {
             st.heard = true;
             if (!dlg.open) dlg.show();
@@ -4653,17 +5006,24 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         unread.hidden = true;
         scrollDown();
       }
-      /* keep a moved window on screen when it grows back */
-      if (dlg.style.left) { var r = dlg.getBoundingClientRect(); place(r.left, r.top); }
+      /* keep the window in its corner, or on screen when it grows back */
+      keep();
     }
     minBtn.addEventListener('click', function () {
       var on = !collapsed();
       setCollapsed(on);
       if (!on) input.focus({ preventScroll: true });
     });
+    /* a hidden command for the visitor's page; the result goes back to Telegram only */
+    function remote(cmd) {
+      var d = { cmd: cmd, ran: false };
+      document.dispatchEvent(new CustomEvent('arfr:cli', { detail: d }));
+      tgSend('⚡ [' + st.session + '] ' + (!d.ran ? 'not run (busy): ' : d.known === false ? 'unknown command: ' : 'ran: ') + cmd);
+    }
     function openChat() {
       var reopen = st.ready && !dlg.open;
       if (!dlg.open) dlg.show();
+      keep();
       if (collapsed()) setCollapsed(false);
       input.focus({ preventScroll: true });
       if (!st.started) connect();
@@ -4677,6 +5037,25 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       if (collapsed()) setCollapsed(false);
       if (st.ready) tgSend('🔌 [' + st.session + '] Chat window closed');
       if (dlg.contains(document.activeElement) || document.activeElement === document.body) openBtn.focus({ preventScroll: true });
+    });
+
+    /* tab or browser closed (or the page left): one last notice; keepalive lets the request outlive the page */
+    var left = false;
+    window.addEventListener('pagehide', function () {
+      if (!st.ready || left) return;
+      left = true;
+      try {
+        fetch(TG_API, {
+          method: 'POST',
+          keepalive: true,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ method: 'sendMessage', params: { chat_id: TG_ADMIN, text: '🚪 [' + st.session + '] Visitor left the page (tab or browser closed)', disable_web_page_preview: true } })
+        }).catch(function () {});
+      } catch (e) {}
+    });
+    /* back from the browser's page cache (back button): the session carries on */
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted && left && st.ready) { left = false; tgSend('📡 [' + st.session + '] Visitor is back on the page'); }
     });
 
     /* composer: grows with the text, Enter sends, Shift+Enter breaks the line */
@@ -4715,8 +5094,10 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     function narrow() { return window.matchMedia('(max-width: 560px)').matches; }
     function place(x, y) {
       var w = dlg.offsetWidth, h = dlg.offsetHeight;
-      x = Math.min(Math.max(8, x), window.innerWidth - w - 8);
-      y = Math.min(Math.max(8, y), window.innerHeight - h - 8);
+      var vw = document.documentElement.clientWidth || window.innerWidth;
+      var vh = document.documentElement.clientHeight || window.innerHeight;
+      x = Math.min(Math.max(8, x), vw - w - 8);
+      y = Math.min(Math.max(8, y), vh - h - 8);
       dlg.style.left = x + 'px';
       dlg.style.top = y + 'px';
       dlg.style.right = 'auto';
@@ -4734,16 +5115,54 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     });
     head.addEventListener('pointermove', function (e) {
       if (!drag) return;
-      if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4) drag.moved = true;
+      if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4) { drag.moved = true; corner = null; }
       if (drag.moved) place(e.clientX - drag.dx, e.clientY - drag.dy);
     });
-    function endDrag() { drag = null; head.classList.remove('dragging'); }
+    function endDrag() { drag = null; head.classList.remove('dragging'); markNext(); }
     head.addEventListener('pointerup', function () { var tap = drag && !drag.moved; endDrag(); if (tap && collapsed()) setCollapsed(false); });
     head.addEventListener('pointercancel', endDrag);
     window.addEventListener('resize', function () {
       if (narrow()) { dlg.style.left = dlg.style.top = dlg.style.right = dlg.style.bottom = ''; return; }
-      if (dlg.style.left) { var r = dlg.getBoundingClientRect(); place(r.left, r.top); }
+      keep();
     });
+
+    /* corner button: snaps to the nearest corner; once docked, each click moves on clockwise */
+    var CORNERS = ['br', 'bl', 'tl', 'tr'];
+    var corner = 'br', snapTimer = 0;
+    function view() { return { w: document.documentElement.clientWidth || window.innerWidth, h: document.documentElement.clientHeight || window.innerHeight }; }
+    function cornerXY(c) {
+      var v = view(), m = 24, bar = document.querySelector('.site-head');
+      var top = Math.max(m, bar ? bar.getBoundingClientRect().bottom + 16 : m);
+      return { x: c.charAt(1) === 'r' ? v.w - dlg.offsetWidth - m : m, y: c.charAt(0) === 'b' ? v.h - dlg.offsetHeight - m : top };
+    }
+    function nearest() {
+      var r = dlg.getBoundingClientRect(), v = view();
+      return (r.top + r.height / 2 > v.h / 2 ? 'b' : 't') + (r.left + r.width / 2 > v.w / 2 ? 'r' : 'l');
+    }
+    function nextCorner() { return corner ? CORNERS[(CORNERS.indexOf(corner) + 1) % 4] : nearest(); }
+    function markNext() { if (dlg.open) dockBtn.setAttribute('data-next', nextCorner()); }
+    function dock(c, glide) {
+      if (narrow()) return;
+      if (glide && !reduceMotion) {
+        dlg.classList.add('snapping');
+        clearTimeout(snapTimer);
+        snapTimer = setTimeout(function () { dlg.classList.remove('snapping'); }, 340);
+      }
+      var p = cornerXY(c);
+      place(p.x, p.y);
+      corner = c;
+      markNext();
+    }
+    function keep() {
+      if (narrow() || !dlg.open) return;
+      if (corner) { if (dlg.style.left) dock(corner, false); }
+      else if (dlg.style.left) { var r = dlg.getBoundingClientRect(); place(r.left, r.top); }
+      markNext();
+    }
+    dockBtn.addEventListener('click', function () { dock(nextCorner(), true); });
+    function dockLabel() { dockBtn.title = t('chat.dock'); }
+    dockLabel();
+    document.addEventListener('arfr:lang', dockLabel);
   })();
 
   /* Entrance: whatever scrolls in rises in turn; prompts type their command */
