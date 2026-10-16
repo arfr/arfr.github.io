@@ -4949,31 +4949,73 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       trails.push(tr);
     }
 
+    /* the parts that never move (sky, floor sheen, the rays to the horizon, the horizon itself) are drawn once per
+       resize with their glow; each frame only copies them and adds the moving lines, so scrolling stays smooth */
+    var under = document.createElement('canvas'), over = document.createElement('canvas');
+    var uctx = under.getContext('2d'), octx = over.getContext('2d');
     function resize() {
       var r = hero.getBoundingClientRect();
       var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       w = r.width; h = r.height;
-      cv.width = Math.max(1, Math.round(w * dpr));
-      cv.height = Math.max(1, Math.round(h * dpr));
+      cv.width = under.width = over.width = Math.max(1, Math.round(w * dpr));
+      cv.height = under.height = over.height = Math.max(1, Math.round(h * dpr));
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      uctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      octx.setTransform(dpr, 0, 0, dpr, 0, 0);
       /* wide: horizon at 58 %; stacked phone layout: just above the buttons, so the floor shows */
       horizonY = Math.round(h * 0.58);
       var cta = hero.querySelector('.cta');
       if (w < 860 && cta) horizonY = Math.round(cta.getBoundingClientRect().top - r.top - 28);
+      layers();
     }
     function unit() { return Math.max(w, 700) * 0.09; }
     function proj(x, z) {
       var p = 1 / z;
       return [w / 2 + x * unit() * p, horizonY + (h - horizonY) * p];
     }
-    function glowStroke(path, rgb, alpha, width, blur) {
+    function glowStroke(c, path, rgb, alpha, width, blur) {
+      c.save();
+      c.strokeStyle = 'rgba(' + rgb + ',' + alpha + ')';
+      c.lineWidth = width;
+      c.shadowColor = 'rgba(' + rgb + ',0.9)';
+      c.shadowBlur = blur;
+      c.stroke(path);
+      c.restore();
+    }
+    /* the same glow without a blur pass: wide faint strokes under the thin line */
+    function softStroke(path, rgb, alpha) {
       ctx.save();
-      ctx.strokeStyle = 'rgba(' + rgb + ',' + alpha + ')';
-      ctx.lineWidth = width;
-      ctx.shadowColor = 'rgba(' + rgb + ',0.9)';
-      ctx.shadowBlur = blur;
-      ctx.stroke(path);
+      ctx.strokeStyle = 'rgba(' + rgb + ',' + (alpha * 0.16) + ')'; ctx.lineWidth = 6; ctx.stroke(path);
+      ctx.strokeStyle = 'rgba(' + rgb + ',' + (alpha * 0.32) + ')'; ctx.lineWidth = 3; ctx.stroke(path);
+      ctx.strokeStyle = 'rgba(' + rgb + ',' + alpha + ')'; ctx.lineWidth = 1; ctx.stroke(path);
       ctx.restore();
+    }
+    function layers() {
+      if (!w || !h) return;
+      var hz = horizonY, floor = h - hz;
+      uctx.clearRect(0, 0, w, h);
+      octx.clearRect(0, 0, w, h);
+      var sky = uctx.createLinearGradient(0, hz - 160, 0, hz);
+      sky.addColorStop(0, 'rgba(' + CYAN + ',0)');
+      sky.addColorStop(1, 'rgba(' + CYAN + ',0.14)');
+      uctx.fillStyle = sky;
+      uctx.fillRect(0, hz - 160, w, 160);
+      var sheen = uctx.createLinearGradient(0, hz, 0, h);
+      sheen.addColorStop(0, 'rgba(' + CYAN + ',0.09)');
+      sheen.addColorStop(1, 'rgba(' + CYAN + ',0)');
+      uctx.fillStyle = sheen;
+      uctx.fillRect(0, hz, w, floor);
+      var rays = new Path2D();
+      for (var x = -22; x <= 22; x++) {
+        var a = proj(x, 1), b = proj(x, FAR);
+        rays.moveTo(a[0], a[1]);
+        rays.lineTo(b[0], b[1]);
+      }
+      glowStroke(uctx, rays, CYAN, 0.3, 1, 6);
+      var line = new Path2D();
+      line.moveTo(0, hz + 0.5);
+      line.lineTo(w, hz + 0.5);
+      glowStroke(octx, line, CYAN, 0.9, 1.5, 18);
     }
     function draw(now) {
       if (!w || !h) return;
@@ -4982,26 +5024,10 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       var hz = horizonY, floor = h - hz;
       var phase = ((now || 0) / 1000 * 0.6) % 1;
       ctx.clearRect(0, 0, w, h);
+      ctx.drawImage(under, 0, 0, w, h);
 
-      /* light above the horizon and a sheen on the floor */
-      var sky = ctx.createLinearGradient(0, hz - 160, 0, hz);
-      sky.addColorStop(0, 'rgba(' + CYAN + ',0)');
-      sky.addColorStop(1, 'rgba(' + CYAN + ',0.14)');
-      ctx.fillStyle = sky;
-      ctx.fillRect(0, hz - 160, w, 160);
-      var sheen = ctx.createLinearGradient(0, hz, 0, h);
-      sheen.addColorStop(0, 'rgba(' + CYAN + ',0.09)');
-      sheen.addColorStop(1, 'rgba(' + CYAN + ',0)');
-      ctx.fillStyle = sheen;
-      ctx.fillRect(0, hz, w, floor);
-
-      /* the grid */
+      /* the floor lines that run towards the viewer */
       var grid = new Path2D();
-      for (var x = -22; x <= 22; x++) {
-        var a = proj(x, 1), b = proj(x, FAR);
-        grid.moveTo(a[0], a[1]);
-        grid.lineTo(b[0], b[1]);
-      }
       for (var i = 0; i < FAR; i++) {
         var z = 1 + i - phase;
         if (z < 1) continue;
@@ -5009,7 +5035,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         grid.moveTo(0, y);
         grid.lineTo(w, y);
       }
-      glowStroke(grid, CYAN, 0.3, 1, 6);
+      softStroke(grid, CYAN, 0.3);
 
       /* fade the far floor into the haze */
       ctx.save();
@@ -5022,10 +5048,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       ctx.restore();
 
       /* horizon */
-      var line = new Path2D();
-      line.moveTo(0, hz + 0.5);
-      line.lineTo(w, hz + 0.5);
-      glowStroke(line, CYAN, 0.9, 1.5, 18);
+      ctx.drawImage(over, 0, 0, w, h);
 
       /* light trails */
       trails.forEach(function (t) {
@@ -5570,6 +5593,69 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       pending = to; pendingAt = Date.now();
       window.scrollTo({ top: to, behavior: reduceMotion ? 'auto' : 'smooth' });
     });
+  })();
+
+  /* Smooth mouse wheel: a notch glides instead of jumping. Only for a real mouse wheel; trackpads,
+     touch, keyboard and the scrollbar keep the browser's own scrolling, and so does anything that
+     scrolls by itself (chat history, quiz slides, terminal output). */
+  (function smoothWheel() {
+    if (reduceMotion || !window.matchMedia || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    var root = document.documentElement;
+    var target = 0, current = 0, raf = 0, active = false, lastT = 0, expected = -1, padUntil = 0;
+    function maxY() { return Math.max(0, root.scrollHeight - window.innerHeight); }
+    function clamp(v) { return Math.max(0, Math.min(maxY(), v)); }
+    function innerScroller(el, dy) {
+      for (; el && el !== document.body && el !== root; el = el.parentElement) {
+        if (el.scrollHeight <= el.clientHeight + 1) continue;
+        var oy = getComputedStyle(el).overflowY;
+        if (oy !== 'auto' && oy !== 'scroll') continue;
+        if (dy < 0 ? el.scrollTop > 0 : el.scrollTop + el.clientHeight < el.scrollHeight - 1) return el;
+      }
+      return null;
+    }
+    function stop() {
+      if (!active) return;
+      active = false; cancelAnimationFrame(raf); expected = -1;
+      root.style.scrollBehavior = '';
+    }
+    function step(t) {
+      var dt = lastT ? Math.min((t - lastT) / 1000, 0.05) : 1 / 60;
+      lastT = t;
+      target = clamp(target);
+      current += (target - current) * (1 - Math.exp(-dt * 11));
+      if (Math.abs(target - current) < 0.5) current = target;
+      expected = Math.round(current);
+      window.scrollTo(0, current);
+      if (current === target) { stop(); return; }
+      raf = requestAnimationFrame(step);
+    }
+    window.addEventListener('wheel', function (e) {
+      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || !e.deltaY) return;
+      var now = Date.now();
+      /* a trackpad sends many small pixel steps: leave it alone for a moment */
+      if (e.deltaMode === 0 && (Math.abs(e.deltaY) < 40 || e.deltaX)) { padUntil = now + 600; stop(); return; }
+      if (now < padUntil) return;
+      var game = document.getElementById('game');
+      if (game && !game.hidden) return;
+      if (innerScroller(e.target, e.deltaY)) { stop(); return; }
+      var d = e.deltaY * (e.deltaMode === 1 ? 40 : e.deltaMode === 2 ? window.innerHeight : 1);
+      if (!active) {
+        current = target = window.scrollY;
+        active = true; lastT = 0;
+        root.style.scrollBehavior = 'auto';
+        raf = requestAnimationFrame(step);
+      }
+      var next = clamp(target + d);
+      if (next === target && (next === 0 || next === maxY())) return;
+      e.preventDefault();
+      target = next;
+    }, { passive: false });
+    /* anything else that moves the page takes over: keys, scrollbar, links, touch */
+    ['keydown', 'mousedown', 'touchstart'].forEach(function (ev) { window.addEventListener(ev, stop, { passive: true }); });
+    window.addEventListener('scroll', function () {
+      if (active && expected >= 0 && Math.abs(window.scrollY - expected) > 3) stop();
+    }, { passive: true });
   })();
 
   /* Entrance: whatever scrolls in rises in turn; prompts type their command */
