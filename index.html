@@ -672,6 +672,7 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
 .cli-line.muted, .cli-line .muted { color: var(--term-muted); }
 .cli-line.accent, .cli-line.err { color: var(--term-accent); }
 .cli-line .ok { color: #5EE6A8; }
+.cli-line.chat-in .who { color: var(--term-accent); }
 .cli-art {
   margin: 0;
   font-family: inherit;
@@ -995,6 +996,10 @@ section { scroll-margin-top: 72px; }
 .term dt { color: var(--term-muted); min-width: 10ch; }
 .term dt::after { content: ":"; }
 .term dd { margin: 0; color: var(--term-fg); min-width: 0; }
+/* profile.yml is real YAML: the text itself carries keys, colons and alignment; long values wrap under the value column */
+.yml { display: flex; flex-direction: column; gap: 2px; }
+.yml > div { white-space: pre-wrap; padding-left: 10ch; text-indent: -10ch; color: var(--term-fg); }
+.yml .yk { color: var(--term-muted); }
 .term-link { color: var(--term-accent); text-decoration: none; }
 .term-link:hover { text-decoration: underline; text-underline-offset: 3px; }
 
@@ -1220,7 +1225,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     <div class="smart-core" id="smart-core">
       <h1 id="smart-title">Alexander Fuhr</h1>
       <p class="smart-role" data-i18n="role.title">Softwareentwickler</p>
-      <p class="smart-line"><span class="bar" data-i18n="smart.line">KI assistiert. Ich entscheide.</span></p>
+      <p class="smart-line"><span class="bar" data-i18n="smart.line">KI assistiert. Der Mensch entscheidet.</span></p>
       <div class="smart-links">
         <a class="btn btn-primary" href="mailto:hello@arfr.de?subject=Sprechen%20wir%20dar%C3%BCber.">hello@arfr.de</a>
       </div>
@@ -1596,7 +1601,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       <ol class="steps">
         <li>
           <h3 data-i18n="step1.title">Das Problem verstehen</h3>
-          <p data-i18n="step1.text">Bevor ich Code schreibe, stelle ich sicher, dass wir das richtige Problem lösen. Eine gute Frage spart mehr Zeit als eine schnelle Antwort.</p>
+          <p data-i18n="step1.text">Bevor man Code schreibt, stellt man sicher, dass das richtige Problem gelöst wird. Eine gute Frage spart mehr Zeit als eine schnelle Antwort.</p>
         </li>
         <li>
           <h3 data-i18n="step2.title">Schnell bauen mit KI</h3>
@@ -1604,7 +1609,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         </li>
         <li>
           <h3 data-i18n="step3.title">Für jede Zeile geradestehen</h3>
-          <p data-i18n="step3.text">Nichts geht live, was ich nicht erklären kann. Ich prüfe, teste und übernehme die Verantwortung für das Ergebnis.</p>
+          <p data-i18n="step3.text">Nichts geht live, was man nicht erklären kann. Jede Zeile wird geprüft, getestet und verantwortet.</p>
         </li>
       </ol>
     </div>
@@ -1622,16 +1627,15 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         <div class="about-text">
           <p class="prompt"><span class="host">alex@arfr</span>:~$ <span class="cmd">whoami</span></p>
           <h2 id="about-title" class="h2"><span class="scramble" data-i18n="about.title">Hi, ich bin Alex.</span><span class="cursor" aria-hidden="true"></span></h2>
-          <p data-i18n="about.text">Ich bin Softwareentwickler. Ich nutze KI als Werkzeug, nicht als Ersatz fürs Denken: Sie beschleunigt die Arbeit, und ich sorge dafür, dass das Ergebnis stimmt.</p>
+          <p data-i18n="about.text">Softwareentwicklung mit KI als Werkzeug, nicht als Ersatz fürs Denken: Sie beschleunigt die Arbeit, der Mensch sorgt dafür, dass das Ergebnis stimmt.</p>
           <div class="term" data-ui>
             <p class="term-cmd"><span aria-hidden="true">$</span> cat profile.yml</p>
-            <dl>
-              <div><dt>name</dt><dd>Alexander Fuhr</dd></div>
-              <div><dt>role</dt><dd data-i18n="role.title">Softwareentwickler</dd></div>
-              <div><dt>workflow</dt><dd data-i18n="profile.workflow">verstehen → bauen → verantworten</dd></div>
-              <div><dt>ai</dt><dd>{ role: assist, decides: false }</dd></div>
-              <div><dt>contact</dt><dd><a class="term-link" href="mailto:hello@arfr.de?subject=Sprechen%20wir%20dar%C3%BCber.">hello@arfr.de</a></dd></div>
-            </dl>
+            <div class="yml">
+              <div><span class="yk">name:</span>     Alexander Fuhr</div>
+              <div><span class="yk">role:</span>     <span data-i18n="role.title">Softwareentwickler</span></div>
+              <div><span class="yk">workflow:</span> <span data-i18n="profile.workflow">[verstehen, bauen, verantworten]</span></div>
+              <div><span class="yk">ai:</span>       { role: assist, decides: false }</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1708,7 +1712,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
             <div class="cli-out" id="cli-out" role="log" aria-live="polite">
             </div>
             <form class="cli-in" id="cli-form" autocomplete="off">
-              <label for="cli-input" class="cli-prompt"><span class="host">guest@arfr</span>:~$<span class="sr-only" data-i18n="cli.label">Befehl eingeben</span></label>
+              <label for="cli-input" class="cli-prompt"><span class="host">guest@arfr</span><span id="cli-path">:~$</span><span class="sr-only" data-i18n="cli.label">Befehl eingeben</span></label>
               <span class="cli-field"><input id="cli-input" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send"><span class="cli-block" aria-hidden="true"></span></span>
             </form>
           </div>
@@ -1758,24 +1762,24 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "approach.cmd": "cat approach.md", "role.tag": "AI-assisted, human-led",
       "hero.title": "When everything gets easy …",
       "hero.lede": "… you need someone who knows what really matters.",
-      "role.title": "Software Developer", "role.country": "Germany", "profile.workflow": "understand → build → own it",
+      "role.title": "Software Developer", "role.country": "Germany", "profile.workflow": "[understand, build, own it]",
       "cta.contact": "Get in touch",
       "review.aria": "Code review examples: an AI suggestion, a human correction, then approval",
       "review.chip": "Review", "review.ai": "AI suggestion",
       "review.comment": "Quantity is missing. Every order with two or more items would be wrong.",
       "review.revised": "Revised", "review.by": "reviewed by a human", "review.ok": "Approved",
-      "review.caption": "AI writes the first draft. I decide what ships.",
+      "review.caption": "AI writes the first draft. A human decides what ships.",
       "approach.eyebrow": "Approach",
       "approach.title": "The tools are getting smarter.",
       "approach.lede": "Good decisions still need a clear head.",
       "step1.title": "Understand the problem",
-      "step1.text": "Before any code, I make sure we are solving the right problem. A good question saves more time than a fast answer.",
+      "step1.text": "Before any code is written, it's clear which problem is being solved. A good question saves more time than a fast answer.",
       "step2.title": "Build fast with AI",
       "step2.text": "AI tools handle the routine work, so the time goes into the parts that need experience and judgment.",
       "step3.title": "Own every line",
-      "step3.text": "Nothing ships that I can't explain. I review, test and take responsibility for the result.",
+      "step3.text": "Nothing ships that can't be explained. Every line is reviewed, tested and owned.",
       "about.eyebrow": "About", "about.title": "Hi, I'm Alex.",
-      "about.text": "I'm a software developer. I use AI as a tool, not as a replacement for thinking: it speeds up the work, and I make sure the result is right.",
+      "about.text": "Software development with AI as a tool, not a replacement for thinking: it speeds up the work, and a human makes sure the result is right.",
       "contact.eyebrow": "Contact", "contact.title": "Got something that matters?", "contact.lede": "Let's talk about it.",
       "contact.copy": "Copy email address", "contact.write": "Email",
       "status.copied": "Email address copied.", "status.selected": "Address selected. Copy it from here.",
@@ -1822,7 +1826,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "next.a": "Get in touch", "next.b": "Connect on LinkedIn", "next.c": "Play the quiz again", "next.d": "Coffee first",
       "next.ai": "I recommend all three. At the same time.",
       "next.alex": "See? That's exactly why you decide.",
-      "next.coffee": "Good call. I'll be right here when you're back.",
+      "next.coffee": "Good call. The page will be right here when you're back.",
       "next.subject": "Let's talk about it.",
       "term.title": "Still curious?", "term.lede": "The terminal is yours.",
       "cli.label": "Enter a command", "cli.try": "Try:",
@@ -1844,7 +1848,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.exit2": "Connection to arfr.de closed.",
       "cli.exit3": "… just kidding. Nobody leaves without a decision. Hint: contact",
       "cli.rm1": "Deleting everything …",
-      "cli.rm2": "Kidding. See example 03 in the quiz: I'd like to keep the server.",
+      "cli.rm2": "Kidding. See example 03 in the quiz: the server is still needed.",
       "cli.sudo": "guest is not in the sudoers file. This incident will be reported.",
       "cli.vim": "You are now in vim. Good luck getting out. (Hint: :q!)",
       "cli.vimExit": "Respect. You exited vim. Not everyone makes it.",
@@ -1854,10 +1858,21 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "The answer to everything. You'll have to ask the question yourself.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Alex replies to email almost as fast.",
       "cli.hello": "Hello back! Type help if you're stuck.",
+      "cli.help.chat": "chat with Alex live",
+      "cli.chat.connect": "Connecting to alex@arfr …",
+      "cli.chat.open": "Channel open. Messages go to Alex via Telegram, replies show up here.",
+      "cli.chat.hint": "Just start typing. exit ends the chat.",
+      "cli.chat.wait": "Alex seems to be away from his phone. He'll reply as soon as he can, or write to hello@arfr.de.",
+      "cli.chat.offline": "Can't reach the chat right now. Just write to hello@arfr.de.",
+      "cli.chat.error": "Transmission failed. Try again or use hello@arfr.de.",
+      "cli.chat.closed": "Chat closed. Back in the terminal.",
+      "cli.chat.slow": "Not so fast. Take a breath.",
+      "cli.chat.long": "Message shortened to 500 characters.",
+      "cli.chat.limit": "That's plenty for one session. The rest by email, please: hello@arfr.de",
       "cli.notFound": "command not found: {cmd}. Hint: help",
       "cli.enter3": "Three times Enter, nothing happened. Try help instead? [Y/n]", "cli.enter3.no": "Fair enough. Keep guessing.",
       "cli.unknown3": "Three unknown commands in a row. Try help instead? [Y/n]",
-      "smart.line": "AI assists. I decide.", "smart.back": "Full version",
+      "smart.line": "AI assists. A human decides.", "smart.back": "Full version",
       "smart.stats": "{full} → {min} words · −{pct}%",
       "cli.smart.1": "Analyzing arfr.de … {n} words found", "cli.smart.2": "Removing decoration, effects and easter eggs …",
       "cli.smart.3": "Compressed: {full} → {min} words (−{pct}%)", "cli.smart.back": "Decompressed. Back to full length.",
@@ -1888,24 +1903,24 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "approach.cmd": "cat vorgehen.md", "role.tag": "KI-gestützt, menschlich geführt",
       "hero.title": "Wenn alles einfach wird …",
       "hero.lede": "… braucht es jemanden, der weiß, worauf es wirklich ankommt.",
-      "role.title": "Softwareentwickler", "role.country": "Deutschland", "profile.workflow": "verstehen → bauen → verantworten",
+      "role.title": "Softwareentwickler", "role.country": "Deutschland", "profile.workflow": "[verstehen, bauen, verantworten]",
       "cta.contact": "Kontakt aufnehmen",
       "review.aria": "Beispiele für Code-Reviews: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe",
       "review.chip": "Review", "review.ai": "KI-Vorschlag",
       "review.comment": "Die Menge fehlt. Jede Bestellung mit zwei oder mehr Artikeln wäre falsch.",
       "review.revised": "Überarbeitet", "review.by": "von einem Menschen geprüft", "review.ok": "Freigegeben",
-      "review.caption": "Die KI schreibt den ersten Entwurf. Ich entscheide, was live geht.",
+      "review.caption": "Die KI schreibt den ersten Entwurf. Der Mensch entscheidet, was live geht.",
       "approach.eyebrow": "Vorgehen",
       "approach.title": "Die Tools werden klüger.",
       "approach.lede": "Gute Entscheidungen brauchen trotzdem einen klaren Kopf.",
       "step1.title": "Das Problem verstehen",
-      "step1.text": "Bevor ich Code schreibe, stelle ich sicher, dass wir das richtige Problem lösen. Eine gute Frage spart mehr Zeit als eine schnelle Antwort.",
+      "step1.text": "Bevor man Code schreibt, stellt man sicher, dass das richtige Problem gelöst wird. Eine gute Frage spart mehr Zeit als eine schnelle Antwort.",
       "step2.title": "Schnell bauen mit KI",
       "step2.text": "KI-Tools übernehmen die Routinearbeit. So bleibt die Zeit für die Teile, die Erfahrung und Urteilsvermögen brauchen.",
       "step3.title": "Für jede Zeile geradestehen",
-      "step3.text": "Nichts geht live, was ich nicht erklären kann. Ich prüfe, teste und übernehme die Verantwortung für das Ergebnis.",
+      "step3.text": "Nichts geht live, was man nicht erklären kann. Jede Zeile wird geprüft, getestet und verantwortet.",
       "about.eyebrow": "Über mich", "about.title": "Hi, ich bin Alex.",
-      "about.text": "Ich bin Softwareentwickler. Ich nutze KI als Werkzeug, nicht als Ersatz fürs Denken: Sie beschleunigt die Arbeit, und ich sorge dafür, dass das Ergebnis stimmt.",
+      "about.text": "Softwareentwicklung mit KI als Werkzeug, nicht als Ersatz fürs Denken: Sie beschleunigt die Arbeit, der Mensch sorgt dafür, dass das Ergebnis stimmt.",
       "contact.eyebrow": "Kontakt", "contact.title": "Etwas, worauf es ankommt?", "contact.lede": "Sprechen wir darüber.",
       "contact.copy": "E-Mail-Adresse kopieren", "contact.write": "E-Mail",
       "status.copied": "E-Mail-Adresse kopiert.", "status.selected": "Adresse markiert, jetzt einfach kopieren.",
@@ -1952,7 +1967,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "next.a": "Kontakt aufnehmen", "next.b": "Auf LinkedIn vernetzen", "next.c": "Quiz nochmal spielen", "next.d": "Erstmal Kaffee",
       "next.ai": "Ich empfehle alle drei. Gleichzeitig.",
       "next.alex": "Siehst du? Genau deshalb entscheidest du.",
-      "next.coffee": "Gute Entscheidung. Ich bin hier, wenn du zurück bist.",
+      "next.coffee": "Gute Entscheidung. Die Seite wartet, bis du zurück bist.",
       "next.subject": "Sprechen wir darüber.",
       "term.title": "Noch neugierig?", "term.lede": "Das Terminal gehört dir.",
       "cli.label": "Befehl eingeben", "cli.try": "Probier mal:",
@@ -1974,7 +1989,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.exit2": "Verbindung zu arfr.de geschlossen.",
       "cli.exit3": "… war nur Spaß. Ohne Entscheidung geht hier keiner. Tipp: contact",
       "cli.rm1": "Lösche alles …",
-      "cli.rm2": "Spaß. Siehe Beispiel 03 im Quiz: Den Server hätte ich gern noch.",
+      "cli.rm2": "Spaß. Siehe Beispiel 03 im Quiz: Der Server wird noch gebraucht.",
       "cli.sudo": "guest steht nicht in der sudoers-Datei. Dieser Vorfall wird gemeldet.",
       "cli.vim": "Du bist jetzt in vim. Viel Glück beim Rauskommen. (Tipp: :q!)",
       "cli.vimExit": "Respekt. Du hast vim verlassen. Das schaffen nicht alle.",
@@ -1984,10 +1999,21 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "Die Antwort auf alles. Die Frage musst du selbst stellen.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Alex antwortet auf Mails fast genauso schnell.",
       "cli.hello": "Hallo zurück! Tippe help, wenn du nicht weiterweißt.",
+      "cli.help.chat": "live mit Alex schreiben",
+      "cli.chat.connect": "Verbinde mit alex@arfr …",
+      "cli.chat.open": "Kanal offen. Nachrichten gehen über Telegram direkt an Alex, Antworten erscheinen hier.",
+      "cli.chat.hint": "Einfach lostippen. exit beendet den Chat.",
+      "cli.chat.wait": "Alex ist gerade wohl nicht am Handy. Er antwortet, sobald er kann, oder schreib an hello@arfr.de.",
+      "cli.chat.offline": "Der Chat ist gerade nicht erreichbar. Schreib einfach an hello@arfr.de.",
+      "cli.chat.error": "Übertragung fehlgeschlagen. Nochmal versuchen oder hello@arfr.de.",
+      "cli.chat.closed": "Chat beendet. Zurück im Terminal.",
+      "cli.chat.slow": "Nicht so schnell. Kurz durchatmen.",
+      "cli.chat.long": "Nachricht auf 500 Zeichen gekürzt.",
+      "cli.chat.limit": "Genug für eine Sitzung. Der Rest gern per Mail: hello@arfr.de",
       "cli.notFound": "Befehl nicht gefunden: {cmd}. Tipp: help",
       "cli.enter3": "Dreimal Enter, nichts passiert. Doch lieber help? [J/n]", "cli.enter3.no": "Alles klar. Dann weiter raten.",
       "cli.unknown3": "Dreimal unbekannt. Doch lieber help? [J/n]",
-      "smart.line": "KI assistiert. Ich entscheide.", "smart.back": "Volle Version",
+      "smart.line": "KI assistiert. Der Mensch entscheidet.", "smart.back": "Volle Version",
       "smart.stats": "{full} → {min} Wörter · −{pct} %",
       "cli.smart.1": "Analysiere arfr.de … {n} Wörter gefunden", "cli.smart.2": "Entferne Deko, Effekte und Easter Eggs …",
       "cli.smart.3": "Komprimiert: {full} → {min} Wörter (−{pct} %)", "cli.smart.back": "Dekomprimiert. Alles wieder in voller Länge.",
@@ -2018,24 +2044,24 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "approach.cmd": "cat approach.md", "role.tag": "ИИ помогает, решает человек",
       "hero.title": "Когда всё становится просто …",
       "hero.lede": "… нужен тот, кто знает, что действительно важно.",
-      "role.title": "Разработчик ПО", "role.country": "Германия", "profile.workflow": "понять → сделать → отвечать",
+      "role.title": "Разработчик ПО", "role.country": "Германия", "profile.workflow": "[понять, сделать, отвечать]",
       "cta.contact": "Связаться",
       "review.aria": "Примеры код-ревью: предложение ИИ, исправление человеком, затем одобрение",
       "review.chip": "Ревью", "review.ai": "Предложение ИИ",
       "review.comment": "Не учтено количество. Любой заказ из двух и более товаров будет посчитан неверно.",
       "review.revised": "Исправлено", "review.by": "проверено человеком", "review.ok": "Одобрено",
-      "review.caption": "ИИ пишет первый черновик. Я решаю, что уходит в релиз.",
+      "review.caption": "ИИ пишет первый черновик. Человек решает, что уходит в продакшн.",
       "approach.eyebrow": "Подход",
       "approach.title": "Инструменты становятся умнее.",
       "approach.lede": "Но для хороших решений всё ещё нужна ясная голова.",
       "step1.title": "Понять задачу",
-      "step1.text": "Прежде чем писать код, я убеждаюсь, что мы решаем правильную задачу. Хороший вопрос экономит больше времени, чем быстрый ответ.",
+      "step1.text": "Прежде чем писать код, важно убедиться, что решается правильная задача. Хороший вопрос экономит больше времени, чем быстрый ответ.",
       "step2.title": "Быстро с помощью ИИ",
       "step2.text": "Рутину берут на себя инструменты ИИ, а время уходит на то, что требует опыта и здравого суждения.",
       "step3.title": "Отвечать за каждую строку",
-      "step3.text": "В релиз не уходит ничего, что я не могу объяснить. Я проверяю, тестирую и отвечаю за результат.",
+      "step3.text": "В продакшн не уходит ничего, что нельзя объяснить. Каждую строку проверяют, тестируют и отвечают за неё.",
       "about.eyebrow": "Обо мне", "about.title": "Привет, я Алекс.",
-      "about.text": "Я разработчик программного обеспечения. Я использую ИИ как инструмент, а не как замену мышлению: он ускоряет работу, а я слежу за тем, чтобы результат был верным.",
+      "about.text": "Разработка ПО с ИИ как инструментом, а не заменой мышления: он ускоряет работу, а человек следит за тем, чтобы результат был верным.",
       "contact.eyebrow": "Контакт", "contact.title": "Есть что-то действительно важное?", "contact.lede": "Давайте обсудим.",
       "contact.copy": "Скопировать адрес", "contact.write": "E-mail",
       "status.copied": "Адрес скопирован.", "status.selected": "Адрес выделен, скопируйте его.",
@@ -2082,7 +2108,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "next.a": "Связаться", "next.b": "Связаться в LinkedIn", "next.c": "Пройти квиз ещё раз", "next.d": "Сначала кофе",
       "next.ai": "Рекомендую все три. Одновременно.",
       "next.alex": "Видишь? Именно поэтому решаешь ты.",
-      "next.coffee": "Хорошее решение. Я буду здесь, когда вернёшься.",
+      "next.coffee": "Хорошее решение. Страница никуда не денется, пока тебя нет.",
       "next.subject": "Давайте обсудим.",
       "term.title": "Всё ещё любопытно?", "term.lede": "Терминал в твоём распоряжении.",
       "cli.label": "Введите команду", "cli.try": "Попробуй:",
@@ -2104,7 +2130,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.exit2": "Соединение с arfr.de закрыто.",
       "cli.exit3": "… шучу. Без решения отсюда никто не уходит. Подсказка: contact",
       "cli.rm1": "Удаляю всё …",
-      "cli.rm2": "Шучу. См. пример 03 в квизе: сервер мне ещё пригодится.",
+      "cli.rm2": "Шутка. См. пример 03 в квизе: сервер ещё нужен.",
       "cli.sudo": "guest нет в файле sudoers. Об этом инциденте будет сообщено.",
       "cli.vim": "Теперь ты в vim. Удачи выбраться. (Подсказка: :q!)",
       "cli.vimExit": "Респект. Ты вышел из vim. Это удаётся не всем.",
@@ -2114,10 +2140,21 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "Ответ на всё. Вопрос придётся задать самому.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Алекс отвечает на письма почти так же быстро.",
       "cli.hello": "И тебе привет! Введи help, если не знаешь, что дальше.",
+      "cli.help.chat": "написать Алексу в чат",
+      "cli.chat.connect": "Подключаюсь к alex@arfr …",
+      "cli.chat.open": "Канал открыт. Сообщения уходят Алексу через Telegram, ответы появятся здесь.",
+      "cli.chat.hint": "Просто начни печатать. exit завершает чат.",
+      "cli.chat.wait": "Похоже, Алекс сейчас не у телефона. Он ответит, как только сможет, или напиши на hello@arfr.de.",
+      "cli.chat.offline": "Чат сейчас недоступен. Просто напиши на hello@arfr.de.",
+      "cli.chat.error": "Не удалось отправить. Попробуй ещё раз или напиши на hello@arfr.de.",
+      "cli.chat.closed": "Чат завершён. Снова в терминале.",
+      "cli.chat.slow": "Не так быстро. Передохни.",
+      "cli.chat.long": "Сообщение сокращено до 500 символов.",
+      "cli.chat.limit": "Для одной сессии достаточно. Остальное — на hello@arfr.de",
       "cli.notFound": "команда не найдена: {cmd}. Подсказка: help",
       "cli.enter3": "Трижды Enter — и ничего. Может, всё-таки help? [Д/н]", "cli.enter3.no": "Ладно. Угадывай дальше.",
       "cli.unknown3": "Три неизвестные команды подряд. Может, всё-таки help? [Д/н]",
-      "smart.line": "ИИ помогает. Решаю я.", "smart.back": "Полная версия",
+      "smart.line": "ИИ помогает. Решает человек.", "smart.back": "Полная версия",
       "smart.stats": "{full} → {min} слов · −{pct} %",
       "cli.smart.1": "Анализирую arfr.de … найдено слов: {n}", "cli.smart.2": "Убираю декор, эффекты и пасхалки …",
       "cli.smart.3": "Сжато: {full} → {min} слов (−{pct} %)", "cli.smart.back": "Распаковано. Всё снова в полном объёме.",
@@ -2154,7 +2191,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "hero.lede": "… potreban je neko ko zna šta je zaista važno.",
       "role.title": "Softverski programer",
       "role.country": "Nemačka",
-      "profile.workflow": "razumeti → izgraditi → odgovarati",
+      "profile.workflow": "[razumeti, izgraditi, odgovarati]",
       "cta.contact": "Stupi u kontakt",
       "review.aria": "Primeri pregleda koda: predlog AI-ja, ispravka čoveka, zatim odobrenje",
       "review.chip": "Pregled",
@@ -2163,19 +2200,19 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "review.revised": "Ispravljeno",
       "review.by": "pregledao čovek",
       "review.ok": "Odobreno",
-      "review.caption": "AI piše prvu verziju. Ja odlučujem šta ide u produkciju.",
+      "review.caption": "AI piše prvu verziju. Čovek odlučuje šta ide u produkciju.",
       "approach.eyebrow": "Pristup",
       "approach.title": "Alati postaju pametniji.",
       "approach.lede": "Dobre odluke i dalje traže bistru glavu.",
       "step1.title": "Razumeti problem",
-      "step1.text": "Pre nego što napišem kod, proverim da li rešavamo pravi problem. Dobro pitanje štedi više vremena od brzog odgovora.",
+      "step1.text": "Pre nego što se napiše kod, proverava se da li se rešava pravi problem. Dobro pitanje štedi više vremena od brzog odgovora.",
       "step2.title": "Brzo graditi uz AI",
       "step2.text": "AI alati preuzimaju rutinski posao, pa vreme ostaje za delove koji traže iskustvo i rasuđivanje.",
       "step3.title": "Stati iza svake linije",
-      "step3.text": "U produkciju ne ide ništa što ne mogu da objasnim. Pregledam, testiram i preuzimam odgovornost za rezultat.",
+      "step3.text": "U produkciju ne ide ništa što se ne može objasniti. Svaka linija se pregleda, testira i za nju se odgovara.",
       "about.eyebrow": "O meni",
       "about.title": "Zdravo, ja sam Alex.",
-      "about.text": "Ja sam softverski programer. AI koristim kao alat, a ne kao zamenu za razmišljanje: ubrzava posao, a ja se staram da rezultat bude tačan.",
+      "about.text": "Razvoj softvera uz AI kao alat, a ne kao zamenu za razmišljanje: ubrzava posao, a čovek se stara da rezultat bude tačan.",
       "contact.eyebrow": "Kontakt",
       "contact.title": "Imaš nešto što je važno?",
       "contact.lede": "Hajde da razgovaramo.",
@@ -2260,7 +2297,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "next.d": "Prvo kafa",
       "next.ai": "Preporučujem sve tri. Istovremeno.",
       "next.alex": "Vidiš? Upravo zato ti odlučuješ.",
-      "next.coffee": "Dobra odluka. Biću ovde kad se vratiš.",
+      "next.coffee": "Dobra odluka. Stranica će te čekati kad se vratiš.",
       "next.subject": "Hajde da razgovaramo.",
       "term.title": "Još si radoznao?",
       "term.lede": "Terminal je tvoj.",
@@ -2292,7 +2329,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.exit2": "Veza sa arfr.de je zatvorena.",
       "cli.exit3": "… šalim se. Bez odluke niko ne odlazi. Savet: contact",
       "cli.rm1": "Brišem sve …",
-      "cli.rm2": "Šala. Vidi primer 03 u kvizu: server bih ipak da zadržim.",
+      "cli.rm2": "Šala. Vidi primer 03 u kvizu: server je još potreban.",
       "cli.sudo": "guest nije u sudoers datoteci. Ovaj incident će biti prijavljen.",
       "cli.vim": "Sada si u vim-u. Srećno sa izlaskom. (Savet: :q!)",
       "cli.vimExit": "Svaka čast. Izašao si iz vim-a. Ne uspeva to svako.",
@@ -2302,11 +2339,22 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "Odgovor na sve. Pitanje moraš sam da postaviš.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Alex na mejlove odgovara skoro isto tako brzo.",
       "cli.hello": "Zdravo i tebi! Ukucaj help ako ne znaš dalje.",
+      "cli.help.chat": "piši Alexu uživo",
+      "cli.chat.connect": "Povezujem se sa alex@arfr …",
+      "cli.chat.open": "Kanal je otvoren. Poruke idu Alexu preko Telegrama, odgovori se pojavljuju ovde.",
+      "cli.chat.hint": "Samo počni da kucaš. exit završava čet.",
+      "cli.chat.wait": "Alex izgleda trenutno nije uz telefon. Odgovoriće čim bude mogao, ili piši na hello@arfr.de.",
+      "cli.chat.offline": "Čet trenutno nije dostupan. Samo piši na hello@arfr.de.",
+      "cli.chat.error": "Slanje nije uspelo. Pokušaj ponovo ili piši na hello@arfr.de.",
+      "cli.chat.closed": "Čet je završen. Nazad u terminalu.",
+      "cli.chat.slow": "Polako. Udahni malo.",
+      "cli.chat.long": "Poruka je skraćena na 500 znakova.",
+      "cli.chat.limit": "Dosta za jednu sesiju. Ostalo rado mejlom: hello@arfr.de",
       "cli.notFound": "komanda nije pronađena: {cmd}. Savet: help",
       "cli.enter3": "Tri puta Enter, ništa se nije desilo. Ipak help? [D/n]",
       "cli.enter3.no": "U redu. Pogađaj dalje.",
       "cli.unknown3": "Tri nepoznate komande zaredom. Ipak help? [D/n]",
-      "smart.line": "AI pomaže. Ja odlučujem.",
+      "smart.line": "AI pomaže. Čovek odlučuje.",
       "smart.back": "Puna verzija",
       "smart.stats": "{full} → {min} reči · −{pct} %",
       "cli.smart.1": "Analiziram arfr.de … pronađeno reči: {n}",
@@ -2354,7 +2402,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "hero.lede": "… χρειάζεται κάποιος που ξέρει τι πραγματικά μετράει.",
       "role.title": "Προγραμματιστής λογισμικού",
       "role.country": "Γερμανία",
-      "profile.workflow": "κατανόηση → υλοποίηση → ευθύνη",
+      "profile.workflow": "[κατανόηση, υλοποίηση, ευθύνη]",
       "cta.contact": "Επικοινώνησε μαζί μου",
       "review.aria": "Παραδείγματα code review: μια πρόταση της AI, μια διόρθωση από άνθρωπο και μετά έγκριση",
       "review.chip": "Review",
@@ -2363,19 +2411,19 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "review.revised": "Διορθωμένο",
       "review.by": "ελέγχθηκε από άνθρωπο",
       "review.ok": "Εγκρίθηκε",
-      "review.caption": "Η AI γράφει το πρώτο προσχέδιο. Εγώ αποφασίζω τι βγαίνει live.",
+      "review.caption": "Η AI γράφει το πρώτο προσχέδιο. Ο άνθρωπος αποφασίζει τι βγαίνει live.",
       "approach.eyebrow": "Προσέγγιση",
       "approach.title": "Τα εργαλεία γίνονται εξυπνότερα.",
       "approach.lede": "Οι καλές αποφάσεις θέλουν ακόμα καθαρό μυαλό.",
       "step1.title": "Κατανόηση του προβλήματος",
-      "step1.text": "Πριν γράψω κώδικα, βεβαιώνομαι ότι λύνουμε το σωστό πρόβλημα. Μια καλή ερώτηση γλιτώνει περισσότερο χρόνο από μια γρήγορη απάντηση.",
+      "step1.text": "Πριν γραφτεί κώδικας, εξασφαλίζεται ότι λύνεται το σωστό πρόβλημα. Μια καλή ερώτηση γλιτώνει περισσότερο χρόνο από μια γρήγορη απάντηση.",
       "step2.title": "Γρήγορη υλοποίηση με AI",
       "step2.text": "Τα εργαλεία AI αναλαμβάνουν τη ρουτίνα, ώστε ο χρόνος να πηγαίνει στα σημεία που θέλουν εμπειρία και κρίση.",
       "step3.title": "Ευθύνη για κάθε γραμμή",
-      "step3.text": "Τίποτα δεν βγαίνει live αν δεν μπορώ να το εξηγήσω. Ελέγχω, δοκιμάζω και αναλαμβάνω την ευθύνη για το αποτέλεσμα.",
+      "step3.text": "Τίποτα δεν βγαίνει live αν δεν μπορεί να εξηγηθεί. Κάθε γραμμή ελέγχεται, δοκιμάζεται και έχει κάποιον υπεύθυνο.",
       "about.eyebrow": "Σχετικά",
       "about.title": "Γεια, είμαι ο Alex.",
-      "about.text": "Είμαι προγραμματιστής λογισμικού. Χρησιμοποιώ την AI ως εργαλείο, όχι ως υποκατάστατο της σκέψης: επιταχύνει τη δουλειά και εγώ φροντίζω να είναι σωστό το αποτέλεσμα.",
+      "about.text": "Ανάπτυξη λογισμικού με την AI ως εργαλείο, όχι ως υποκατάστατο της σκέψης: επιταχύνει τη δουλειά και ο άνθρωπος φροντίζει να είναι σωστό το αποτέλεσμα.",
       "contact.eyebrow": "Επικοινωνία",
       "contact.title": "Κάτι που έχει σημασία;",
       "contact.lede": "Ας το συζητήσουμε.",
@@ -2460,7 +2508,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "next.d": "Πρώτα καφές",
       "next.ai": "Προτείνω και τα τρία. Ταυτόχρονα.",
       "next.alex": "Βλέπεις; Γι' αυτό ακριβώς αποφασίζεις εσύ.",
-      "next.coffee": "Καλή απόφαση. Θα είμαι εδώ όταν γυρίσεις.",
+      "next.coffee": "Καλή απόφαση. Η σελίδα θα είναι εδώ όταν γυρίσεις.",
       "next.subject": "Ας το συζητήσουμε.",
       "term.title": "Ακόμα περίεργος;",
       "term.lede": "Το τερματικό είναι δικό σου.",
@@ -2492,7 +2540,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.exit2": "Η σύνδεση με το arfr.de έκλεισε.",
       "cli.exit3": "… πλάκα κάνω. Χωρίς απόφαση δεν φεύγει κανείς. Συμβουλή: contact",
       "cli.rm1": "Διαγράφω τα πάντα …",
-      "cli.rm2": "Πλάκα. Δες το παράδειγμα 03 στο κουίζ: τον server θα ήθελα να τον κρατήσω.",
+      "cli.rm2": "Πλάκα. Δες το παράδειγμα 03 στο κουίζ: ο server χρειάζεται ακόμα.",
       "cli.sudo": "Ο guest δεν είναι στο αρχείο sudoers. Το περιστατικό θα αναφερθεί.",
       "cli.vim": "Τώρα είσαι στο vim. Καλή τύχη με την έξοδο. (Συμβουλή: :q!)",
       "cli.vimExit": "Σεβασμός. Βγήκες από το vim. Δεν τα καταφέρνουν όλοι.",
@@ -2502,11 +2550,22 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "Η απάντηση σε όλα. Την ερώτηση πρέπει να την κάνεις εσύ.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Ο Alex απαντά στα email σχεδόν το ίδιο γρήγορα.",
       "cli.hello": "Γεια και σε σένα! Γράψε help αν κόλλησες.",
+      "cli.help.chat": "συνομιλία live με τον Alex",
+      "cli.chat.connect": "Σύνδεση με alex@arfr …",
+      "cli.chat.open": "Το κανάλι άνοιξε. Τα μηνύματα πηγαίνουν στον Alex μέσω Telegram, οι απαντήσεις εμφανίζονται εδώ.",
+      "cli.chat.hint": "Απλώς άρχισε να γράφεις. Το exit τερματίζει τη συνομιλία.",
+      "cli.chat.wait": "Ο Alex μάλλον δεν είναι στο κινητό τώρα. Θα απαντήσει μόλις μπορέσει, ή γράψε στο hello@arfr.de.",
+      "cli.chat.offline": "Η συνομιλία δεν είναι διαθέσιμη τώρα. Γράψε απλώς στο hello@arfr.de.",
+      "cli.chat.error": "Η αποστολή απέτυχε. Δοκίμασε ξανά ή γράψε στο hello@arfr.de.",
+      "cli.chat.closed": "Η συνομιλία τερματίστηκε. Πίσω στο τερματικό.",
+      "cli.chat.slow": "Όχι τόσο γρήγορα. Πάρε μια ανάσα.",
+      "cli.chat.long": "Το μήνυμα συντομεύτηκε στους 500 χαρακτήρες.",
+      "cli.chat.limit": "Αρκετά για μία συνεδρία. Τα υπόλοιπα με email: hello@arfr.de",
       "cli.notFound": "η εντολή δεν βρέθηκε: {cmd}. Συμβουλή: help",
       "cli.enter3": "Τρεις φορές Enter και τίποτα. Μήπως καλύτερα help; [Ν/ο]",
       "cli.enter3.no": "Εντάξει. Συνέχισε να μαντεύεις.",
       "cli.unknown3": "Τρεις άγνωστες εντολές στη σειρά. Μήπως καλύτερα help; [Ν/ο]",
-      "smart.line": "Η AI βοηθά. Εγώ αποφασίζω.",
+      "smart.line": "Η AI βοηθά. Ο άνθρωπος αποφασίζει.",
       "smart.back": "Πλήρης έκδοση",
       "smart.stats": "{full} → {min} λέξεις · −{pct} %",
       "cli.smart.1": "Ανάλυση του arfr.de … βρέθηκαν {n} λέξεις",
@@ -3578,9 +3637,10 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     var box = document.getElementById('cli');
     var LINKEDIN = 'https://www.linkedin.com/in/alexander-fuhr/';
     var COMMANDS = ['help', 'whoami', 'ls', 'cat', 'cd', 'pwd', 'quiz', 'contact', 'coffee',
-      'lang', 'clear', 'exit', 'history', 'date', 'echo', 'ping', 'git', 'sudo', 'vim', 'ai', 'hack', '42'];
+      'lang', 'chat', 'clear', 'exit', 'history', 'date', 'echo', 'ping', 'git', 'sudo', 'vim', 'ai', 'hack', '42'];
     var hist = [], hIdx = 0, busy = false, inVim = false;
     var emptyRuns = 0, unknownRuns = 0, askHelp = false;
+    var promptText = 'guest@arfr:~$ ';
 
     function pad(s, n) { while (s.length < n) s += ' '; return s; }
     function line(text, cls) {
@@ -3596,7 +3656,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       d.className = 'cli-line';
       var p = document.createElement('span');
       p.className = 'p';
-      p.textContent = 'guest@arfr:~$ ';
+      p.textContent = promptText;
       d.appendChild(p);
       d.appendChild(document.createTextNode(text));
       out.appendChild(d);
@@ -3628,7 +3688,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     function help() {
       line(t('cli.help.title'));
       [['help', 'cli.help.help'], ['whoami', 'cli.help.whoami'], ['ls', 'cli.help.ls'],
-       ['cat profile.yml', 'cli.help.cat'], ['quiz', 'cli.help.quiz'], ['contact', 'cli.help.contact'],
+       ['cat profile.yml', 'cli.help.cat'], ['quiz', 'cli.help.quiz'], ['contact', 'cli.help.contact'], ['chat', 'cli.help.chat'],
        ['coffee', 'cli.help.coffee'], ['lang de|en|ru|sr|el', 'cli.help.lang'],
        ['clear', 'cli.help.clear'], ['exit', 'cli.help.exit']].forEach(function (r) {
         line('  ' + pad(r[0], 22) + t(r[1]), 'muted');
@@ -3745,9 +3805,112 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         if (n < total) timer = setTimeout(step, 50); else stop(false);
       })();
     }
+
+    /* `chat`: a live line to Alex, ported from the earlier arfr.de. Messages go through the Telegram
+       proxy to his phone, his replies come back into this terminal. Plain text only, rate limited. */
+    var TG_API = 'https://inot.app/api/telegram/proxy';
+    var TG_ADMIN = '5741725666';
+    var chat = { active: false, session: null, offset: 0, sent: {}, polling: false, lastSend: 0, count: 0, heard: false, waitTimer: 0 };
+    var pathEl = document.getElementById('cli-path');
+    function setPrompt(path) { promptText = 'guest@arfr' + path + ' '; if (pathEl) pathEl.textContent = path; }
+    function tg(method, params) {
+      return fetch(TG_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ method: method, params: params })
+      }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+    }
+    function tgSend(text) {
+      return tg('sendMessage', { chat_id: TG_ADMIN, text: text, disable_web_page_preview: true })
+        .then(function (d) { if (d && d.ok && d.result) chat.sent[d.result.message_id] = true; return !!(d && d.ok); })
+        .catch(function () { return false; });
+    }
+    function chatLine(who, text) {
+      var d = document.createElement('div');
+      d.className = 'cli-line chat-in';
+      var w = document.createElement('span');
+      w.className = 'who';
+      w.textContent = '<' + who + '> ';
+      d.appendChild(w);
+      d.appendChild(document.createTextNode(text));
+      out.appendChild(d);
+      screen.scrollTop = screen.scrollHeight;
+    }
+    function chatStart() {
+      if (chat.active) return;
+      chat.active = true;
+      chat.heard = false;
+      if (!chat.session) chat.session = 'web_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+      setPrompt(':chat>');
+      busy = true;
+      line(t('cli.chat.connect'), 'muted');
+      /* skip everything that is already waiting on the bot, and check the line works */
+      tg('getUpdates', { offset: -1 }).then(function (d) {
+        if (d && d.ok && d.result && d.result.length) chat.offset = d.result[d.result.length - 1].update_id;
+        busy = false;
+        if (!chat.active) return;
+        line(t('cli.chat.open'), 'accent');
+        line(t('cli.chat.hint'), 'muted');
+        clearTimeout(chat.waitTimer);
+        chat.waitTimer = setTimeout(function () {
+          if (chat.active && chat.count && !chat.heard) line(t('cli.chat.wait'), 'muted');
+        }, 90000);
+        poll();
+      }).catch(function () {
+        busy = false;
+        line(t('cli.chat.offline'), 'err');
+        chatStop(true);
+      });
+    }
+    function chatStop(silent) {
+      if (!chat.active) return;
+      chat.active = false;
+      clearTimeout(chat.waitTimer);
+      setPrompt(':~$');
+      if (!silent) {
+        line(t('cli.chat.closed'), 'muted');
+        if (chat.count) tgSend('🔌 [' + chat.session + '] Chat beendet');
+      }
+    }
+    function poll() {
+      if (!chat.active || chat.polling) return;
+      if (document.hidden) { setTimeout(poll, 2000); return; }
+      chat.polling = true;
+      var failed = false;
+      tg('getUpdates', { offset: chat.offset + 1, timeout: 20 }).then(function (d) {
+        if (!d || !d.ok || !d.result) return;
+        d.result.forEach(function (u) {
+          chat.offset = Math.max(chat.offset, u.update_id);
+          var m = u.message;
+          if (!m || !m.text || String(m.chat && m.chat.id) !== TG_ADMIN) return;
+          if (m.text.indexOf('🌐') === 0 || m.text.indexOf('📡') === 0 || m.text.indexOf('🔌') === 0) return;
+          var text = null;
+          /* a reply to one of this visitor's messages, or a message tagged with this session */
+          if (m.reply_to_message && chat.sent[m.reply_to_message.message_id]) text = m.text;
+          else if (m.text.indexOf('[' + chat.session) !== -1) text = m.text.replace(/^[^\[]*\[[^\]]*\]\s*/, '');
+          if (text && chat.active) { chat.heard = true; chatLine('alex', text); }
+        });
+      }).catch(function () { failed = true; }).then(function () {
+        chat.polling = false;
+        if (chat.active) setTimeout(poll, failed ? 5000 : 600);
+      });
+    }
+    function chatSay(text) {
+      if (/^\/?(exit|quit|q|bye|logout)$/i.test(text)) { chatStop(false); return; }
+      if (/^\/clear$/i.test(text)) { out.textContent = ''; return; }
+      var now = Date.now();
+      if (now - chat.lastSend < 1500) { line(t('cli.chat.slow'), 'muted'); return; }
+      if (chat.count >= 30) { line(t('cli.chat.limit'), 'err'); return; }
+      if (text.length > 500) { text = text.slice(0, 500); line(t('cli.chat.long'), 'muted'); }
+      chat.lastSend = now;
+      chat.count += 1;
+      var head = chat.count === 1 ? '🌐 [' + chat.session + '] arfr.de · ' + current.toUpperCase() + '\n' : '🌐 [' + chat.session + ']\n';
+      tgSend(head + text).then(function (ok) { if (!ok) line(t('cli.chat.error'), 'err'); });
+    }
     function run(raw) {
       var cmd = raw.trim();
       echoCmd(raw);
+      if (chat.active) { if (cmd) chatSay(cmd); return; }
       /* after the nudge: Enter or yes runs help, no shrugs, anything else is a normal command */
       if (askHelp) {
         askHelp = false;
@@ -3798,6 +3961,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
           if (argLow === 'profile.yml') {
             line('name:     Alexander Fuhr');
             line('role:     ' + t('role.title'));
+            line('workflow: ' + t('profile.workflow'));
+            line('ai:       { role: assist, decides: false }');
           } else if (argLow === 'about.txt') {
             line(t('about.text'));
           } else if (argLow === 'contact.sh') {
@@ -3822,6 +3987,9 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
             var top = document.getElementById('top');
             if (top) top.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
           }, reduceMotion ? 0 : 600);
+          break;
+        case 'chat': case 'talk': case 'live':
+          chatStart();
           break;
         case 'contact': case 'mail': case './contact.sh': case 'sh':
           line(t('cli.contact'));
