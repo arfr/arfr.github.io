@@ -353,12 +353,6 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
   text-shadow: 0 1px 2px rgba(5, 7, 11, 0.9), 0 0 14px rgba(5, 7, 11, 0.85);
 }
 .role strong { color: var(--fg); font-weight: 600; }
-/* the job title keeps flickering into "Mensch" and back; a short neon pulse on each change */
-.role-swap { transition: color 0.35s ease, text-shadow 0.35s ease; }
-.role-swap.pulse {
-  color: #7FF0FF;
-  text-shadow: 0 1px 2px rgba(5, 7, 11, 0.9), 0 0 10px rgba(32, 227, 255, 0.75), 0 0 22px rgba(32, 227, 255, 0.35);
-}
 .role .sep { display: inline-block; width: 4px; height: 4px; margin: 0 10px; vertical-align: middle; border-radius: 50%; background: var(--muted); }
 .cta { display: flex; flex-wrap: wrap; gap: 12px; }
 .btn {
@@ -1429,7 +1423,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       <div class="hero-text">
         <h1 id="hero-title" data-i18n="hero.title" data-strike>Wenn alles <span class="squiggle">einfach</span> wird …</h1>
         <p class="lede"><span class="bar" data-i18n="hero.lede">… braucht es jemanden, der weiß, worauf es wirklich ankommt.</span></p>
-        <p class="role"><span class="role-swap" data-i18n="role.title">Softwareentwickler</span> · <span data-i18n="hero.eyebrow.rest">KI-gestützt, menschlich geführt</span></p>
+        <p class="role" data-i18n="hero.eyebrow">Softwareentwickler · KI-gestützt, menschlich geführt</p>
         <div class="cta">
           <a class="btn btn-primary" href="#contact"><span data-i18n="cta.contact">Kontakt aufnehmen</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -2043,7 +2037,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "approach.cmd": "cat approach.md", "role.tag": "AI-assisted, human-led",
       "hero.title": "When everything gets [easy] …",
       "hero.lede": "… you need someone who knows what really matters.",
-      "role.title": "Software Developer", "role.human": "Human", "hero.eyebrow.rest": "AI-assisted, human-led", "role.country": "Germany", "profile.workflow": "[understand, build, own it]",
+      "role.title": "Software Developer", "role.country": "Germany", "profile.workflow": "[understand, build, own it]",
       "cta.contact": "Get in touch",
       "review.aria": "Code review examples: an AI suggestion, a human correction, then approval",
       "review.chip": "Review", "review.ai": "AI suggestion",
@@ -2262,7 +2256,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "approach.cmd": "cat vorgehen.md", "role.tag": "KI-gestützt, menschlich geführt",
       "hero.title": "Wenn alles [einfach] wird …",
       "hero.lede": "… braucht es jemanden, der weiß, worauf es wirklich ankommt.",
-      "role.title": "Softwareentwickler", "role.human": "Mensch", "hero.eyebrow.rest": "KI-gestützt, menschlich geführt", "role.country": "Deutschland", "profile.workflow": "[verstehen, bauen, verantworten]",
+      "role.title": "Softwareentwickler", "role.country": "Deutschland", "profile.workflow": "[verstehen, bauen, verantworten]",
       "cta.contact": "Kontakt aufnehmen",
       "review.aria": "Beispiele für Code-Reviews: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe",
       "review.chip": "Review", "review.ai": "KI-Vorschlag",
@@ -2481,7 +2475,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "approach.cmd": "cat approach.md", "role.tag": "ИИ помогает, решает человек",
       "hero.title": "Когда всё становится [просто] …",
       "hero.lede": "… нужен тот, кто знает, что действительно важно.",
-      "role.title": "Разработчик ПО", "role.human": "Человек", "hero.eyebrow.rest": "ИИ помогает, решает человек", "role.country": "Германия", "profile.workflow": "[понять, сделать, отвечать]",
+      "role.title": "Разработчик ПО", "role.country": "Германия", "profile.workflow": "[понять, сделать, отвечать]",
       "cta.contact": "Связаться",
       "review.aria": "Примеры код-ревью: предложение ИИ, исправление человеком, затем одобрение",
       "review.chip": "Ревью", "review.ai": "Предложение ИИ",
@@ -2704,7 +2698,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "role.tag": "AI pomaže, čovek vodi",
       "hero.title": "Kad sve postane [lako] …",
       "hero.lede": "… potreban je neko ko zna šta je zaista važno.",
-      "role.title": "Softverski programer", "role.human": "Čovek", "hero.eyebrow.rest": "AI pomaže, čovek vodi",
+      "role.title": "Softverski programer",
       "role.country": "Nemačka",
       "profile.workflow": "[razumeti, izgraditi, odgovarati]",
       "cta.contact": "Stupi u kontakt",
@@ -2993,7 +2987,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "role.tag": "Η AI βοηθά, ο άνθρωπος αποφασίζει",
       "hero.title": "Όταν όλα γίνονται [εύκολα] …",
       "hero.lede": "… χρειάζεται κάποιος που ξέρει τι πραγματικά μετράει.",
-      "role.title": "Προγραμματιστής λογισμικού", "role.human": "Άνθρωπος", "hero.eyebrow.rest": "Η AI βοηθά, ο άνθρωπος αποφασίζει",
+      "role.title": "Προγραμματιστής λογισμικού",
       "role.country": "Γερμανία",
       "profile.workflow": "[κατανόηση, υλοποίηση, ευθύνη]",
       "cta.contact": "Επικοινώνησε μαζί μου",
@@ -5438,52 +5432,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     function dockLabel() { dockBtn.title = t('chat.dock'); }
     dockLabel();
     document.addEventListener('arfr:lang', dockLabel);
-  })();
-
-  /* Role line: the job title glitches into "Mensch" (Human) and back, on a loop */
-  (function roleSwap() {
-    var el = document.querySelector('.role-swap');
-    if (!el || reduceMotion) return;
-    var GL = '01<>/{}[]$#_*+=';
-    var human = false, timer = 0, onScreen = true;
-    function morph(from, to, done) {
-      var frames = 16, f = 0;
-      el.classList.add('pulse');
-      (function tick() {
-        f += 1;
-        var p = f / frames;
-        var len = Math.round(from.length + (to.length - from.length) * p);
-        var fixed = Math.floor(p * to.length);
-        var out = '';
-        for (var i = 0; i < len; i++) out += i < fixed ? to.charAt(i) : (to.charAt(i) === ' ' ? ' ' : GL.charAt(Math.floor(Math.random() * GL.length)));
-        el.textContent = out;
-        if (f < frames) { timer = setTimeout(tick, 38); return; }
-        el.textContent = to;
-        setTimeout(function () { el.classList.remove('pulse'); }, 380);
-        done();
-      })();
-    }
-    function schedule() {
-      clearTimeout(timer);
-      timer = setTimeout(step, human ? 2600 : 5200);
-    }
-    function step() {
-      if (document.hidden || !onScreen) { schedule(); return; }
-      var to = t(human ? 'role.title' : 'role.human');
-      human = !human;
-      morph(el.textContent, to, schedule);
-    }
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (en) { onScreen = en[0].isIntersecting; }).observe(el);
-    }
-    document.addEventListener('arfr:lang', function () {
-      clearTimeout(timer);
-      human = false;
-      el.classList.remove('pulse');
-      el.textContent = t('role.title');
-      schedule();
-    });
-    schedule();
   })();
 
   /* Entrance: whatever scrolls in rises in turn; prompts type their command */
