@@ -682,7 +682,7 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
 .chatw {
   position: fixed;
   inset: auto 24px 24px auto;
-  z-index: 45;
+  z-index: 70; /* above the snow (50) and the bug (60), below the game (100) */
   width: 380px;
   max-width: calc(100vw - 32px);
   height: min(540px, calc(100dvh - 48px));
@@ -4498,6 +4498,12 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         case '42': line(t('cli.42')); break;
         case 'ascii': case 'rocket': case 'launch': asciiRocket(); break;
         case 'smart': case 'tldr': case 'compress':
+          /* a second `smart` (e.g. sent from the chat) brings the full page back */
+          if (smartMode.isOn()) {
+            smartMode.exit(function () { window.scrollTo(0, 0); });
+            line(t('cli.smart.back'), 'accent');
+            break;
+          }
           var st = smartMode.measure();
           seq([[t('cli.smart.1').replace('{n}', fmtNum(st.full))],
                [t('cli.smart.2'), 'muted', 500],
