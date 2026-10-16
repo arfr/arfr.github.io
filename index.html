@@ -1860,7 +1860,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.hello": "Hello back! Type help if you're stuck.",
       "cli.help.chat": "chat with Alex live",
       "cli.chat.connect": "Connecting to alex@arfr …",
-      "cli.chat.open": "Channel open. Messages go to Alex via Telegram, replies show up here.",
       "cli.chat.hint": "Just start typing. exit ends the chat.",
       "cli.chat.wait": "Alex seems to be away from his phone. He'll reply as soon as he can, or write to hello@arfr.de.",
       "cli.chat.offline": "Can't reach the chat right now. Just write to hello@arfr.de.",
@@ -2001,7 +2000,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.hello": "Hallo zurück! Tippe help, wenn du nicht weiterweißt.",
       "cli.help.chat": "live mit Alex schreiben",
       "cli.chat.connect": "Verbinde mit alex@arfr …",
-      "cli.chat.open": "Kanal offen. Nachrichten gehen über Telegram direkt an Alex, Antworten erscheinen hier.",
       "cli.chat.hint": "Einfach lostippen. exit beendet den Chat.",
       "cli.chat.wait": "Alex ist gerade wohl nicht am Handy. Er antwortet, sobald er kann, oder schreib an hello@arfr.de.",
       "cli.chat.offline": "Der Chat ist gerade nicht erreichbar. Schreib einfach an hello@arfr.de.",
@@ -2142,7 +2140,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.hello": "И тебе привет! Введи help, если не знаешь, что дальше.",
       "cli.help.chat": "написать Алексу в чат",
       "cli.chat.connect": "Подключаюсь к alex@arfr …",
-      "cli.chat.open": "Канал открыт. Сообщения уходят Алексу через Telegram, ответы появятся здесь.",
       "cli.chat.hint": "Просто начни печатать. exit завершает чат.",
       "cli.chat.wait": "Похоже, Алекс сейчас не у телефона. Он ответит, как только сможет, или напиши на hello@arfr.de.",
       "cli.chat.offline": "Чат сейчас недоступен. Просто напиши на hello@arfr.de.",
@@ -2341,7 +2338,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.hello": "Zdravo i tebi! Ukucaj help ako ne znaš dalje.",
       "cli.help.chat": "piši Alexu uživo",
       "cli.chat.connect": "Povezujem se sa alex@arfr …",
-      "cli.chat.open": "Kanal je otvoren. Poruke idu Alexu preko Telegrama, odgovori se pojavljuju ovde.",
       "cli.chat.hint": "Samo počni da kucaš. exit završava čet.",
       "cli.chat.wait": "Alex izgleda trenutno nije uz telefon. Odgovoriće čim bude mogao, ili piši na hello@arfr.de.",
       "cli.chat.offline": "Čet trenutno nije dostupan. Samo piši na hello@arfr.de.",
@@ -2552,7 +2548,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.hello": "Γεια και σε σένα! Γράψε help αν κόλλησες.",
       "cli.help.chat": "συνομιλία live με τον Alex",
       "cli.chat.connect": "Σύνδεση με alex@arfr …",
-      "cli.chat.open": "Το κανάλι άνοιξε. Τα μηνύματα πηγαίνουν στον Alex μέσω Telegram, οι απαντήσεις εμφανίζονται εδώ.",
       "cli.chat.hint": "Απλώς άρχισε να γράφεις. Το exit τερματίζει τη συνομιλία.",
       "cli.chat.wait": "Ο Alex μάλλον δεν είναι στο κινητό τώρα. Θα απαντήσει μόλις μπορέσει, ή γράψε στο hello@arfr.de.",
       "cli.chat.offline": "Η συνομιλία δεν είναι διαθέσιμη τώρα. Γράψε απλώς στο hello@arfr.de.",
@@ -3854,7 +3849,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
           chat.announced = true;
           tgSend('🌐 [' + chat.session + ']\n📡 New communication channel opened · ' + current.toUpperCase());
         }
-        line(t('cli.chat.open'), 'accent');
         line(t('cli.chat.hint'), 'muted');
         clearTimeout(chat.waitTimer);
         chat.waitTimer = setTimeout(function () {
