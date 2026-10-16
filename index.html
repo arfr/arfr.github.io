@@ -3810,7 +3810,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
        proxy to his phone, his replies come back into this terminal. Plain text only, rate limited. */
     var TG_API = 'https://inot.app/api/telegram/proxy';
     var TG_ADMIN = '5741725666';
-    var chat = { active: false, session: null, offset: 0, sent: {}, polling: false, lastSend: 0, count: 0, heard: false, waitTimer: 0 };
+    var chat = { active: false, session: null, offset: 0, sent: {}, polling: false, lastSend: 0, count: 0, heard: false, waitTimer: 0, announced: false };
     var pathEl = document.getElementById('cli-path');
     function setPrompt(path) { promptText = 'guest@arfr' + path + ' '; if (pathEl) pathEl.textContent = path; }
     function tg(method, params) {
@@ -3849,6 +3849,11 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         if (d && d.ok && d.result && d.result.length) chat.offset = d.result[d.result.length - 1].update_id;
         busy = false;
         if (!chat.active) return;
+        /* tell Alex someone opened the channel, in the same format as the earlier arfr.de */
+        if (!chat.announced) {
+          chat.announced = true;
+          tgSend('🌐 [' + chat.session + ']\n📡 New communication channel opened · ' + current.toUpperCase());
+        }
         line(t('cli.chat.open'), 'accent');
         line(t('cli.chat.hint'), 'muted');
         clearTimeout(chat.waitTimer);
@@ -3904,8 +3909,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       if (text.length > 500) { text = text.slice(0, 500); line(t('cli.chat.long'), 'muted'); }
       chat.lastSend = now;
       chat.count += 1;
-      var head = chat.count === 1 ? '🌐 [' + chat.session + '] arfr.de · ' + current.toUpperCase() + '\n' : '🌐 [' + chat.session + ']\n';
-      tgSend(head + text).then(function (ok) { if (!ok) line(t('cli.chat.error'), 'err'); });
+      tgSend('🌐 [' + chat.session + ']\n' + text).then(function (ok) { if (!ok) line(t('cli.chat.error'), 'err'); });
     }
     function run(raw) {
       var cmd = raw.trim();
