@@ -419,10 +419,17 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
 }
 .chip-ok { background: var(--bar); color: var(--bar-fg); border-color: var(--bar); }
 .chip svg { width: 12px; height: 12px; }
-.cta-chat { min-height: 32px; padding: 4px 14px; font: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: transform 0.15s ease; }
-.cta-chat svg { width: 14px; height: 14px; }
-.cta-chat:hover { transform: translateY(-1px); }
-@media (prefers-reduced-motion: reduce) { .cta-chat { transition: none; } .cta-chat:hover { transform: none; } }
+.chat-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.chat-link:hover { text-decoration-thickness: 2px; }
 .hunk { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
 .hunk + .hunk { border-top: 1px dashed var(--line); }
 .hunk-label { color: var(--muted); font-size: 0.8125rem; }
@@ -487,8 +494,14 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
   transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
   touch-action: pan-y;
 }
-.slide { flex: 0 0 100%; min-width: 0; display: flex; flex-direction: column; }
-.slide .review-foot { margin-top: auto; }
+/* every slide has the same height; what appears after an answer scrolls inside */
+.slide { flex: 0 0 100%; min-width: 0; display: flex; flex-direction: column; position: relative; height: var(--slide-h, auto); overflow-y: auto; }
+.slide::-webkit-scrollbar { width: 6px; }
+.slide::-webkit-scrollbar-thumb { background: rgba(32, 227, 255, 0.35); border-radius: 3px; }
+.slide::-webkit-scrollbar-track { background: transparent; }
+.slide::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+@supports not selector(::-webkit-scrollbar) { .slide { scrollbar-width: thin; scrollbar-color: rgba(32, 227, 255, 0.35) transparent; } }
+.slide .review-foot { margin-top: auto; justify-content: flex-end; }
 .slide .review-head { justify-content: flex-end; }
 @media (max-width: 420px) {
   .dot { width: 18px; }
@@ -1370,6 +1383,10 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 @media (max-width: 860px) {
   .hero .wrap { grid-template-columns: minmax(0, 1fr); }
 }
+@media (min-width: 861px) {
+  .hero .wrap { align-items: end; }
+  .hero-text { padding-bottom: 3px; } /* centres the 48px button on the 54px slider bar */
+}
 </style>
 </head>
 <body>
@@ -1435,9 +1452,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         <div class="review-card carousel" aria-roledescription="carousel">
           <div class="track">
             <div class="slide" role="group" aria-roledescription="slide" aria-label="1 / 11: Leben · Kunde" data-name="Leben · Kunde">
-              <div class="review-head">
-                <span class="chip" data-i18n="lang.real">Leben</span>
-              </div>
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="rl.quote">Kunde: "NICHTS GEHT MEHR!!!"</span></span>
@@ -1466,15 +1480,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><mark data-i18n="rl.fix1">Hörer in die Hand. Zuhören.</mark>
 <span class="add">+ </span><span data-i18n="rl.fix2">Dann fixen.</span></pre>
               </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="2 / 11: PHP" data-name="PHP">
-              <div class="review-head">
-                <span class="chip">PHP</span>
-              </div>
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span>$sql = "SELECT * FROM users
@@ -1503,15 +1510,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span>   WHERE email = <mark>?</mark>');
 <span class="add">+ </span>$stmt-&gt;execute(<mark>[$email]</mark>);</pre>
               </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="3 / 11: Leben · Navi" data-name="Leben · Navi">
-              <div class="review-head">
-                <span class="chip" data-i18n="lang.real">Leben</span>
-              </div>
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="nv.quote">Vor dir: ein See.</span></span>
@@ -1539,15 +1539,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><mark data-i18n="nv.fix1">Bremsen. Hinschauen.</mark>
 <span class="add">+ </span><span data-i18n="nv.fix2">Dann weiterfahren.</span></pre>
               </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="4 / 11: MySQL" data-name="MySQL">
-              <div class="review-head">
-                <span class="chip">MySQL</span>
-              </div>
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span>UPDATE customers
@@ -1575,15 +1568,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span>SET newsletter = 0
 <span class="add">+ </span><mark>WHERE id = 1337</mark>;</pre>
               </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="5 / 11: Leben · Verteiler" data-name="Leben · Verteiler">
-              <div class="review-head">
-                <span class="chip" data-i18n="lang.real">Leben</span>
-              </div>
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="ra.quote">Mail an 2.347 Empfänger</span></span>
@@ -1612,15 +1598,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><mark data-i18n="ra.fix1">Nur an den Absender.</mark>
 <span class="add">+ </span><span data-i18n="ra.fix2">Ruhe im Postfach.</span></pre>
               </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="6 / 11: Linux" data-name="Linux">
-              <div class="review-head">
-                <span class="chip">Bash</span>
-              </div>
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span>rm -rf $BUILD_DIR/*</pre>
@@ -1645,15 +1624,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
                 <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
 <pre class="code"><span class="add">+ </span>rm -rf <mark>"${BUILD_DIR:?}"</mark>/*</pre>
               </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="7 / 11: Leben · Angebot" data-name="Leben · Angebot">
-              <div class="review-head">
-                <span class="chip" data-i18n="lang.real">Leben</span>
-              </div>
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="pl.quote">Angebot an einen Neukunden</span></span>
@@ -1682,15 +1654,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><span data-i18n="pl.fix1">Sehr geehrter Herr </span><mark data-i18n="pl.name">Weber</mark>,
 <span class="add">+ </span><span data-i18n="pl.ai2">anbei unser Angebot …</span></pre>
               </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="8 / 11: C#" data-name="C#">
-              <div class="review-head">
-                <span class="chip">C#</span>
-              </div>
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span>double total = price + shipping;</pre>
@@ -1715,15 +1680,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
                 <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
 <pre class="code"><span class="add">+ </span><mark>decimal</mark> total = price + shipping;</pre>
               </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="9 / 11: Leben · Schätzung" data-name="Leben · Schätzung">
-              <div class="review-head">
-                <span class="chip" data-i18n="lang.real">Leben</span>
-              </div>
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="es.quote">„Wie lange dauert der Umbau?“</span></span>
@@ -1751,15 +1709,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><span data-i18n="es.fix1">Zwei Tage</span> <mark>× π</mark>
 <span class="add">+ </span><span data-i18n="es.fix2">Also gut eine Woche.</span></pre>
               </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="10 / 11: YAML" data-name="YAML">
-              <div class="review-head">
-                <span class="chip">YAML</span>
-              </div>
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span><span data-i18n="fin.k1">assistiert:  </span><span data-i18n="fin.ai">KI</span>
@@ -1788,15 +1739,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <span class="add">+ </span><span data-i18n="fin.k2">lenkt:       </span><mark data-i18n="fin.human">Mensch</mark>
 <span class="add">+ </span><span data-i18n="fin.k3">entscheidet: </span><mark data-i18n="fin.human">Mensch</mark></pre>
               </div>
-              <div class="review-foot">
-                <span data-i18n="review.by">von einem Menschen geprüft</span>
-                <span class="chip chip-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span data-i18n="review.ok">Freigegeben</span></span>
-              </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="11 / 11: Kommunikation" data-name="Kommunikation" data-cta>
-              <div class="review-head">
-                <span class="chip" data-i18n="lang.comm">Kommunikation</span>
-              </div>
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="cta.quote">Eine Frage zum eigenen Thema</span></span>
@@ -1806,7 +1750,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
                   <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
                   <div class="quiz-opts">
                     <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.cta.a">Passierschein A38 beantragen</span></button>
-                    <button type="button" class="opt" data-correct="1" data-chat><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.cta.b">Alex fragen</span></button>
+                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.cta.b">Alex fragen</span></button>
                     <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.cta.c">Drei Werktage warten</span></button>
                   </div>
                   <div class="ai-reply" hidden>
@@ -1816,7 +1760,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
                 </div>
                 <div class="comment">
                   <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.cta">Geht schneller: einfach fragen. Die Antwort kommt von einem Menschen, direkt hier im Chat.</span></p>
+                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.cta" data-chatlink>Geht schneller: einfach fragen. Die Antwort kommt von einem Menschen, direkt hier im <button type="button" class="chat-link">Chat</button>.</span></p>
                 </div>
               </div>
               <div class="hunk hunk-fix">
@@ -1824,10 +1768,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="cta.quote">Eine Frage zum eigenen Thema</span></span>
 <span class="add">+ </span><mark data-i18n="cta.fix1">Chat starten.</mark>
 <span class="add">+ </span><span data-i18n="cta.fix2">Direkt fragen.</span></pre>
-              </div>
-              <div class="review-foot">
-                <span data-i18n="cta.foot">Antwort von einem Menschen</span>
-                <button type="button" class="chip chip-ok cta-chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span data-i18n="contact.chat">Chat starten</span></button>
               </div>
             </div>
           </div>
@@ -2123,7 +2063,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "o.cta.a": "Apply for Permit A38",
       "o.cta.b": "Ask Alex",
       "o.cta.c": "Wait three business days",
-      "c.cta": "Faster: just ask. A human replies, right here in the chat.",
+      "c.cta": "Faster: just ask. A human replies, right here in the [chat].",
       "cta.foot": "Answered by a human",
       "q.code": "What's the problem?", "q.real": "What do you do?", "q.final": "Who decides?",
       "o.php.a": "A missing semicolon", "o.php.b": "SQL injection", "o.php.c": "Nothing, it runs",
@@ -2342,7 +2282,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "o.cta.a": "Passierschein A38 beantragen",
       "o.cta.b": "Alex fragen",
       "o.cta.c": "Drei Werktage warten",
-      "c.cta": "Geht schneller: einfach fragen. Die Antwort kommt von einem Menschen, direkt hier im Chat.",
+      "c.cta": "Geht schneller: einfach fragen. Die Antwort kommt von einem Menschen, direkt hier im [Chat].",
       "cta.foot": "Antwort von einem Menschen",
       "q.code": "Was ist das Problem?", "q.real": "Was tust du?", "q.final": "Wer entscheidet?",
       "o.php.a": "Fehlt ein Semikolon", "o.php.b": "SQL-Injection", "o.php.c": "Nichts, läuft doch",
@@ -2561,7 +2501,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "o.cta.a": "Получить пропуск A38",
       "o.cta.b": "Спросить Алекса",
       "o.cta.c": "Ждать три рабочих дня",
-      "c.cta": "Быстрее — просто спросить. Ответит человек, прямо здесь в чате.",
+      "c.cta": "Быстрее — просто спросить. Ответит человек, прямо здесь в [чате].",
       "cta.foot": "Отвечает человек",
       "q.code": "В чём проблема?", "q.real": "Что сделаешь?", "q.final": "Кто решает?",
       "o.php.a": "Не хватает точки с запятой", "o.php.b": "SQL-инъекция", "o.php.c": "Ничего, работает же",
@@ -2802,7 +2742,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "o.cta.a": "Zatraži propusnicu A38",
       "o.cta.b": "Pitaj Alexa",
       "o.cta.c": "Čekaj tri radna dana",
-      "c.cta": "Brže je da samo pitaš. Odgovara čovek, ovde u četu.",
+      "c.cta": "Brže je da samo pitaš. Odgovara čovek, ovde u [četu].",
       "cta.foot": "Odgovara čovek",
       "q.code": "U čemu je problem?",
       "q.real": "Šta radiš?",
@@ -3091,7 +3031,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "o.cta.a": "Αίτηση για το έντυπο A38",
       "o.cta.b": "Ρώτα τον Alex",
       "o.cta.c": "Περίμενε τρεις εργάσιμες",
-      "c.cta": "Πιο γρήγορα: απλώς ρώτα. Απαντά άνθρωπος, εδώ στη συνομιλία.",
+      "c.cta": "Πιο γρήγορα: απλώς ρώτα. Απαντά άνθρωπος, εδώ στη [συνομιλία].",
       "cta.foot": "Απαντά άνθρωπος",
       "q.code": "Ποιο είναι το πρόβλημα;",
       "q.real": "Τι κάνεις;",
@@ -3280,12 +3220,17 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     document.querySelectorAll('[data-i18n]').forEach(function (el) {
       var v = dict[el.getAttribute('data-i18n')];
       if (v == null) return;
-      if (!el.hasAttribute('data-strike')) { el.textContent = v; return; }
+      var strike = el.hasAttribute('data-strike'), chat = el.hasAttribute('data-chatlink');
+      if (!strike && !chat) { el.textContent = v; return; }
       el.textContent = '';
       v.split(/\[([^\]]+)\]/).forEach(function (part, k) {
         if (!part) return;
-        if (k % 2) { var x = document.createElement('span'); x.className = 'squiggle'; x.textContent = part; el.appendChild(x); }
-        else el.appendChild(document.createTextNode(part));
+        if (k % 2) {
+          var x = document.createElement(chat ? 'button' : 'span');
+          if (chat) { x.type = 'button'; x.className = 'chat-link'; } else x.className = 'squiggle';
+          x.textContent = part;
+          el.appendChild(x);
+        } else el.appendChild(document.createTextNode(part));
       });
     });
     document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
@@ -3563,6 +3508,15 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     });
     updateScore();
   }
+  /* the card keeps its size; scroll the slide so the newest part (AI reply, verdict) is visible */
+  function showInSlide(s, el) {
+    if (!el || !s) return;
+    var top = el.offsetTop, bottom = top + el.offsetHeight, view = s.clientHeight, cur = s.scrollTop;
+    var target = cur;
+    if (bottom > cur + view - 12) target = bottom - view + 12;
+    if (top < target + 60) target = Math.max(0, Math.min(target, top - 60));
+    if (target !== cur) s.scrollTo({ top: target, behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
   function answer(k, btn) {
     if (quizState[k]) return;
     var s = quizSlides[k];
@@ -3571,9 +3525,10 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     s.querySelectorAll('.opt').forEach(function (b) { b.disabled = true; });
     btn.classList.add('is-picked');
     btn.setAttribute('aria-pressed', 'true');
-    if (btn.hasAttribute('data-chat')) startChat();
     s.querySelector('.ai-reply').hidden = false;
+    showInSlide(s, s.querySelector('.ai-reply'));
     typeInto(s.querySelector('.ai-text'), t('ai.r' + st.reply), function () {
+      showInSlide(s, s.querySelector('.ai-reply'));
       setTimeout(function () {
         if (quizState[k] !== st) return;
         s.querySelectorAll('.opt').forEach(function (b) {
@@ -3582,6 +3537,11 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         showVerdict(st, s.querySelector('.verdict'));
         st.revealed = true;
         s.classList.add('answered');
+        showInSlide(s, s.querySelector('.comment'));
+        setTimeout(function () {
+          if (quizState[k] !== st) return;
+          s.scrollTo({ top: s.scrollHeight, behavior: reduceMotion ? 'auto' : 'smooth' });
+        }, reduceMotion ? 0 : 1300);
         var dot = quizFig.querySelectorAll('.dot')[k];
         if (dot) dot.classList.add(st.right ? 'is-right' : 'is-wrong');
         updateScore();
@@ -3595,7 +3555,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     else location.href = 'mailto:hello@arfr.de?subject=' + encodeURIComponent(t('next.subject') + ' (Chat)');
   }
   if (quizFig) {
-    quizFig.querySelectorAll('.cta-chat').forEach(function (b) { b.addEventListener('click', startChat); });
+    quizFig.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.chat-link')) startChat(); });
     quizRoot.classList.add('quiz-on');
     quizSlides.forEach(function (s, k) {
       s.querySelectorAll('.opt').forEach(function (b) {
@@ -3606,6 +3566,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       quizState = quizSlides.map(function () { return null; });
       quizSlides.forEach(function (s) {
         s.classList.remove('answered');
+        s.scrollTop = 0;
         s.querySelector('.ai-reply').hidden = true;
         s.querySelector('.ai-text').textContent = '';
         var v = s.querySelector('.verdict');
@@ -5081,15 +5042,46 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       if (byUser) restart();
     }
     function restart() { /* no autoplay: the quiz runs at the visitor's pace */ }
-    function fitHeight() {
-      var s = slides[i];
-      if (s) root.style.height = (s.offsetHeight + root.offsetHeight - root.clientHeight) + 'px';
+    var slideH = 0, lastW = 0, measuring = false;
+    function measure() {
+      measuring = true;
+      root.style.setProperty('--slide-h', 'auto');
+      root.style.height = 'auto';
+      var saved = slides.map(function (s) {
+        var a = s.querySelector('.ai-reply');
+        var keep = { answered: s.classList.contains('answered'), reply: a ? a.hidden : true };
+        s.classList.remove('answered');
+        if (a) a.hidden = true;
+        return keep;
+      });
+      slideH = Math.max.apply(null, slides.map(function (s) { return s.offsetHeight; }));
+      slides.forEach(function (s, k) {
+        if (saved[k].answered) s.classList.add('answered');
+        var a = s.querySelector('.ai-reply');
+        if (a) a.hidden = saved[k].reply;
+      });
+      root.style.setProperty('--slide-h', slideH + 'px');
+      lastW = root.clientWidth;
+      measuring = false;
+    }
+    function fitHeight(force) {
+      if (measuring) return;
+      if (force === true || !slideH || root.clientWidth !== lastW) measure();
+      root.style.height = (slideH + root.offsetHeight - root.clientHeight) + 'px';
+    }
+    var fitQueued = false;
+    function queueFit(force) {
+      if (fitQueued) return;
+      fitQueued = true;
+      requestAnimationFrame(function () { fitQueued = false; fitHeight(force); });
     }
     if ('ResizeObserver' in window) {
-      var ro = new ResizeObserver(function () { fitHeight(); });
-      slides.forEach(function (s) { ro.observe(s); });
+      var ro = new ResizeObserver(function () { queueFit(false); });
+      ro.observe(root);
     }
-    window.addEventListener('resize', fitHeight);
+    window.addEventListener('resize', function () { queueFit(false); });
+    document.addEventListener('arfr:lang', function () { queueFit(true); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { queueFit(true); });
     fig.querySelector('.nav-btn.prev').addEventListener('click', function () { goTo(i - 1, true); });
     fig.querySelector('.nav-btn.next').addEventListener('click', function () { goTo(i + 1, true); });
     fig.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') paused = true; });
