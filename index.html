@@ -330,6 +330,32 @@ a { color: inherit; }
   text-wrap: balance;
 }
 html[lang="en"] .hero h1 { font-size: clamp(2.3rem, 1rem + 3.3vw, 3.9rem); }
+/* the word that is not quite right: read first, then a violet stroke runs through it and it steps back */
+.hero h1 .squiggle {
+  position: relative;
+  white-space: nowrap;
+  animation: struck-fade 0.5s ease 1.55s both;
+}
+.hero h1 .squiggle::after {
+  content: "";
+  position: absolute;
+  left: -0.06em;
+  right: -0.06em;
+  top: 0.6em;
+  height: 0.1em;
+  border-radius: 0.05em;
+  background: var(--accent);
+  box-shadow: 0 0 0.25em rgba(185, 140, 255, 0.55);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: struck-draw 0.6s cubic-bezier(0.7, 0, 0.2, 1) 1.2s both;
+}
+@keyframes struck-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes struck-fade { from { color: inherit; } to { color: rgba(240, 248, 255, 0.5); } }
+@media (prefers-reduced-motion: reduce) {
+  .hero h1 .squiggle { animation: none; color: rgba(240, 248, 255, 0.5); }
+  .hero h1 .squiggle::after { animation: none; transform: none; }
+}
 html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
 .hero .lede {
   margin: 0;
@@ -1417,7 +1443,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     <canvas class="retro-grid" aria-hidden="true"></canvas>
     <div class="wrap">
       <div class="hero-text">
-        <h1 id="hero-title" data-i18n="hero.title">Wenn alles einfach wird …</h1>
+        <h1 id="hero-title" data-i18n="hero.title" data-strike>Wenn alles <span class="squiggle">einfach</span> wird …</h1>
         <p class="lede"><span class="bar" data-i18n="hero.lede">… braucht es jemanden, der weiß, worauf es wirklich ankommt.</span></p>
         <p class="role" data-i18n="hero.eyebrow">Softwareentwickler · KI-gestützt, menschlich geführt</p>
         <div class="cta">
@@ -2031,7 +2057,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "lang.label": "Language",
       "hero.eyebrow": "Software Developer · AI-assisted, human-led",
       "approach.cmd": "cat approach.md", "role.tag": "AI-assisted, human-led",
-      "hero.title": "When everything gets easy …",
+      "hero.title": "When everything gets [easy] …",
       "hero.lede": "… you need someone who knows what really matters.",
       "role.title": "Software Developer", "role.country": "Germany", "profile.workflow": "[understand, build, own it]",
       "cta.contact": "Get in touch",
@@ -2250,7 +2276,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "lang.label": "Sprache",
       "hero.eyebrow": "Softwareentwickler · KI-gestützt, menschlich geführt",
       "approach.cmd": "cat vorgehen.md", "role.tag": "KI-gestützt, menschlich geführt",
-      "hero.title": "Wenn alles einfach wird …",
+      "hero.title": "Wenn alles [einfach] wird …",
       "hero.lede": "… braucht es jemanden, der weiß, worauf es wirklich ankommt.",
       "role.title": "Softwareentwickler", "role.country": "Deutschland", "profile.workflow": "[verstehen, bauen, verantworten]",
       "cta.contact": "Kontakt aufnehmen",
@@ -2469,7 +2495,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "lang.label": "Язык",
       "hero.eyebrow": "Разработчик ПО · ИИ помогает, решает человек",
       "approach.cmd": "cat approach.md", "role.tag": "ИИ помогает, решает человек",
-      "hero.title": "Когда всё становится просто …",
+      "hero.title": "Когда всё становится [просто] …",
       "hero.lede": "… нужен тот, кто знает, что действительно важно.",
       "role.title": "Разработчик ПО", "role.country": "Германия", "profile.workflow": "[понять, сделать, отвечать]",
       "cta.contact": "Связаться",
@@ -2692,7 +2718,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "hero.eyebrow": "Softverski programer · AI pomaže, čovek vodi",
       "approach.cmd": "cat pristup.md",
       "role.tag": "AI pomaže, čovek vodi",
-      "hero.title": "Kad sve postane lako …",
+      "hero.title": "Kad sve postane [lako] …",
       "hero.lede": "… potreban je neko ko zna šta je zaista važno.",
       "role.title": "Softverski programer",
       "role.country": "Nemačka",
@@ -2981,7 +3007,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "hero.eyebrow": "Προγραμματιστής λογισμικού · Η AI βοηθά, ο άνθρωπος αποφασίζει",
       "approach.cmd": "cat approach.md",
       "role.tag": "Η AI βοηθά, ο άνθρωπος αποφασίζει",
-      "hero.title": "Όταν όλα γίνονται εύκολα …",
+      "hero.title": "Όταν όλα γίνονται [εύκολα] …",
       "hero.lede": "… χρειάζεται κάποιος που ξέρει τι πραγματικά μετράει.",
       "role.title": "Προγραμματιστής λογισμικού",
       "role.country": "Γερμανία",
@@ -3275,7 +3301,14 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     document.documentElement.lang = HTML_LANG[lang] || lang;
     document.querySelectorAll('[data-i18n]').forEach(function (el) {
       var v = dict[el.getAttribute('data-i18n')];
-      if (v != null) el.textContent = v;
+      if (v == null) return;
+      if (!el.hasAttribute('data-strike')) { el.textContent = v; return; }
+      el.textContent = '';
+      v.split(/\[([^\]]+)\]/).forEach(function (part, k) {
+        if (!part) return;
+        if (k % 2) { var x = document.createElement('span'); x.className = 'squiggle'; x.textContent = part; el.appendChild(x); }
+        else el.appendChild(document.createTextNode(part));
+      });
     });
     document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
       var v = dict[el.getAttribute('data-i18n-ph')];
