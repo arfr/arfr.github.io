@@ -707,23 +707,19 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 10px 12px 16px;
+  padding: 10px 10px 10px 16px;
   border-bottom: 1px solid var(--line);
   cursor: grab;
   user-select: none;
   touch-action: none;
 }
 .chatw-head.dragging { cursor: grabbing; }
-.chatw-avatar { flex: none; width: 36px; height: 36px; border-radius: 50%; object-fit: cover; filter: grayscale(1); background: var(--surface); }
-.chatw-id { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.chatw-name { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 0.9375rem; line-height: 1.3; }
-.chatw-status { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; line-height: 1.3; color: var(--muted); }
-.chatw-dot { width: 7px; height: 7px; border-radius: 50%; background: #F2B24C; }
+.chatw-status { flex: 1; min-width: 0; margin: 0; display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 600; font-size: 0.9375rem; line-height: 1.3; color: var(--fg); }
+.chatw-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: #F2B24C; }
 .chatw-status[data-state="online"] .chatw-dot { background: #3DD68C; }
 .chatw-status[data-state="offline"] .chatw-dot { background: #9A9599; }
 .chatw-close {
   flex: none;
-  align-self: flex-start;
   width: 32px;
   height: 32px;
   display: grid;
@@ -735,8 +731,32 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
   color: var(--muted);
   cursor: pointer;
 }
-.chatw-close:hover { color: var(--fg); background: var(--surface); }
+@media (hover: hover) { .chatw-close:hover { color: var(--fg); background: var(--surface); } }
+.chatw-close:focus-visible { color: var(--fg); }
 .chatw-close svg { width: 18px; height: 18px; }
+.chatw-min { margin-right: -8px; }
+.chatw-min .ico-max, .chatw.min .chatw-min .ico-min { display: none; }
+.chatw.min .chatw-min .ico-max { display: inline; }
+.chatw-unread {
+  flex: none;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.chatw-unread[hidden] { display: none; }
+/* collapsed: only the title bar stays, wherever the window was */
+.chatw.min, .chatw.min .chatw-win { height: auto; }
+.chatw.min .chatw-log, .chatw.min .chatw-in { display: none; }
+.chatw.min .chatw-head { border-bottom: 0; }
 .chatw-log {
   flex: 1;
   min-height: 0;
@@ -754,22 +774,8 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
 .cnote a:hover { text-decoration-thickness: 2px; }
 /* messages as a thread, like the comments elsewhere on the page */
 .cmsg { display: flex; gap: 12px; align-items: flex-start; }
-.cmsg-av {
-  flex: none;
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 0.8125rem;
-}
-.cmsg-in .cmsg-av { background: var(--fg); color: var(--bg); }
-.cmsg-out .cmsg-av { border: 1px solid var(--muted); color: var(--muted); }
 .cmsg-body { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .cmsg-meta { margin: 0; display: flex; align-items: baseline; gap: 8px; font-size: 0.875rem; }
-.cmsg-meta b { font-family: var(--font-display); font-weight: 600; }
 .cmsg-time { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .cmsg-text { margin: 0; font-size: 0.9375rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 .chatw-in {
@@ -818,13 +824,11 @@ html[lang="ru"] .hero h1 { font-size: clamp(1.9rem, 0.9rem + 2.7vw, 3.15rem); }
 .chatw-send svg { width: 18px; height: 18px; }
 /* variant b: light/dark like the page, no colour band, quiet bubbles */
 .chatw[data-v="b"] .chatw-prompt, .chatw[data-v="b"] .chatw-title { display: none; }
-.chatw[data-v="b"] .cmsg-av { display: none; }
 .chatw[data-v="b"] .cmsg { max-width: 82%; }
 .chatw[data-v="b"] .cmsg-out { align-self: flex-end; }
 .chatw[data-v="b"] .cmsg-out .cmsg-meta { justify-content: flex-end; }
 .chatw[data-v="b"] .cmsg-body { width: 100%; }
 .chatw[data-v="b"] .cmsg-meta { order: 2; padding: 0 4px; }
-.chatw[data-v="b"] .cmsg-meta b { display: none; }
 .chatw[data-v="b"] .cmsg-text { padding: 10px 14px; border-radius: 14px; background: var(--surface); }
 .chatw[data-v="b"] .cmsg-in .cmsg-text { border-bottom-left-radius: 4px; }
 .chatw[data-v="b"] .cmsg-out .cmsg-text { background: var(--bar); color: var(--bar-fg); border-bottom-right-radius: 4px; }
@@ -1890,21 +1894,18 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
   </div>
 </footer>
 
-<dialog class="chatw" id="chat-dialog" data-v="b" aria-labelledby="chat-title">
+<dialog class="chatw" id="chat-dialog" data-v="b" aria-label="Live-Chat" data-i18n-aria="chat.status.online">
   <div class="chatw-win">
     <div class="chatw-head" id="chat-drag">
-      <img class="chatw-avatar" id="chat-avatar" alt="" width="36" height="36">
-      <div class="chatw-id">
-        <p class="chatw-name" id="chat-title">Alex Fuhr</p>
-        <p class="chatw-status" data-state="connecting"><span class="chatw-dot" aria-hidden="true"></span><span id="chat-status" data-i18n="chat.status.connecting">Verbinde …</span></p>
-      </div>
+      <p class="chatw-status" data-state="connecting"><span class="chatw-dot" aria-hidden="true"></span><span id="chat-status" data-i18n="chat.status.connecting">Verbinde …</span><span class="chatw-unread" id="chat-unread" hidden></span></p>
+      <button type="button" class="chatw-close chatw-min" id="chat-min" aria-label="Chat einklappen" data-i18n-aria="chat.min" aria-expanded="true" aria-controls="chat-log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ico-min" d="M6 12h12"/><path class="ico-max" d="M6 15l6-6 6 6"/></svg></button>
       <button type="button" class="chatw-close" id="chat-close" aria-label="Chat schließen" data-i18n-aria="chat.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
     <div class="chatw-log" id="chat-log" role="log" aria-live="polite">
-      <p class="cnote" data-i18n="chat.intro">Schreib Alex direkt hier. Die Antwort erscheint in diesem Fenster.</p>
+      <p class="cnote" data-i18n="chat.intro">Fragen lassen sich direkt hier stellen. Die Antwort erscheint in diesem Fenster.</p>
     </div>
     <form class="chatw-in" id="chat-form" autocomplete="off">
-      <label for="chat-input" class="sr-only" data-i18n="chat.label">Nachricht an Alex</label>
+      <label for="chat-input" class="sr-only" data-i18n="chat.label">Nachricht</label>
       <textarea id="chat-input" rows="1" maxlength="500" enterkeyhint="send" placeholder="Nachricht schreiben …" data-i18n-ph="chat.placeholder"></textarea>
       <button type="submit" class="chatw-send" aria-label="Senden" data-i18n-aria="chat.send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </form>
@@ -2041,22 +2042,25 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "The answer to everything. You'll have to ask the question yourself.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Alex replies to email almost as fast.",
       "cli.hello": "Hello back! Type help if you're stuck.",
-      "cli.chat.wait": "Alex seems to be away from his phone. He'll reply as soon as he can, or write to hello@arfr.de.",
-      "cli.chat.offline": "Can't reach the chat right now. Just write to hello@arfr.de.",
-      "cli.chat.error": "Transmission failed. Try again or use hello@arfr.de.",
-      "cli.chat.slow": "Not so fast. Take a breath.",
+      "cli.chat.wait": "A reply may take a moment. Alternatively by email: hello@arfr.de.",
+      "cli.chat.offline": "The chat can't be reached right now. Alternatively by email: hello@arfr.de.",
+      "cli.chat.error": "Transmission failed. Try again or use email: hello@arfr.de.",
+      "cli.chat.slow": "A little slower, please.",
       "cli.chat.long": "Message shortened to 500 characters.",
-      "cli.chat.limit": "That's plenty for one session. The rest by email, please: hello@arfr.de",
+      "cli.chat.limit": "That's plenty for one session. Anything else by email: hello@arfr.de",
       "contact.chat": "Start chat",
       "chat.close": "Close chat",
-      "chat.label": "Message to Alex",
+      "chat.min": "Minimize chat",
+      "chat.max": "Expand chat",
+      "chat.label": "Message",
       "chat.send": "Send",
       "chat.placeholder": "Write a message …",
       "chat.status.connecting": "Connecting …",
       "chat.status.online": "Live chat",
       "chat.status.offline": "Unavailable right now",
-      "chat.intro": "Write to Alex right here. The reply shows up in this window.",
-      "chat.me": "You",
+      "chat.intro": "Questions can be asked right here. The reply appears in this window.",
+      "chat.me": "Sent",
+      "chat.them": "Reply",
       "cli.notFound": "command not found: {cmd}. Hint: help",
       "cli.enter3": "Three times Enter, nothing happened. Try help instead? [Y/n]", "cli.enter3.no": "Fair enough. Keep guessing.",
       "cli.unknown3": "Three unknown commands in a row. Try help instead? [Y/n]",
@@ -2187,22 +2191,25 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "Die Antwort auf alles. Die Frage musst du selbst stellen.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Alex antwortet auf Mails fast genauso schnell.",
       "cli.hello": "Hallo zurück! Tippe help, wenn du nicht weiterweißt.",
-      "cli.chat.wait": "Alex ist gerade wohl nicht am Handy. Er antwortet, sobald er kann, oder schreib an hello@arfr.de.",
-      "cli.chat.offline": "Der Chat ist gerade nicht erreichbar. Schreib einfach an hello@arfr.de.",
-      "cli.chat.error": "Übertragung fehlgeschlagen. Nochmal versuchen oder hello@arfr.de.",
-      "cli.chat.slow": "Nicht so schnell. Kurz durchatmen.",
+      "cli.chat.wait": "Die Antwort kann etwas dauern. Alternativ per E-Mail: hello@arfr.de.",
+      "cli.chat.offline": "Der Chat ist gerade nicht erreichbar. Alternativ per E-Mail: hello@arfr.de.",
+      "cli.chat.error": "Übertragung fehlgeschlagen. Erneut versuchen oder per E-Mail: hello@arfr.de.",
+      "cli.chat.slow": "Bitte etwas langsamer.",
       "cli.chat.long": "Nachricht auf 500 Zeichen gekürzt.",
-      "cli.chat.limit": "Genug für eine Sitzung. Der Rest gern per Mail: hello@arfr.de",
+      "cli.chat.limit": "Genug für eine Sitzung. Alles Weitere per E-Mail: hello@arfr.de",
       "contact.chat": "Chat starten",
       "chat.close": "Chat schließen",
-      "chat.label": "Nachricht an Alex",
+      "chat.min": "Chat einklappen",
+      "chat.max": "Chat ausklappen",
+      "chat.label": "Nachricht",
       "chat.send": "Senden",
       "chat.placeholder": "Nachricht schreiben …",
       "chat.status.connecting": "Verbinde …",
       "chat.status.online": "Live-Chat",
       "chat.status.offline": "Gerade nicht erreichbar",
-      "chat.intro": "Schreib Alex direkt hier. Die Antwort erscheint in diesem Fenster.",
-      "chat.me": "Du",
+      "chat.intro": "Fragen lassen sich direkt hier stellen. Die Antwort erscheint in diesem Fenster.",
+      "chat.me": "Gesendet",
+      "chat.them": "Antwort",
       "cli.notFound": "Befehl nicht gefunden: {cmd}. Tipp: help",
       "cli.enter3": "Dreimal Enter, nichts passiert. Doch lieber help? [J/n]", "cli.enter3.no": "Alles klar. Dann weiter raten.",
       "cli.unknown3": "Dreimal unbekannt. Doch lieber help? [J/n]",
@@ -2333,22 +2340,25 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "Ответ на всё. Вопрос придётся задать самому.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Алекс отвечает на письма почти так же быстро.",
       "cli.hello": "И тебе привет! Введи help, если не знаешь, что дальше.",
-      "cli.chat.wait": "Похоже, Алекс сейчас не у телефона. Он ответит, как только сможет, или напиши на hello@arfr.de.",
-      "cli.chat.offline": "Чат сейчас недоступен. Просто напиши на hello@arfr.de.",
-      "cli.chat.error": "Не удалось отправить. Попробуй ещё раз или напиши на hello@arfr.de.",
-      "cli.chat.slow": "Не так быстро. Передохни.",
+      "cli.chat.wait": "Ответ может занять немного времени. Также можно написать на hello@arfr.de.",
+      "cli.chat.offline": "Чат сейчас недоступен. Можно написать на hello@arfr.de.",
+      "cli.chat.error": "Не удалось отправить. Можно попробовать ещё раз или написать на hello@arfr.de.",
+      "cli.chat.slow": "Чуть помедленнее, пожалуйста.",
       "cli.chat.long": "Сообщение сокращено до 500 символов.",
-      "cli.chat.limit": "Для одной сессии достаточно. Остальное — на hello@arfr.de",
+      "cli.chat.limit": "Для одной сессии достаточно. Остальное — по почте: hello@arfr.de",
       "contact.chat": "Начать чат",
       "chat.close": "Закрыть чат",
-      "chat.label": "Сообщение Алексу",
+      "chat.min": "Свернуть чат",
+      "chat.max": "Развернуть чат",
+      "chat.label": "Сообщение",
       "chat.send": "Отправить",
-      "chat.placeholder": "Напиши сообщение …",
+      "chat.placeholder": "Написать сообщение …",
       "chat.status.connecting": "Подключение …",
       "chat.status.online": "Живой чат",
       "chat.status.offline": "Сейчас недоступен",
-      "chat.intro": "Напиши Алексу прямо здесь. Ответ появится в этом окне.",
-      "chat.me": "Ты",
+      "chat.intro": "Вопросы можно задать прямо здесь. Ответ появится в этом окне.",
+      "chat.me": "Отправлено",
+      "chat.them": "Ответ",
       "cli.notFound": "команда не найдена: {cmd}. Подсказка: help",
       "cli.enter3": "Трижды Enter — и ничего. Может, всё-таки help? [Д/н]", "cli.enter3.no": "Ладно. Угадывай дальше.",
       "cli.unknown3": "Три неизвестные команды подряд. Может, всё-таки help? [Д/н]",
@@ -2537,22 +2547,25 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "Odgovor na sve. Pitanje moraš sam da postaviš.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Alex na mejlove odgovara skoro isto tako brzo.",
       "cli.hello": "Zdravo i tebi! Ukucaj help ako ne znaš dalje.",
-      "cli.chat.wait": "Alex izgleda trenutno nije uz telefon. Odgovoriće čim bude mogao, ili piši na hello@arfr.de.",
-      "cli.chat.offline": "Čet trenutno nije dostupan. Samo piši na hello@arfr.de.",
-      "cli.chat.error": "Slanje nije uspelo. Pokušaj ponovo ili piši na hello@arfr.de.",
-      "cli.chat.slow": "Polako. Udahni malo.",
+      "cli.chat.wait": "Odgovor može malo da potraje. Alternativno mejlom: hello@arfr.de.",
+      "cli.chat.offline": "Čet trenutno nije dostupan. Alternativno mejlom: hello@arfr.de.",
+      "cli.chat.error": "Slanje nije uspelo. Moguće je pokušati ponovo ili pisati na hello@arfr.de.",
+      "cli.chat.slow": "Malo sporije, molim.",
       "cli.chat.long": "Poruka je skraćena na 500 znakova.",
-      "cli.chat.limit": "Dosta za jednu sesiju. Ostalo rado mejlom: hello@arfr.de",
+      "cli.chat.limit": "Dosta za jednu sesiju. Ostalo mejlom: hello@arfr.de",
       "contact.chat": "Pokreni čet",
       "chat.close": "Zatvori čet",
-      "chat.label": "Poruka za Alexa",
+      "chat.min": "Skupi čet",
+      "chat.max": "Proširi čet",
+      "chat.label": "Poruka",
       "chat.send": "Pošalji",
-      "chat.placeholder": "Napiši poruku …",
+      "chat.placeholder": "Poruka …",
       "chat.status.connecting": "Povezivanje …",
       "chat.status.online": "Čet uživo",
       "chat.status.offline": "Trenutno nedostupno",
-      "chat.intro": "Piši Alexu ovde. Odgovor stiže u ovaj prozor.",
-      "chat.me": "Ti",
+      "chat.intro": "Pitanja se mogu postaviti ovde. Odgovor stiže u ovaj prozor.",
+      "chat.me": "Poslato",
+      "chat.them": "Odgovor",
       "cli.notFound": "komanda nije pronađena: {cmd}. Savet: help",
       "cli.enter3": "Tri puta Enter, ništa se nije desilo. Ipak help? [D/n]",
       "cli.enter3.no": "U redu. Pogađaj dalje.",
@@ -2753,22 +2766,25 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       "cli.42": "Η απάντηση σε όλα. Την ερώτηση πρέπει να την κάνεις εσύ.",
       "cli.ping": "64 bytes from arfr.de: time=0.1 ms. Ο Alex απαντά στα email σχεδόν το ίδιο γρήγορα.",
       "cli.hello": "Γεια και σε σένα! Γράψε help αν κόλλησες.",
-      "cli.chat.wait": "Ο Alex μάλλον δεν είναι στο κινητό τώρα. Θα απαντήσει μόλις μπορέσει, ή γράψε στο hello@arfr.de.",
-      "cli.chat.offline": "Η συνομιλία δεν είναι διαθέσιμη τώρα. Γράψε απλώς στο hello@arfr.de.",
-      "cli.chat.error": "Η αποστολή απέτυχε. Δοκίμασε ξανά ή γράψε στο hello@arfr.de.",
-      "cli.chat.slow": "Όχι τόσο γρήγορα. Πάρε μια ανάσα.",
+      "cli.chat.wait": "Η απάντηση μπορεί να αργήσει λίγο. Εναλλακτικά με email: hello@arfr.de.",
+      "cli.chat.offline": "Η συνομιλία δεν είναι διαθέσιμη τώρα. Εναλλακτικά με email: hello@arfr.de.",
+      "cli.chat.error": "Η αποστολή απέτυχε. Νέα προσπάθεια ή email στο hello@arfr.de.",
+      "cli.chat.slow": "Λίγο πιο αργά, παρακαλώ.",
       "cli.chat.long": "Το μήνυμα συντομεύτηκε στους 500 χαρακτήρες.",
       "cli.chat.limit": "Αρκετά για μία συνεδρία. Τα υπόλοιπα με email: hello@arfr.de",
       "contact.chat": "Έναρξη συνομιλίας",
       "chat.close": "Κλείσιμο συνομιλίας",
-      "chat.label": "Μήνυμα στον Alex",
+      "chat.min": "Ελαχιστοποίηση συνομιλίας",
+      "chat.max": "Ανάπτυξη συνομιλίας",
+      "chat.label": "Μήνυμα",
       "chat.send": "Αποστολή",
-      "chat.placeholder": "Γράψε ένα μήνυμα …",
+      "chat.placeholder": "Μήνυμα …",
       "chat.status.connecting": "Σύνδεση …",
       "chat.status.online": "Live συνομιλία",
       "chat.status.offline": "Μη διαθέσιμο τώρα",
-      "chat.intro": "Γράψε στον Alex εδώ. Η απάντηση θα εμφανιστεί σε αυτό το παράθυρο.",
-      "chat.me": "Εσύ",
+      "chat.intro": "Οι ερωτήσεις γίνονται απευθείας εδώ. Η απάντηση εμφανίζεται σε αυτό το παράθυρο.",
+      "chat.me": "Στάλθηκε",
+      "chat.them": "Απάντηση",
       "cli.notFound": "η εντολή δεν βρέθηκε: {cmd}. Συμβουλή: help",
       "cli.enter3": "Τρεις φορές Enter και τίποτα. Μήπως καλύτερα help; [Ν/ο]",
       "cli.enter3.no": "Εντάξει. Συνέχισε να μαντεύεις.",
@@ -4476,8 +4492,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
   })();
 
 
-  /* Live chat with Alex, opened from the contact section ("Chat starten").
-     A movable chat card; messages go through the proxy to Alex, who sees when a window opens and can write first.
+  /* Live chat, opened from the contact section ("Chat starten").
+     A movable chat card; messages go through the proxy, which reports when a window opens so the first message can come from the other side.
      His replies come back here (and reopen the window). Plain text only, rate limited. */
   (function liveChat() {
     var openBtn = document.getElementById('chat-open');
@@ -4489,15 +4505,14 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     var input = document.getElementById('chat-input');
     var sendBtn = form.querySelector('.chatw-send');
     var closeBtn = document.getElementById('chat-close');
+    var minBtn = document.getElementById('chat-min');
+    var unread = document.getElementById('chat-unread');
     var head = document.getElementById('chat-drag');
     var statusWrap = dlg.querySelector('.chatw-status');
     var statusText = document.getElementById('chat-status');
-    var avatar = document.getElementById('chat-avatar');
-    var photo = document.querySelector('.portrait-img');
-    if (avatar && photo) avatar.src = photo.currentSrc || photo.src;
     var TG_API = 'https://inot.app/api/telegram/proxy';
     var TG_ADMIN = '5741725666';
-    var st = { started: false, ready: false, connecting: false, session: null, offset: 0, sent: {}, polling: false, lastSend: 0, count: 0, heard: false, waitTimer: 0, state: 'connecting' };
+    var st = { started: false, ready: false, connecting: false, session: null, offset: 0, sent: {}, polling: false, lastSend: 0, count: 0, heard: false, waitTimer: 0, state: 'connecting', unread: 0 };
 
     function setState(state) {
       st.state = state;
@@ -4539,19 +4554,15 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       catch (e) { var d = new Date(); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
     }
     function bubble(text, out) {
-      var name = out ? t('chat.me') : 'Alex';
       var m = document.createElement('div');
       m.className = 'cmsg ' + (out ? 'cmsg-out' : 'cmsg-in');
-      var av = document.createElement('span');
-      av.className = 'cmsg-av';
-      av.setAttribute('aria-hidden', 'true');
-      av.textContent = out ? name.charAt(0).toUpperCase() : 'AF';
       var body = document.createElement('div');
       body.className = 'cmsg-body';
       var meta = document.createElement('p');
       meta.className = 'cmsg-meta';
-      var b = document.createElement('b');
-      b.textContent = name;
+      var b = document.createElement('span');
+      b.className = 'sr-only';
+      b.textContent = t(out ? 'chat.me' : 'chat.them') + ': ';
       var tm = document.createElement('span');
       tm.className = 'cmsg-time';
       tm.textContent = clock();
@@ -4562,7 +4573,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       p.textContent = text;
       body.appendChild(meta);
       body.appendChild(p);
-      m.appendChild(av);
       m.appendChild(body);
       log.appendChild(m);
       scrollDown();
@@ -4623,6 +4633,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
             st.heard = true;
             if (!dlg.open) dlg.show();
             bubble(text, false);
+            if (collapsed()) { st.unread += 1; unread.textContent = st.unread > 9 ? '9+' : String(st.unread); unread.hidden = false; }
           }
         });
       }).catch(function () { failed = true; }).then(function () {
@@ -4630,9 +4641,30 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
         if (st.ready) setTimeout(poll, failed ? 5000 : 600);
       });
     }
+    /* collapse to the title bar and back; new replies while collapsed show as a count */
+    function collapsed() { return dlg.classList.contains('min'); }
+    function setCollapsed(on) {
+      dlg.classList.toggle('min', on);
+      minBtn.setAttribute('aria-expanded', on ? 'false' : 'true');
+      minBtn.setAttribute('data-i18n-aria', on ? 'chat.max' : 'chat.min');
+      minBtn.setAttribute('aria-label', t(on ? 'chat.max' : 'chat.min'));
+      if (!on) {
+        st.unread = 0;
+        unread.hidden = true;
+        scrollDown();
+      }
+      /* keep a moved window on screen when it grows back */
+      if (dlg.style.left) { var r = dlg.getBoundingClientRect(); place(r.left, r.top); }
+    }
+    minBtn.addEventListener('click', function () {
+      var on = !collapsed();
+      setCollapsed(on);
+      if (!on) input.focus({ preventScroll: true });
+    });
     function openChat() {
       var reopen = st.ready && !dlg.open;
       if (!dlg.open) dlg.show();
+      if (collapsed()) setCollapsed(false);
       input.focus({ preventScroll: true });
       if (!st.started) connect();
       else if (reopen) tgSend('📡 [' + st.session + '] Chat window reopened');
@@ -4642,6 +4674,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     closeBtn.addEventListener('click', closeChat);
     dlg.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); closeChat(); } });
     dlg.addEventListener('close', function () {
+      if (collapsed()) setCollapsed(false);
       if (st.ready) tgSend('🔌 [' + st.session + '] Chat window closed');
       if (dlg.contains(document.activeElement) || document.activeElement === document.body) openBtn.focus({ preventScroll: true });
     });
@@ -4690,16 +4723,22 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       dlg.style.bottom = 'auto';
     }
     head.addEventListener('pointerdown', function (e) {
-      if (narrow() || e.button !== 0 || (e.target.closest && e.target.closest('button'))) return;
+      if (e.target.closest && e.target.closest('button')) return;
+      if (narrow()) { if (collapsed()) setCollapsed(false); return; }
+      if (e.button !== 0) return;
       var r = dlg.getBoundingClientRect();
-      drag = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+      drag = { dx: e.clientX - r.left, dy: e.clientY - r.top, x: e.clientX, y: e.clientY, moved: false };
       head.setPointerCapture(e.pointerId);
       head.classList.add('dragging');
       e.preventDefault();
     });
-    head.addEventListener('pointermove', function (e) { if (drag) place(e.clientX - drag.dx, e.clientY - drag.dy); });
+    head.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4) drag.moved = true;
+      if (drag.moved) place(e.clientX - drag.dx, e.clientY - drag.dy);
+    });
     function endDrag() { drag = null; head.classList.remove('dragging'); }
-    head.addEventListener('pointerup', endDrag);
+    head.addEventListener('pointerup', function () { var tap = drag && !drag.moved; endDrag(); if (tap && collapsed()) setCollapsed(false); });
     head.addEventListener('pointercancel', endDrag);
     window.addEventListener('resize', function () {
       if (narrow()) { dlg.style.left = dlg.style.top = dlg.style.right = dlg.style.bottom = ''; return; }
