@@ -135,7 +135,7 @@ a { color: inherit; }
 .site-head .wrap {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
   min-height: 64px;
 }
@@ -721,11 +721,11 @@ a { color: inherit; }
 .chat-open svg { width: 18px; height: 18px; }
 .chatw {
   position: fixed;
-  inset: auto 24px 24px auto;
-  z-index: 70; /* above the snow (50) and the bug (60), below the game (100) */
+  inset: auto calc(var(--frame) + 16px) calc(var(--frame) + 16px) auto;
+  z-index: 70; /* above the snow (50), the bug (60) and the frame (65), below the game (100) */
   width: 380px;
-  max-width: calc(100vw - 32px);
-  height: min(540px, calc(100dvh - 48px));
+  max-width: calc(100vw - 2 * var(--frame) - 32px);
+  height: min(540px, calc(100dvh - 2 * var(--frame) - 48px));
   max-height: none;
   margin: 0;
   padding: 0;
@@ -885,7 +885,7 @@ a { color: inherit; }
 .chatw[data-v="b"] .cmsg-out .cmsg-text { background: var(--bar); color: var(--bar-fg); border-bottom-right-radius: 4px; }
 .chatw[data-v="b"] .chatw-log { gap: 10px; }
 @media (max-width: 560px) {
-  .chatw { inset: auto 8px 8px 8px; width: auto; max-width: none; height: min(560px, calc(100dvh - 16px)); }
+  .chatw { inset: auto calc(var(--frame) + 4px) calc(var(--frame) + 4px) calc(var(--frame) + 4px); width: auto; max-width: none; height: min(560px, calc(100dvh - 2 * var(--frame) - 8px)); }
   .chatw-head { cursor: default; }
 }
 @media (prefers-reduced-motion: reduce) { .chatw-send { transition: none; } }
@@ -1110,7 +1110,6 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
 }
 
 /* Sections */
-section { scroll-margin-top: 72px; }
 .section .wrap {
   padding-block: clamp(64px, 9vw, 120px);
   display: flex;
@@ -1398,6 +1397,69 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 @media (prefers-reduced-motion: reduce) { .mail-copy { transition: none; } }
 .copy-status { font-size: var(--fs-m); color: var(--muted); min-height: 1.4em; margin: 0; }
 
+/* The frame: the page sits in a black screen border with rounded inner corners and two tabs */
+:root {
+  --frame: clamp(8px, 1.25vw, 18px);
+  --frame-r: clamp(12px, 1.5vw, 22px);
+  --tab-d: 30px;
+}
+html { background: #000; scrollbar-color: #2A272A #000; }
+body { padding: var(--frame); }
+/* the last band runs down to the frame; its content clears the bottom tab */
+main > .section:last-child .wrap { padding-bottom: calc(clamp(40px, 5vw, 64px) + var(--tab-d)); }
+.site-head { top: var(--frame); }
+section { scroll-margin-top: calc(72px + var(--frame)); }
+.frame { position: fixed; inset: 0; z-index: 65; pointer-events: none; overflow: hidden; }
+.frame-hole {
+  position: absolute;
+  inset: var(--frame);
+  border-radius: var(--frame-r);
+  box-shadow: 0 0 0 100vmax #000;
+}
+.ftab {
+  position: fixed;
+  left: 50%;
+  z-index: 66;
+  height: var(--tab-d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(-50%);
+  text-decoration: none;
+  /* before the script has drawn the shape: a plain black tab */
+  background: #000;
+  border-radius: 0 0 10px 10px;
+  padding-inline: 26px;
+}
+.ftab.drawn { background: none; border-radius: 0; padding-inline: 0; }
+.ftab-top { top: var(--frame); }
+.ftab-bottom { bottom: var(--frame); border-radius: 10px 10px 0 0; }
+.ftab-shape { position: absolute; left: 0; top: -2px; overflow: visible; display: none; }
+.ftab.drawn .ftab-shape { display: block; }
+.ftab-bottom .ftab-shape { top: auto; bottom: -2px; transform: scaleY(-1); }
+.ftab-shape path { fill: #000; }
+.ftab-label {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: var(--fs-s);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #F2F0F1;
+  text-decoration: none;
+}
+.ftab-bottom .ftab-label { font-weight: 600; letter-spacing: 0.1em; color: #A9A4A7; }
+a.ftab:hover .ftab-label, .ftab-bottom .ftab-label:hover { color: var(--term-accent); }
+a.ftab:focus-visible, .ftab-bottom .ftab-label:focus-visible { outline: none; }
+a.ftab:focus-visible .ftab-label, .ftab-bottom .ftab-label:focus-visible { color: var(--term-accent); text-decoration: underline; text-underline-offset: 4px; }
+@media (max-width: 480px) {
+  :root { --tab-d: 26px; }
+  .ftab-label { font-size: 11px; letter-spacing: 0.08em; }
+  .site-head .wrap { padding-top: 8px; }
+}
+html.smart .ftab-bottom { display: none; }
+
 /* Footer + legal */
 .site-foot .wrap {
   padding-block: 18px;
@@ -1431,7 +1493,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 <body>
 <header class="site-head">
   <div class="wrap">
-    <a class="brand" href="#top">Alexander Fuhr <small>arfr.de</small></a>
     <div class="head-right">
       <nav class="nav" aria-label="Hauptnavigation" data-i18n-aria="nav.label">
         <a href="#approach" data-i18n="nav.approach">Vorgehen</a>
@@ -1965,11 +2026,9 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
   </section>
 </main>
 
-<footer class="site-foot">
-  <div class="wrap">
-    <a class="foot-link" href="https://arfr.de/">© 2026 arfr.de</a>
-  </div>
-</footer>
+<div class="frame" aria-hidden="true"><div class="frame-hole"></div></div>
+<a class="ftab ftab-top" href="#top"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path/></svg><span class="ftab-label">Alexander Fuhr</span></a>
+<footer class="site-foot ftab ftab-bottom"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path/></svg><a class="ftab-label" href="https://arfr.de/">© 2026 arfr.de</a></footer>
 
 <dialog class="chatw" id="chat-dialog" data-v="b" aria-label="Live-Chat" data-i18n-aria="chat.status.online">
   <div class="chatw-win">
@@ -3349,6 +3408,8 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     });
   })();
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* width of the black screen frame around the page (0 without it) */
+  function frameInset() { var h = document.querySelector('.frame-hole'); return h ? Math.round(h.getBoundingClientRect().top) : 0; }
 
   /* Heading "decodes" once when it scrolls into view */
   var scrambleEl = document.querySelector('.scramble');
@@ -3390,6 +3451,39 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     }, { threshold: 0.6 });
     io.observe(scrambleEl);
   }
+
+  /* Frame tabs: a trapezoid hanging from the frame edge, sized to its label */
+  (function frameTabs() {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.ftab'));
+    if (!tabs.length) return;
+    function corner(a, c, b, r) {
+      var ux = a[0] - c[0], uy = a[1] - c[1], ul = Math.hypot(ux, uy);
+      var vx = b[0] - c[0], vy = b[1] - c[1], vl = Math.hypot(vx, vy);
+      var p = [c[0] + ux / ul * r, c[1] + uy / ul * r], q = [c[0] + vx / vl * r, c[1] + vy / vl * r];
+      return 'L' + p[0].toFixed(2) + ' ' + p[1].toFixed(2) + 'Q' + c[0] + ' ' + c[1] + ' ' + q[0].toFixed(2) + ' ' + q[1].toFixed(2);
+    }
+    function draw() {
+      tabs.forEach(function (t) {
+        var label = t.querySelector('.ftab-label'), svg = t.querySelector('svg'), path = svg && svg.querySelector('path');
+        if (!label || !path) return;
+        var d = t.getBoundingClientRect().height;
+        var lw = Math.ceil(label.getBoundingClientRect().width);
+        var a = 12, sl = Math.round(d * 0.55), pad = 18, o = 2;
+        var W = lw + 2 * (a + sl + pad);
+        var P0 = [0, o], P1 = [a, o], P2 = [a + sl, o + d], P3 = [W - a - sl, o + d], P4 = [W - a, o], P5 = [W, o];
+        var dd = 'M0 ' + o + corner(P0, P1, P2, a) + corner(P1, P2, P3, 9) + corner(P2, P3, P4, 9) + corner(P3, P4, P5, a) +
+          'L' + W + ' ' + o + 'L' + W + ' 0L0 0Z';
+        path.setAttribute('d', dd);
+        svg.setAttribute('width', W); svg.setAttribute('height', d + o);
+        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + (d + o));
+        t.style.width = W + 'px';
+        t.classList.add('drawn');
+      });
+    }
+    draw();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+    window.addEventListener('resize', draw);
+  })();
 
   /* Pixel portrait: rests as pixel art, sharpens on hover or tap */
   (function portraitFx() {
@@ -5483,8 +5577,9 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
       var w = dlg.offsetWidth, h = dlg.offsetHeight;
       var vw = document.documentElement.clientWidth || window.innerWidth;
       var vh = document.documentElement.clientHeight || window.innerHeight;
-      x = Math.min(Math.max(8, x), vw - w - 8);
-      y = Math.min(Math.max(8, y), vh - h - 8);
+      var f = frameInset() + 8;
+      x = Math.min(Math.max(f, x), vw - w - f);
+      y = Math.min(Math.max(f, y), vh - h - f);
       dlg.style.left = x + 'px';
       dlg.style.top = y + 'px';
       dlg.style.right = 'auto';
@@ -5518,7 +5613,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     var corner = 'br', snapTimer = 0;
     function view() { return { w: document.documentElement.clientWidth || window.innerWidth, h: document.documentElement.clientHeight || window.innerHeight }; }
     function cornerXY(c) {
-      var v = view(), m = 24, bar = document.querySelector('.site-head');
+      var v = view(), m = frameInset() + 16, bar = document.querySelector('.site-head');
       var top = Math.max(m, bar ? bar.getBoundingClientRect().bottom + 16 : m);
       return { x: c.charAt(1) === 'r' ? v.w - dlg.offsetWidth - m : m, y: c.charAt(0) === 'b' ? v.h - dlg.offsetHeight - m : top };
     }
@@ -5563,8 +5658,9 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
     function typing(el) { return !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)); }
     function maxScroll() { return document.documentElement.scrollHeight - window.innerHeight; }
     function target(b) {
-      var head = bar ? bar.getBoundingClientRect().height : 0;
-      var room = window.innerHeight - head;
+      var f = frameInset();
+      var head = f + (bar ? bar.getBoundingClientRect().height : 0);
+      var room = window.innerHeight - head - f;
       var r = b.getBoundingClientRect();
       var top = r.top + window.scrollY - head;
       if (r.height < room) top -= (room - r.height) / 2;
