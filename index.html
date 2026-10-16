@@ -130,15 +130,19 @@ a { color: inherit; }
   position: sticky;
   top: env(safe-area-inset-top, 0px);
   z-index: 10;
-  background: var(--bg);
+  height: var(--tab-d);
+  margin-bottom: calc(-1 * var(--tab-d));
 }
 .site-head .wrap {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 16px;
-  min-height: 64px;
+  height: 100%;
 }
+/* burger and globe sit in the panel's corners: icon centre as far from the side as from the top */
+.site-head .wrap { max-width: none; padding-left: calc(var(--corner-c) - 20px); padding-right: calc(var(--corner-c) - 20px); }
 .brand {
   display: flex;
   align-items: baseline;
@@ -156,46 +160,66 @@ a { color: inherit; }
   color: var(--muted);
 }
 .nav { display: flex; gap: 4px; flex-wrap: wrap; }
-.nav a {
-  text-decoration: none;
-  font-size: var(--fs-m);
-  font-weight: 500;
-  padding: 8px 12px;
-  border-radius: 4px;
+/* Menu: a burger in the top-left corner, the sections drop down like the language list */
+.menu { position: relative; }
+.menu-toggle, .lang-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-top: calc(2 * var(--corner-c) - var(--tab-d));
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
 }
-.nav a:hover { color: var(--fg); background: var(--surface); }
+.menu-toggle:hover, .menu-toggle[aria-expanded="true"], .lang-toggle:hover, .lang-toggle[aria-expanded="true"] { color: var(--fg); }
+.menu-toggle svg { width: 22px; height: 22px; overflow: visible; }
+/* three lines of falling length that cross into an X when open */
+.menu-toggle path { transform-box: view-box; transform-origin: 12px 12px; transition: transform 0.22s ease, opacity 0.2s ease; }
+.menu-toggle .m1 { transform: translate(0, -5px) rotate(0) scaleX(1); }
+.menu-toggle .m2 { transform: translate(-3px, 0) rotate(0) scaleX(0.667); }
+.menu-toggle .m3 { transform: translate(-5.5px, 5px) rotate(0) scaleX(0.389); }
+.menu-toggle[aria-expanded="true"] .m1 { transform: translate(0, 0) rotate(45deg) scaleX(0.9); }
+.menu-toggle[aria-expanded="true"] .m2 { opacity: 0; }
+.menu-toggle[aria-expanded="true"] .m3 { transform: translate(0, 0) rotate(-45deg) scaleX(0.9); }
+@media (prefers-reduced-motion: reduce) { .menu-toggle path { transition: none; } }
+.menu-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+.menu-list[hidden] { display: none; }
+.menu-list a {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: var(--fg);
+  font-size: var(--fs-m);
+}
+.menu-list a:hover, .menu-list a:focus-visible { background: var(--surface); outline: none; }
 .brand { white-space: nowrap; }
-@media (max-width: 560px) {
-  .brand small { display: none; }
-  .nav a { padding: 8px 8px; }
-}
-@media (max-width: 480px) {
-  .nav { display: none; }
-}
+
 .head-right { display: flex; align-items: center; gap: 12px; }
 /* Language: globe button with a small dropdown */
 .lang { position: relative; }
-.lang-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 40px;
-  padding: 0 10px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--fg);
-  font-family: var(--font-mono);
-  font-size: var(--fs-s);
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-.lang-toggle:hover, .lang-toggle[aria-expanded="true"] { background: var(--surface); border-color: var(--muted); }
-.lang-toggle .globe { width: 18px; height: 18px; }
-.lang-toggle .chev { width: 14px; height: 14px; color: var(--muted); transition: transform 0.15s ease; }
+/* just the globe; the current language is marked in the list */
+.lang-toggle .globe { width: 20px; height: 20px; }
+.lang-toggle #lang-current, .lang-toggle .chev { display: none; }
 .lang-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
 .lang-menu {
   position: absolute;
@@ -238,7 +262,7 @@ a { color: inherit; }
   border-radius: 50%;
   background: var(--accent);
 }
-@media (prefers-reduced-motion: reduce) { .lang-toggle, .lang-toggle .chev { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .lang-toggle, .menu-toggle { transition: none; } }
 
 /* Hero */
 /* The hero is a dark neon stage in both themes, on purpose: the glow only works on black */
@@ -312,7 +336,7 @@ a { color: inherit; }
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, var(--page), rgba(15, 14, 16, 0) 72px, rgba(15, 14, 16, 0) calc(100% - clamp(64px, 10vw, 140px)), var(--page));
+  background: linear-gradient(to bottom, rgba(15, 14, 16, 0) calc(100% - clamp(64px, 10vw, 140px)), var(--page));
   pointer-events: none;
   z-index: 0;
 }
@@ -337,7 +361,7 @@ a { color: inherit; }
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: clamp(40px, 6vw, 88px);
   align-items: center;
-  padding-block: clamp(56px, 9vw, 120px) clamp(56px, 8vw, 104px);
+  padding-block: calc(var(--tab-d) + clamp(56px, 9vw, 120px)) clamp(56px, 8vw, 104px);
 }
 .hero-text { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
 .hero h1 {
@@ -1402,6 +1426,10 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
   --frame: clamp(8px, 1.25vw, 18px);
   --frame-r: clamp(12px, 1.5vw, 22px);
   --tab-d: 30px;
+  --frame-line: rgba(180, 140, 255, 0.28);
+  /* distance from the frame edge to the centre of the corner icons */
+  --corner-c: 30px;
+  --corner-x: calc(var(--frame) + var(--corner-c) - 20px);
 }
 html { background: #000; scrollbar-color: #2A272A #000; }
 body { padding: var(--frame); }
@@ -1414,7 +1442,7 @@ section { scroll-margin-top: calc(72px + var(--frame)); }
   position: absolute;
   inset: var(--frame);
   border-radius: var(--frame-r);
-  box-shadow: 0 0 0 100vmax #000;
+  box-shadow: 0 0 0 100vmax #000, inset 0 0 0 1px var(--frame-line);
 }
 .ftab {
   position: fixed;
@@ -1437,7 +1465,8 @@ section { scroll-margin-top: calc(72px + var(--frame)); }
 .ftab-shape { position: absolute; left: 0; top: -2px; overflow: visible; display: none; }
 .ftab.drawn .ftab-shape { display: block; }
 .ftab-bottom .ftab-shape { top: auto; bottom: -2px; transform: scaleY(-1); }
-.ftab-shape path { fill: #000; }
+.ftab-shape .ftab-fill { fill: #000; }
+.ftab-shape .ftab-edge { fill: none; stroke: var(--frame-line); stroke-width: 1; }
 .ftab-label {
   position: relative;
   font-family: var(--font-display);
@@ -1454,11 +1483,35 @@ a.ftab:hover .ftab-label, .ftab-bottom .ftab-label:hover { color: var(--term-acc
 a.ftab:focus-visible, .ftab-bottom .ftab-label:focus-visible { outline: none; }
 a.ftab:focus-visible .ftab-label, .ftab-bottom .ftab-label:focus-visible { color: var(--term-accent); text-decoration: underline; text-underline-offset: 4px; }
 @media (max-width: 480px) {
-  :root { --tab-d: 26px; }
+  :root { --tab-d: 26px; --corner-c: 24px; }
   .ftab-label { font-size: 11px; letter-spacing: 0.08em; }
-  .site-head .wrap { padding-top: 8px; }
 }
 html.smart .ftab-bottom { display: none; }
+/* bottom corners: mail on the left, chat on the right, mirroring burger and globe */
+.corner {
+  position: fixed;
+  z-index: 66;
+  bottom: calc(var(--frame) + var(--corner-c) - 20px);
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s ease, opacity 0.2s ease;
+}
+.corner:hover, .corner:focus-visible { color: var(--fg); outline: none; }
+.corner:focus-visible svg, .menu-toggle:focus-visible svg, .lang-toggle:focus-visible svg { color: var(--term-accent); }
+.corner svg { width: 21px; height: 21px; }
+.corner-mail { left: var(--corner-x); }
+.corner-chat { right: var(--corner-x); }
+/* while the chat window is open it sits in that corner itself */
+html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .corner { transition: none; } }
 
 /* Footer + legal */
 .site-foot .wrap {
@@ -1493,12 +1546,17 @@ html.smart .ftab-bottom { display: none; }
 <body>
 <header class="site-head">
   <div class="wrap">
-    <div class="head-right">
-      <nav class="nav" aria-label="Hauptnavigation" data-i18n-aria="nav.label">
+    <div class="menu">
+      <button type="button" class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="menu-list" aria-label="Menü" data-i18n-aria="nav.menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="m1" d="M3 12h18"/><path class="m2" d="M3 12h18"/><path class="m3" d="M3 12h18"/></svg>
+      </button>
+      <nav class="nav menu-list" id="menu-list" aria-label="Hauptnavigation" data-i18n-aria="nav.label" hidden>
         <a href="#approach" data-i18n="nav.approach">Vorgehen</a>
         <a href="#about" data-i18n="nav.about">Über mich</a>
         <a href="#contact" data-i18n="nav.contact">Kontakt</a>
       </nav>
+    </div>
+    <div class="head-right">
       <div class="lang">
         <button type="button" class="lang-toggle" id="lang-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu" aria-label="Sprache: Deutsch">
           <svg class="globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M4.6 7.5h14.8M4.6 16.5h14.8"/><path d="M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9s1.3-6.4 3.8-9z"/></svg>
@@ -2027,8 +2085,10 @@ html.smart .ftab-bottom { display: none; }
 </main>
 
 <div class="frame" aria-hidden="true"><div class="frame-hole"></div></div>
-<a class="ftab ftab-top" href="#top"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path/></svg><span class="ftab-label">Alexander Fuhr</span></a>
-<footer class="site-foot ftab ftab-bottom"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path/></svg><a class="ftab-label" href="https://arfr.de/">© 2026 arfr.de</a></footer>
+<a class="ftab ftab-top" href="#top"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path class="ftab-fill"/><path class="ftab-edge" transform="translate(0 0.5)"/></svg><span class="ftab-label">Alexander Fuhr</span></a>
+<a class="corner corner-mail" href="mailto:hello@arfr.de?subject=Sprechen%20wir%20dar%C3%BCber." aria-label="E-Mail" data-i18n-aria="contact.write"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5 12 13l8.5-6.5"/></svg></a>
+<button class="corner corner-chat" type="button" id="corner-chat" aria-haspopup="dialog" aria-label="Chat starten" data-i18n-aria="contact.chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></button>
+<footer class="site-foot ftab ftab-bottom"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path class="ftab-fill"/><path class="ftab-edge" transform="translate(0 0.5)"/></svg><a class="ftab-label" href="https://arfr.de/">© 2026 arfr.de</a></footer>
 
 <dialog class="chatw" id="chat-dialog" data-v="b" aria-label="Live-Chat" data-i18n-aria="chat.status.online">
   <div class="chatw-win">
@@ -2077,7 +2137,7 @@ html.smart .ftab-bottom { display: none; }
   var I18N = {
     en: {
       "meta.description": "Alexander Fuhr – Software Developer. AI-assisted, human-led.",
-      "nav.label": "Main", "nav.approach": "Approach", "nav.about": "About", "nav.contact": "Contact",
+      "nav.label": "Main", "nav.menu": "Menu", "nav.approach": "Approach", "nav.about": "About", "nav.contact": "Contact",
       "lang.label": "Language",
       "hero.eyebrow": "Software Developer · AI-assisted, human-led",
       "approach.cmd": "cat approach.md", "role.tag": "AI-assisted, human-led",
@@ -2296,7 +2356,7 @@ html.smart .ftab-bottom { display: none; }
     },
     de: {
       "meta.description": "Alexander Fuhr – Softwareentwickler. KI-gestützt, menschlich geführt.",
-      "nav.label": "Hauptnavigation", "nav.approach": "Vorgehen", "nav.about": "Über mich", "nav.contact": "Kontakt",
+      "nav.label": "Hauptnavigation", "nav.menu": "Menü", "nav.approach": "Vorgehen", "nav.about": "Über mich", "nav.contact": "Kontakt",
       "lang.label": "Sprache",
       "hero.eyebrow": "Softwareentwickler · KI-gestützt, menschlich geführt",
       "approach.cmd": "cat vorgehen.md", "role.tag": "KI-gestützt, menschlich geführt",
@@ -2515,7 +2575,7 @@ html.smart .ftab-bottom { display: none; }
     },
     ru: {
       "meta.description": "Alexander Fuhr – разработчик ПО. ИИ помогает, решает человек.",
-      "nav.label": "Основная навигация", "nav.approach": "Подход", "nav.about": "Обо мне", "nav.contact": "Контакт",
+      "nav.label": "Основная навигация", "nav.menu": "Меню", "nav.approach": "Подход", "nav.about": "Обо мне", "nav.contact": "Контакт",
       "lang.label": "Язык",
       "hero.eyebrow": "Разработчик ПО · ИИ помогает, решает человек",
       "approach.cmd": "cat approach.md", "role.tag": "ИИ помогает, решает человек",
@@ -2734,7 +2794,7 @@ html.smart .ftab-bottom { display: none; }
     },
     sr: {
       "meta.description": "Alexander Fuhr – softverski programer. AI pomaže, čovek vodi.",
-      "nav.label": "Glavna navigacija",
+      "nav.label": "Glavna navigacija", "nav.menu": "Meni",
       "nav.approach": "Pristup",
       "nav.about": "O meni",
       "nav.contact": "Kontakt",
@@ -3023,7 +3083,7 @@ html.smart .ftab-bottom { display: none; }
     },
     el: {
       "meta.description": "Alexander Fuhr – Προγραμματιστής λογισμικού. Η AI βοηθά, ο άνθρωπος αποφασίζει.",
-      "nav.label": "Κύρια πλοήγηση",
+      "nav.label": "Κύρια πλοήγηση", "nav.menu": "Μενού",
       "nav.approach": "Προσέγγιση",
       "nav.about": "Σχετικά",
       "nav.contact": "Επικοινωνία",
@@ -3367,6 +3427,42 @@ html.smart .ftab-bottom { display: none; }
     }
   }
   /* Globe dropdown */
+  (function burgerMenu() {
+    var tog = document.getElementById('menu-toggle');
+    var list = document.getElementById('menu-list');
+    if (!tog || !list) return;
+    var links = Array.prototype.slice.call(list.querySelectorAll('a'));
+    function open(focusFirst) {
+      list.hidden = false;
+      tog.setAttribute('aria-expanded', 'true');
+      if (focusFirst) links[0].focus();
+    }
+    function close(returnFocus) {
+      if (list.hidden) return;
+      list.hidden = true;
+      tog.setAttribute('aria-expanded', 'false');
+      if (returnFocus) tog.focus();
+    }
+    tog.addEventListener('click', function () { if (list.hidden) open(false); else close(false); });
+    tog.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); open(true); }
+    });
+    links.forEach(function (a, k) {
+      a.addEventListener('click', function () { close(false); });
+      a.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown') { e.preventDefault(); links[(k + 1) % links.length].focus(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); links[(k - 1 + links.length) % links.length].focus(); }
+      });
+    });
+    document.addEventListener('click', function (e) {
+      if (!list.hidden && !(e.target.closest && e.target.closest('.menu'))) close(false);
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !list.hidden) close(true); });
+    list.addEventListener('focusout', function (e) {
+      if (e.relatedTarget && !list.contains(e.relatedTarget) && e.relatedTarget !== tog) close(false);
+    });
+  })();
+
   (function langMenu() {
     var tog = document.getElementById('lang-toggle');
     var menu = document.getElementById('lang-menu');
@@ -3464,16 +3560,16 @@ html.smart .ftab-bottom { display: none; }
     }
     function draw() {
       tabs.forEach(function (t) {
-        var label = t.querySelector('.ftab-label'), svg = t.querySelector('svg'), path = svg && svg.querySelector('path');
+        var label = t.querySelector('.ftab-label'), svg = t.querySelector('svg'), path = svg && svg.querySelector('.ftab-fill'), edge = svg && svg.querySelector('.ftab-edge');
         if (!label || !path) return;
         var d = t.getBoundingClientRect().height;
         var lw = Math.ceil(label.getBoundingClientRect().width);
         var a = 12, sl = Math.round(d * 0.55), pad = 18, o = 2;
         var W = lw + 2 * (a + sl + pad);
         var P0 = [0, o], P1 = [a, o], P2 = [a + sl, o + d], P3 = [W - a - sl, o + d], P4 = [W - a, o], P5 = [W, o];
-        var dd = 'M0 ' + o + corner(P0, P1, P2, a) + corner(P1, P2, P3, 9) + corner(P2, P3, P4, 9) + corner(P3, P4, P5, a) +
-          'L' + W + ' ' + o + 'L' + W + ' 0L0 0Z';
-        path.setAttribute('d', dd);
+        var contour = 'M0 ' + o + corner(P0, P1, P2, a) + corner(P1, P2, P3, 9) + corner(P2, P3, P4, 9) + corner(P3, P4, P5, a) + 'L' + W + ' ' + o;
+        path.setAttribute('d', contour + 'L' + W + ' 0L0 0Z');
+        if (edge) edge.setAttribute('d', contour);
         svg.setAttribute('width', W); svg.setAttribute('height', d + o);
         svg.setAttribute('viewBox', '0 0 ' + W + ' ' + (d + o));
         t.style.width = W + 'px';
@@ -3724,6 +3820,10 @@ html.smart .ftab-bottom { display: none; }
     if (open && !open.hidden) open.click();
     else location.href = 'mailto:hello@arfr.de?subject=' + encodeURIComponent(t('next.subject') + ' (Chat)');
   }
+  (function cornerChat() {
+    var b = document.getElementById('corner-chat');
+    if (b) b.addEventListener('click', startChat);
+  })();
   if (quizFig) {
     quizFig.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.chat-link')) startChat(); });
     quizRoot.classList.add('quiz-on');
