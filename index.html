@@ -186,32 +186,7 @@ a { color: inherit; }
 .menu-toggle[aria-expanded="true"] .m2 { opacity: 0; }
 .menu-toggle[aria-expanded="true"] .m3 { transform: translate(0, 0) rotate(-45deg) scaleX(0.9); }
 @media (prefers-reduced-motion: reduce) { .menu-toggle path { transition: none; } }
-.menu-list {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  z-index: 30;
-  min-width: 200px;
-  display: flex;
-  flex-direction: column;
-  padding: 4px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
-}
-.menu-list[hidden] { display: none; }
-.menu-list a {
-  display: flex;
-  align-items: center;
-  min-height: 42px;
-  padding: 0 12px;
-  border-radius: 4px;
-  text-decoration: none;
-  color: var(--fg);
-  font-size: var(--fs-m);
-}
-.menu-list a:hover, .menu-list a:focus-visible { background: var(--surface); outline: none; }
+
 .brand { white-space: nowrap; }
 
 .head-right { display: flex; align-items: center; gap: 12px; }
@@ -221,46 +196,56 @@ a { color: inherit; }
 .lang-toggle .globe { width: 20px; height: 20px; }
 .lang-toggle #lang-current, .lang-toggle .chev { display: none; }
 .lang-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
-.lang-menu {
+/* Both drop-downs speak the frame's language: black, a grey hairline, tracked capitals */
+.lang-menu, .menu-list {
   position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
+  top: calc(100% + 8px);
   z-index: 30;
-  min-width: 180px;
+  display: flex;
+  flex-direction: column;
   margin: 0;
-  padding: 4px;
+  padding: 8px 0;
   list-style: none;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  background: #000;
+  border: 1px solid var(--frame-line);
+  border-radius: 12px;
 }
-.lang-menu button {
+.lang-menu { right: 0; }
+.menu-list { left: 0; }
+.lang-menu[hidden], .menu-list[hidden] { display: none; }
+.lang-menu button, .menu-list a {
   display: flex;
   align-items: center;
-  gap: 12px;
   width: 100%;
-  min-height: 42px;
-  padding: 0 12px;
+  min-height: 40px;
+  padding: 0 20px;
   border: 0;
-  border-radius: 4px;
+  border-radius: 0;
   background: transparent;
-  color: var(--fg);
-  font-family: var(--font-body);
-  font-size: var(--fs-m);
-  text-align: left;
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: var(--fs-s);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
+  transition: color 0.15s ease;
 }
-.lang-menu button:hover, .lang-menu button:focus-visible { background: var(--surface); }
-.lang-code { width: 2.8ch; font-family: var(--font-mono); font-size: var(--fs-s); letter-spacing: 0.06em; color: var(--muted); }
-.lang-menu button[aria-pressed="true"] { font-weight: 600; }
-.lang-menu button[aria-pressed="true"]::after {
+.lang-menu button { justify-content: flex-end; text-align: right; }
+.lang-menu button:hover, .lang-menu button:focus-visible, .menu-list a:hover, .menu-list a:focus-visible { color: var(--fg); outline: none; }
+.lang-menu button:focus-visible, .menu-list a:focus-visible { text-decoration: underline; text-underline-offset: 5px; }
+.lang-code { display: none; }
+/* the language in use: white, with a small dot */
+.lang-menu button[aria-pressed="true"] { color: var(--fg); }
+.lang-menu button[aria-pressed="true"]::before {
   content: "";
-  margin-left: auto;
-  width: 7px;
-  height: 7px;
+  width: 5px;
+  height: 5px;
+  margin-right: 10px;
   border-radius: 50%;
-  background: var(--accent);
+  background: currentColor;
 }
 @media (prefers-reduced-motion: reduce) { .lang-toggle, .menu-toggle { transition: none; } }
 
@@ -1426,7 +1411,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
   --frame: clamp(8px, 1.25vw, 18px);
   --frame-r: clamp(12px, 1.5vw, 22px);
   --tab-d: 30px;
-  --frame-line: rgba(180, 140, 255, 0.28);
+  --frame-line: rgba(255, 255, 255, 0.16);
   /* distance from the frame edge to the centre of the corner icons */
   --corner-c: 30px;
   --corner-x: calc(var(--frame) + var(--corner-c) - 20px);
