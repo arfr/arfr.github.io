@@ -747,7 +747,9 @@ a { color: inherit; }
   align-items: flex-end;
   gap: 8px;
   margin: 0 12px 12px;
-  padding: 4px 4px 4px 14px;
+  /* the send key keeps the same gap to the field's edge on the right as above and below a single line */
+  --send-gap: calc(4px + max(0px, calc((var(--fs-m) * var(--lh-body) + 18px - 38px) / 2)));
+  padding: 4px var(--send-gap) 4px 14px;
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--bg);
@@ -780,9 +782,12 @@ a { color: inherit; }
   background: var(--accent);
   color: var(--bar-fg);
   cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.12s ease;
+  /* centred on a single line of text; once the text grows to more lines it stays at the bottom */
+  margin-bottom: calc(var(--send-gap) - 4px);
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
 }
-.chatw-send:disabled { opacity: 0.35; cursor: default; }
+/* nothing typed yet: a quiet grey key instead of a washed-out accent block */
+.chatw-send:disabled { background: var(--surface); color: var(--muted); cursor: default; }
 .chatw-send:not(:disabled):active { transform: scale(0.94); }
 .chatw-send svg { width: 18px; height: 18px; }
 /* variant b: light/dark like the page, no colour band, quiet bubbles */
@@ -4877,18 +4882,6 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     input.addEventListener('input', sizeInput);
     input.addEventListener('keyup', sizeInput);
     sizeInput();
-    function two(n) { return (n < 10 ? '0' : '') + n; }
-    /* real "Last login" for returning visitors (stored only in their own browser) */
-    var prevLogin = null;
-    try { prevLogin = localStorage.getItem('arfr-last-login'); } catch (e) {}
-    try { localStorage.setItem('arfr-last-login', String(Date.now())); } catch (e) {}
-    if (prevLogin && !isNaN(+prevLogin)) {
-      var d = new Date(+prevLogin);
-      var DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      line('Last login: ' + DAY[d.getDay()] + ' ' + MON[d.getMonth()] + ' ' + d.getDate() + ' ' +
-        two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds()) + ' on ttys001', 'muted');
-    }
   })();
 
   /* Neon grid behind the hero: a glowing floor with light trails racing across it */
@@ -5433,7 +5426,10 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     /* composer: grows with the text, Enter sends, Shift+Enter breaks the line */
     function fit() {
       input.style.height = 'auto';
-      input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+      var h = input.scrollHeight;
+      input.style.height = Math.min(h, 120) + 'px';
+      /* scrollHeight is rounded: a fraction of a pixel left over would show a scrollbar on a single line */
+      input.style.overflowY = h > 120 ? 'auto' : 'hidden';
       sendBtn.disabled = !input.value.trim();
     }
     input.addEventListener('input', fit);
