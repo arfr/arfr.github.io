@@ -1397,6 +1397,32 @@ html.smart .ftab-bottom { display: none; }
   </div>
 </section>
 
+<div class="chrome">
+<div class="frame" aria-hidden="true"><div class="frame-hole"></div></div>
+<div class="ftab ftab-top" id="menu-tab"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path class="ftab-fill"/><path class="ftab-edge" transform="translate(0 0.5)"/></svg><button type="button" class="ftab-label ftab-name" id="menu-toggle" aria-expanded="false" aria-controls="menu-panel">Alexander Fuhr<span class="sr-only"> – <span data-i18n="nav.menu">Menü</span></span></button>
+  <div class="menu-panel" id="menu-panel" hidden>
+    <nav class="menu-nav" aria-label="Hauptnavigation" data-i18n-aria="nav.label">
+      <a href="#top" class="menu-start" data-i18n="nav.start">Start</a>
+      <a href="#approach" data-i18n="nav.approach">Vorgehen</a>
+      <a href="#about" data-i18n="nav.about">Über mich</a>
+      <a href="#contact" data-i18n="nav.contact">Kontakt</a>
+      <a href="#terminal" data-i18n="nav.terminal">Terminal</a>
+    </nav>
+    <div class="menu-row lang-menu" id="lang-menu" role="group" aria-label="Sprache" data-i18n-aria="lang.label">
+      <button type="button" data-lang="de" lang="de" aria-pressed="true" aria-label="Deutsch">DE</button>
+      <button type="button" data-lang="en" lang="en" aria-pressed="false" aria-label="English">EN</button>
+      <button type="button" data-lang="ru" lang="ru" aria-pressed="false" aria-label="Русский">RU</button>
+      <button type="button" data-lang="sr" lang="sr-Latn" aria-pressed="false" aria-label="Srpski">SR</button>
+      <button type="button" data-lang="el" lang="el" aria-pressed="false" aria-label="Ελληνικά">EL</button>
+    </div>
+    <div class="menu-row menu-acts">
+      <a href="mailto:hello@arfr.de?subject=Sprechen%20wir%20dar%C3%BCber." data-i18n="contact.write">E-Mail</a>
+      <button type="button" class="menu-chat" data-i18n="contact.chat">Chat starten</button>
+    </div>
+  </div>
+</div>
+</div>
+
 <main id="top">
   <section class="hero" aria-labelledby="hero-title">
     <canvas class="retro-grid" aria-hidden="true"></canvas>
@@ -1790,7 +1816,7 @@ html.smart .ftab-bottom { display: none; }
       <div class="about">
         <img class="portrait" src="images/alexander-fuhr.jpg" alt="Alexander Fuhr" width="480" height="480" loading="lazy" decoding="async">
         <div class="about-text">
-          <h2 id="about-title" class="h2"><span class="scramble" data-i18n="about.title">Entwickler von Beruf und aus Leidenschaft.</span></h2>
+          <h2 id="about-title" class="h2"><span data-i18n="about.title">Entwickler von Beruf und aus Leidenschaft.</span></h2>
           <p data-i18n="about.text">Seit über 20 Jahren entwickle ich für das Web. Mein Ziel ist, Komplexität aufzubrechen, statt Systeme noch komplexer zu machen.</p>
           <p data-i18n="about.text2">Fast genauso lange ist diese Seite mein persönliches Experimentierfeld. Ich baue sie immer wieder neu und probiere aus, was sich im Web bewährt und was nicht.</p>
         </div>
@@ -1872,29 +1898,6 @@ html.smart .ftab-bottom { display: none; }
 </main>
 
 <div class="chrome">
-<div class="frame" aria-hidden="true"><div class="frame-hole"></div></div>
-<div class="ftab ftab-top" id="menu-tab"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path class="ftab-fill"/><path class="ftab-edge" transform="translate(0 0.5)"/></svg><button type="button" class="ftab-label ftab-name" id="menu-toggle" aria-expanded="false" aria-controls="menu-panel">Alexander Fuhr<span class="sr-only"> – <span data-i18n="nav.menu">Menü</span></span></button>
-  <div class="menu-panel" id="menu-panel" hidden>
-    <nav class="menu-nav" aria-label="Hauptnavigation" data-i18n-aria="nav.label">
-      <a href="#top" class="menu-start" data-i18n="nav.start">Start</a>
-      <a href="#approach" data-i18n="nav.approach">Vorgehen</a>
-      <a href="#about" data-i18n="nav.about">Über mich</a>
-      <a href="#contact" data-i18n="nav.contact">Kontakt</a>
-      <a href="#terminal" data-i18n="nav.terminal">Terminal</a>
-    </nav>
-    <div class="menu-row lang-menu" id="lang-menu" role="group" aria-label="Sprache" data-i18n-aria="lang.label">
-      <button type="button" data-lang="de" lang="de" aria-pressed="true" aria-label="Deutsch">DE</button>
-      <button type="button" data-lang="en" lang="en" aria-pressed="false" aria-label="English">EN</button>
-      <button type="button" data-lang="ru" lang="ru" aria-pressed="false" aria-label="Русский">RU</button>
-      <button type="button" data-lang="sr" lang="sr-Latn" aria-pressed="false" aria-label="Srpski">SR</button>
-      <button type="button" data-lang="el" lang="el" aria-pressed="false" aria-label="Ελληνικά">EL</button>
-    </div>
-    <div class="menu-row menu-acts">
-      <a href="mailto:hello@arfr.de?subject=Sprechen%20wir%20dar%C3%BCber." data-i18n="contact.write">E-Mail</a>
-      <button type="button" class="menu-chat" data-i18n="contact.chat">Chat starten</button>
-    </div>
-  </div>
-</div>
 <footer class="site-foot ftab ftab-bottom"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path class="ftab-fill"/><path class="ftab-edge" transform="translate(0 0.5)"/></svg><span class="ftab-swap"><button type="button" class="ftab-label ftab-scroll" aria-label="Zum nächsten Bereich" data-i18n-aria="tab.scroll.aria"><span data-i18n="tab.scroll">Nach unten</span></button><a class="ftab-label ftab-copy" href="https://arfr.de/" tabindex="-1" aria-hidden="true">© 2026 arfr.de</a></span></footer>
 </div>
 
@@ -3183,7 +3186,6 @@ html.smart .ftab-bottom { display: none; }
   }
   function setLang(lang, save) {
     if (LANGS.indexOf(lang) === -1) lang = 'en';
-    stopScramble();
     current = lang;
     var dict = I18N[lang];
     document.documentElement.lang = HTML_LANG[lang] || lang;
@@ -3235,47 +3237,6 @@ html.smart .ftab-bottom { display: none; }
   /* width of the black screen frame around the page (0 without it) */
   var sectionStep = null; /* set by the section paging below: sectionStep(1) one block down, -1 up */
   function frameInset() { var h = document.querySelector('.frame-hole'); return h ? Math.round(h.getBoundingClientRect().top) : 0; }
-
-  /* Heading "decodes" once when it scrolls into view */
-  var scrambleEl = document.querySelector('.scramble');
-  var scrambleTimer = null;
-  var scrambleFinal = '';
-  function stopScramble() {
-    if (scrambleTimer) {
-      clearTimeout(scrambleTimer);
-      scrambleTimer = null;
-      scrambleEl.textContent = scrambleFinal;
-    }
-  }
-  function runScramble() {
-    if (!scrambleEl || reduceMotion) return;
-    var glyphs = '01<>/{}[]$#_*+=';
-    scrambleFinal = scrambleEl.textContent;
-    var frames = 18, frame = 0;
-    (function tick() {
-      var done = Math.floor((frame / frames) * scrambleFinal.length);
-      var out = '';
-      for (var i = 0; i < scrambleFinal.length; i++) {
-        var c = scrambleFinal[i];
-        out += (i < done || c === ' ') ? c : glyphs[Math.floor(Math.random() * glyphs.length)];
-      }
-      scrambleEl.textContent = out;
-      if (frame++ < frames) {
-        scrambleTimer = setTimeout(tick, 40);
-      } else {
-        scrambleTimer = null;
-        scrambleEl.textContent = scrambleFinal;
-      }
-    })();
-  }
-  if (scrambleEl && 'IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.isIntersecting) { io.disconnect(); runScramble(); }
-      });
-    }, { threshold: 0.6 });
-    io.observe(scrambleEl);
-  }
 
   /* Frame tabs: a trapezoid hanging from the frame edge, sized to its label */
   var tabShape = null, tabClosedWidth = null;
@@ -3378,7 +3339,7 @@ html.smart .ftab-bottom { display: none; }
       isOpen = false;
       tab.classList.remove('shown');
       btn.setAttribute('aria-expanded', 'false');
-      if (returnFocus) btn.focus();
+      if (returnFocus) { quiet = true; btn.focus(); quiet = false; }
       clearTimeout(timer);
       timer = setTimeout(function () {
         glide(closedSize(), function () {
@@ -3390,11 +3351,44 @@ html.smart .ftab-bottom { display: none; }
         });
       }, reduceMotion ? 0 : 140);
     }
-    var keyOpen = false;
-    btn.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') keyOpen = true; });
+    var keyOpen = false, quiet = false, swallow = false;
+    /* keyboard: the menu opens as soon as its button gets focus, so Tab walks through the entries;
+       focus leaving the tab closes it again. A mouse still opens it with a click. */
+    function enter() {
+      var first = panel.querySelector('a, button');
+      if (!first) return false;
+      tab.classList.add('shown'); /* entries can take focus before the slide-down has finished */
+      first.focus();
+      return true;
+    }
+    btn.addEventListener('focus', function () {
+      if (!quiet && !isOpen && btn.matches(':focus-visible')) open(false);
+    });
+    btn.addEventListener('keydown', function (e) {
+      var go = e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown';
+      if (isOpen && ((e.key === 'Tab' && !e.shiftKey) || go)) {
+        if (enter()) { e.preventDefault(); swallow = go; }
+        return;
+      }
+      if (go) keyOpen = true;
+    });
     btn.addEventListener('click', function () {
+      if (swallow) { swallow = false; return; }
       if (isOpen) close(false); else open(keyOpen);
       keyOpen = false;
+    });
+    tab.addEventListener('focusout', function (e) {
+      if (isOpen && e.relatedTarget && !tab.contains(e.relatedTarget)) close(false);
+    });
+    /* nothing focused yet (fresh load, or a click on plain text): Tab starts at the menu, not after the click point */
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab' || e.shiftKey || e.altKey || e.ctrlKey || e.metaKey) return;
+      var a = document.activeElement;
+      if (a && a !== document.body && a !== document.documentElement) return;
+      if (document.querySelector('dialog[open]')) return;
+      e.preventDefault();
+      btn.focus();
+      open(false);
     });
     panel.querySelectorAll('.menu-nav a, .menu-acts a').forEach(function (a) { a.addEventListener('click', function () { close(false); }); });
     var topLink = panel.querySelector('.menu-start');
@@ -3464,16 +3458,28 @@ html.smart .ftab-bottom { display: none; }
     el.appendChild(said);
     el.classList.add('thinking');
     shown.textContent = '…';
-    setTimeout(function () {
+    var k = 0, timer = 0, over = false, area = quizFig || document;
+    function finish() {
+      if (over) return;
+      over = true;
+      clearTimeout(timer);
+      area.removeEventListener('click', finish, true);
+      el.classList.remove('thinking');
+      if (!said.textContent) said.textContent = text;
+      shown.textContent = text;
+      done();
+    }
+    /* registered after the answering click has passed, so only a later click skips ahead */
+    setTimeout(function () { if (!over) area.addEventListener('click', finish, true); }, 0);
+    timer = setTimeout(function () {
       el.classList.remove('thinking');
       said.textContent = text;
-      var k = 0;
       (function step() {
         k += 1;
         shown.textContent = text.slice(0, k);
-        if (k < text.length) setTimeout(step, 18); else done();
+        if (k < text.length) timer = setTimeout(step, 12); else finish();
       })();
-    }, 700);
+    }, 300);
   }
   function showVerdict(st, el) {
     el.textContent = t(st.right ? 'v.right' : 'v.wrong');
@@ -5639,7 +5645,7 @@ html.smart .ftab-bottom { display: none; }
   /* Entrance: whatever scrolls in rises in turn; prompts type their command */
   (function reveal() {
     if (reduceMotion || !('IntersectionObserver' in window)) return;
-    var sel = '.hero h1, .hero-side > *, .review, main > .section .statement > *, .steps > li, .about > .portrait, .about-text > *, ' +
+    var sel = '.review, main > .section .statement > *, .steps > li, .about > .portrait, .about-text > *, ' +
       '.contact-row, .next-grid > .opt, .next-chat > *, .cli-wrap';
     var items = Array.prototype.slice.call(document.querySelectorAll(sel));
     if (!items.length) return;
