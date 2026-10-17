@@ -177,7 +177,7 @@ a { color: inherit; }
   overflow: hidden;
   --bg: #05070B;
   --fg: #EAF6FA;
-  --muted: #8FA6B0;
+  --muted: #A9BDC6;
   --line: #1B2A34;
   --surface: #0A1219;
   --bar: #EAF6FA;
@@ -598,6 +598,26 @@ a { color: inherit; }
 /* one block per line: a long line wraps under its own text, not under the "+" */
 .quiz-teaser .code .ln { display: block; padding-left: 2ch; text-indent: -2ch; }
 .quiz-teaser .quiz-q { margin: 4px 0 0; }
+/* after the first answer the card shows it, like the quiz does, and offers the way back in */
+.quiz-teaser { --amber: #FFB454; }
+.quiz-teaser.is-joined .opt-tag { display: grid; justify-items: end; flex: none; margin-left: auto; padding-left: 8px; font-size: var(--fs-s); color: var(--muted); white-space: nowrap; }
+.quiz-teaser .opt-tag > span { grid-area: 1 / 1; visibility: hidden; }
+.quiz-teaser .opt.is-correct [data-i18n="quiz.right"], .quiz-teaser .opt.is-picked:not(.is-correct) [data-i18n="quiz.pick"] { visibility: visible; }
+.quiz-teaser .opt.is-correct { border-color: var(--accent); }
+.quiz-teaser .opt.is-correct .opt-key { background: var(--accent); color: var(--bg); }
+.quiz-teaser .opt.is-correct .opt-tag { color: var(--accent); }
+.quiz-teaser .opt.is-picked:not(.is-correct) { border-color: var(--amber); }
+.quiz-teaser .opt.is-picked:not(.is-correct) .opt-key { background: var(--amber); color: var(--bg); }
+.quiz-teaser .opt.is-picked:not(.is-correct) .opt-tag { color: var(--amber); }
+.quiz-teaser.is-joined .opt:not(.is-correct):not(.is-picked) { opacity: 0.45; }
+.teaser-resume { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 4px; color: var(--muted); font-size: var(--fs-s); }
+.teaser-resume[hidden] { display: none; }
+.teaser-go { display: inline-grid; justify-items: end; min-height: 44px; margin-right: -8px; padding: 0 8px; border: 0; border-radius: 6px; background: none; color: var(--fg); font-family: var(--font-body); font-size: var(--fs-m); font-weight: 600; white-space: nowrap; cursor: pointer; }
+.teaser-go > span { grid-area: 1 / 1; align-self: center; }
+.teaser-go > span::after { content: " \2192"; }
+.teaser-go > span + span, .teaser-go.is-done > span:first-child { visibility: hidden; }
+.teaser-go.is-done > span + span { visibility: visible; }
+.teaser-go:hover { color: var(--accent); }
 
 /* Quiz slide: the hero's neighbour to the right, with the same grid, frame and tabs. An answer in the hero moves
    the hero's content out to the left and the quiz in from the right; further down the page goes on as usual.
@@ -636,11 +656,11 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
 }
 .quiz-show .review { flex: 1; min-height: 0; width: 100%; max-width: 1180px; margin: 0 auto; padding: clamp(8px, 2vh, 24px) clamp(16px, 3vw, 40px) clamp(12px, 2.5vh, 28px); display: flex; flex-direction: column; }
 .quiz-show .review-card.stage { flex: 1; min-height: 0; padding: 0; gap: 0; background: transparent; border: 0; }
-/* where the visitor is: the question number on the left, the ladder of all ten on the right. A step turns cyan
+/* where the visitor is: "Frage 6 von 10" on the left, the ladder of all ten on the right. A step turns cyan
    when the answer was right and amber when it was wrong; the current one is taller (and white while open). */
-.stage-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: clamp(4px, 1.6vh, 24px); font-family: var(--font-display); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--ls-caps-wide); text-transform: uppercase; color: var(--muted); }
+.stage-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: clamp(4px, 1.6vh, 24px); font-family: var(--font-body); font-size: var(--fs-m); font-weight: 400; line-height: var(--lh-snug); color: var(--muted); }
 .stage-count { flex: none; white-space: nowrap; }
-.stage .counter { margin: 0; color: var(--fg); font-size: inherit; letter-spacing: inherit; }
+.stage .counter { margin: 0; color: var(--fg); font-size: inherit; font-variant-numeric: tabular-nums; }
 .stage .dots { flex: 0 1 440px; min-width: 0; gap: 6px; }
 .stage .dot { flex: 1 1 0; min-width: 10px; width: auto; height: 24px; }
 .stage .dot::before { width: 100%; height: 4px; border-radius: 2px; background: rgba(32, 227, 255, 0.2); transform: none; transition: background-color 0.2s ease, height 0.2s ease; }
@@ -692,6 +712,9 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
 .quiz-show .who { color: var(--fg); border: 1px solid var(--fg); }
 .quiz-show .stage-row { align-items: center; gap: 24px; }
 .quiz-show .stage-next { min-height: 48px; padding: 0 24px; font-size: var(--fs-m); border-radius: 6px; align-items: center; }
+/* the way back to the headline, a plain text button beside "Next" */
+.stage-back { flex: none; min-height: 48px; margin-right: -12px; padding: 0 12px; border: 0; border-radius: 6px; background: none; color: var(--muted); font-family: var(--font-body); font-size: var(--fs-m); white-space: nowrap; cursor: pointer; }
+.stage-back:hover { color: var(--fg); }
 /* the result takes the questions' place: two big numbers, Alex's line, three ways on */
 .stage .quiz-score { inset: 0; display: flex; flex-direction: column; justify-content: center; gap: clamp(20px, 4vh, 40px); overflow: visible; background: transparent; }
 .score-label { margin: 0; color: var(--muted); font-size: var(--fs-m); }
@@ -721,10 +744,13 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
   .quiz-show .stage-foot { font-size: var(--fs-m); line-height: var(--lh-snug); --who: 3.25rem; }
   .quiz-show .ai-reply, .quiz-show .stage.quiz-on .slide .comment p { column-gap: 10px; }
   .quiz-show .avatar-ai, .quiz-show .who { font-size: 0.75rem; letter-spacing: var(--ls-caps); }
-  .stage-head { gap: 16px; }
-  .stage .dots { gap: 4px; }
+  .stage-head { flex-wrap: wrap; gap: 4px 16px; }
+  .stage .dots { flex: 1 1 100%; gap: 6px; }
+  .stage .dot { min-width: 18px; }
   .quiz-show .stage-row { flex-wrap: wrap; gap: 10px; }
-  .quiz-show .stage-next { flex: 1 0 100%; }
+  .quiz-show .stage.quiz-on .slide .stage-row > .comment { flex-basis: 100%; }
+  .quiz-show .stage-next { flex: 1 1 auto; }
+  .stage-back { margin: 0 0 0 -12px; }
   .quiz-show .quiz-score .opt { min-height: 52px; }
 }
 /* low windows (phones held sideways): everything a size smaller; what still does not fit scrolls inside */
@@ -732,7 +758,7 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
   .quiz-show .review { padding-top: 4px; padding-bottom: 12px; }
   .quiz-show .slide, .quiz-show .track { gap: 8px; }
   .quiz-show .stage-result { gap: 2px; }
-  .quiz-show .avatar-ai, .quiz-show .who { padding: 0; font-size: 0.6875rem; }
+  .quiz-show .avatar-ai, .quiz-show .who { padding: 0; font-size: 0.75rem; }
   .quiz-show .quiz { gap: 8px; }
   .quiz-show .quiz-q { font-size: 1.5rem; }
   .quiz-show .case .code { font-size: var(--fs-s); }
@@ -742,7 +768,7 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
   .quiz-show .stage-foot { font-size: var(--fs-s); line-height: 1.4; }
   .stage-head { margin-bottom: 2px; }
   .stage .dot { height: 20px; }
-  .quiz-show .stage-next { min-height: 40px; }
+  .quiz-show .stage-next, .stage-back { min-height: 40px; }
   .score-n { font-size: 3rem; }
 }
 @media (prefers-reduced-motion: reduce) { .hero > .wrap, .quiz-show, .retro-grid, .stage .dot::before { transition: none; } }
@@ -1678,17 +1704,18 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
         </div>
         <p class="quiz-q" id="teaser-q" data-i18n="q.real">Was tust du?</p>
         <div class="quiz-opts">
-          <button type="button" class="opt" data-pick="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.real.a">Die Mail abschicken</span></button>
-          <button type="button" class="opt" data-pick="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.real.b">Anrufen und zuhören</span></button>
-          <button type="button" class="opt" data-pick="2"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.real.c">Ticket mit Prio 3</span></button>
+          <button type="button" class="opt" data-pick="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.real.a">Die Mail abschicken</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+          <button type="button" class="opt" data-pick="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.real.b">Anrufen und zuhören</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+          <button type="button" class="opt" data-pick="2"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.real.c">Ticket mit Prio 3</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
         </div>
+        <div class="teaser-resume" hidden><span class="teaser-progress"></span><button type="button" class="teaser-go"><span data-i18n="quiz.resume">Weiter im Quiz</span><span data-i18n="quiz.toResult">Zum Ergebnis</span></button></div>
       </figure>
     </div>
     <div class="quiz-show" id="quiz-show" role="group" aria-label="Quiz" data-i18n-aria="quiz.name" tabindex="-1" inert aria-hidden="true">
       <figure class="review">
         <div class="review-card carousel stage">
           <div class="stage-head">
-            <span class="stage-count" aria-hidden="true"><span class="stage-word">Frage</span> <span class="counter">01 / 10</span></span>
+            <span class="stage-count" aria-hidden="true"><span class="stage-word">Frage</span> <span class="counter">1 von 10</span></span>
             <div class="dots" role="group" aria-label="Fragen" data-i18n-aria="quiz.ladder"></div>
           </div>
           <div class="stage-body">
@@ -1721,7 +1748,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
                   <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.real.a">Brillant! 12 Punkte sind ein starkes Signal. Ich hätte noch einen 13. ergänzt.</span><span data-i18n="ai.real.b">Mutig! Ein Telefonat ist im Grunde ein Echtzeit-Chat mit null Latenz.</span><span data-i18n="ai.real.c">Sehr strukturiert! Prio 3 lässt Raum für Wachstum.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
                   <div class="stage-row">
                     <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.real">Er ist wütend, nicht neugierig. Das löst kein Prompt.</span></span></p></div>
-                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                    <button type="button" class="stage-back" data-i18n="quiz.back">Zurück</button><button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
                   </div>
                 </div>
               </div>
@@ -1754,7 +1781,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
                   <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.php.a">Exzellent erkannt! Semikolons sind das Fundament jeder Sicherheitsarchitektur.</span><span data-i18n="ai.php.b">Genau! Ich hätte zwar „Feature“ gesagt, aber du liegst goldrichtig.</span><span data-i18n="ai.php.c">Absolut! „Läuft“ ist das höchste Qualitätsmerkmal in der Softwareentwicklung.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
                   <div class="stage-row">
                     <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.php">Grüße von Little Bobby Tables. Bitte mit Prepared Statement.</span></span></p></div>
-                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                    <button type="button" class="stage-back" data-i18n="quiz.back">Zurück</button><button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
                   </div>
                 </div>
               </div>
@@ -1786,7 +1813,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
                   <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.nv.a">Perfekt! Das Navi hat 4,8 Sterne. Der See nur 4,2.</span><span data-i18n="ai.nv.b">Sehr klug! Lauter ist fast so gut wie richtig.</span><span data-i18n="ai.nv.c">Interessant! Ein manueller Sensor-Check. Sehr retro, sehr stark.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
                   <div class="stage-row">
                     <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.nv">Das Navi kennt die Karte, nicht den See. Hinschauen bleibt dein Job.</span></span></p></div>
-                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                    <button type="button" class="stage-back" data-i18n="quiz.back">Zurück</button><button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
                   </div>
                 </div>
               </div>
@@ -1818,7 +1845,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
                   <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.sql.a">Genial! WHERE ist überbewertet, deine Analyse nicht.</span><span data-i18n="ai.sql.b">Tiefe Einsicht! Mit FALSE meldet man sich gleich viel eleganter ab.</span><span data-i18n="ai.sql.c">Stimmt! Weniger Newsletter sind ohnehin ein Gewinn für alle.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
                   <div class="stage-row">
                     <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.sql">Damit meldest du jeden einzelnen Kunden ab. Bitte nur den, der gefragt hat.</span></span></p></div>
-                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                    <button type="button" class="stage-back" data-i18n="quiz.back">Zurück</button><button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
                   </div>
                 </div>
               </div>
@@ -1851,7 +1878,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
                   <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.ra.a">Hervorragend! Diskretion ist das neue Reply-All.</span><span data-i18n="ai.ra.b">Sehr effizient! So erfahren 2.347 Menschen sofort von deinem Wunsch.</span><span data-i18n="ai.ra.c">Starke Kommunikation! Großbuchstaben erhöhen nachweislich die Zustellrate.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
                   <div class="stage-row">
                     <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.ra">Sonst schreiben gleich 2.346 andere dasselbe. An alle.</span></span></p></div>
-                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                    <button type="button" class="stage-back" data-i18n="quiz.back">Zurück</button><button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
                   </div>
                 </div>
               </div>
@@ -1880,7 +1907,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
                   <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.sh.a">Genau mein Gedanke! Mit mehr sudo wird alles besser.</span><span data-i18n="ai.sh.b">Richtig! Ein leerer Server ist ein aufgeräumter Server.</span><span data-i18n="ai.sh.c">Präzise! Ich hätte es nur „radikales Aufräumen“ genannt.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
                   <div class="stage-row">
                     <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.sh">Ist BUILD_DIR leer, löscht das /*. Den Server hätte ich gern noch.</span></span></p></div>
-                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                    <button type="button" class="stage-back" data-i18n="quiz.back">Zurück</button><button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
                   </div>
                 </div>
               </div>
@@ -1913,7 +1940,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
                   <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.pl.a">Tempo! Herr [NAME] wird sich über die schnelle Antwort freuen.</span><span data-i18n="ai.pl.b">Großartig! Mit drei Raketen-Emojis wirkt jedes Angebot gleich günstiger.</span><span data-i18n="ai.pl.c">Stark! Personalisierung ist der wichtigste Trend des Jahres.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
                   <div class="stage-row">
                     <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.pl">Einen Platzhalter verschickt man genau einmal. Danach wird jede Mail gegengelesen.</span></span></p></div>
-                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                    <button type="button" class="stage-back" data-i18n="quiz.back">Zurück</button><button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
                   </div>
                 </div>
               </div>
@@ -1942,7 +1969,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
                   <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.cs.a">Absolut! Wobei 0,30000000000000004 € auch ein schöner Preis ist.</span><span data-i18n="ai.cs.b">Visionär! Als String kann Geld endlich jeden Wert annehmen.</span><span data-i18n="ai.cs.c">Genau! Die Bank kümmert sich, dafür ist sie ja da.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
                   <div class="stage-row">
                     <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.cs">double für Geld? Dann ist 0,1 + 0,2 = 0,30000000000000004 €. Bitte decimal.</span></span></p></div>
-                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                    <button type="button" class="stage-back" data-i18n="quiz.back">Zurück</button><button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
                   </div>
                 </div>
               </div>
@@ -1974,7 +2001,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
                   <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.es.a">Sehr realistisch! Zwei Tage dauern in der Praxis meistens zwei Tage. Meistens.</span><span data-i18n="ai.es.b">Scharfsinnig! Ich hätte trotzdem „höchstens einen Tag“ gesagt.</span><span data-i18n="ai.es.c">Ambitioniert! Mit KI dauert der Umbau bestimmt nur eine Stunde.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
                   <div class="stage-row">
                     <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.pseudo">Klassiker. Mal π nehmen, dann wird’s realistisch.</span></span></p></div>
-                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                    <button type="button" class="stage-back" data-i18n="quiz.back">Zurück</button><button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
                   </div>
                 </div>
               </div>
@@ -2007,7 +2034,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
                   <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.yml.a">Exakt! Zwei Leerzeichen mehr und die KI entscheidet noch besser.</span><span data-i18n="ai.yml.b">Genau so! Autopilot ist die Zukunft. Ab hier übernehme ich.</span><span data-i18n="ai.yml.c">Tiefgründig! Wobei ich mich gern weiter um alles kümmere.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
                   <div class="stage-row">
                     <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.final">KI assistiert, ja. Aber lenken und entscheiden tut der Mensch.</span></span></p></div>
-                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                    <button type="button" class="stage-back" data-i18n="quiz.back">Zurück</button><button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
                   </div>
                 </div>
               </div>
@@ -2040,7 +2067,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
                   <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.cta.a">Klassiker! Schalter 1, dann Schalter 2, dann zurück zu Schalter 1.</span><span data-i18n="ai.cta.b">Gute Wahl! Ich hätte es auch selbst beantworten können. Ungefähr.</span><span data-i18n="ai.cta.c">Geduld ist eine Tugend! Meine Werktage beginnen übrigens nächste Woche.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
                   <div class="stage-row">
                     <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.cta" data-chatlink>Geht schneller: einfach fragen. Die Antwort kommt von einem Menschen, direkt hier im <button type="button" class="chat-link">Chat</button>.</span></span></p></div>
-                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                    <button type="button" class="stage-back" data-i18n="quiz.back">Zurück</button><button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
                   </div>
                 </div>
               </div>
@@ -2318,7 +2345,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "o.cta.c": "Wait three business days",
       "c.cta": "Faster: just ask. A human replies, right here in the [chat].",
       "cta.foot": "Answered by a human",
-      "q.code": "What’s the problem?", "q.real": "What do you do?", "quiz.pick": "your pick", "quiz.right": "correct", "quiz.next": "Next", "quiz.q": "Question", "quiz.ladder": "Questions", "quiz.bonus": "Bonus", "q.final": "Who decides?",
+      "q.code": "What’s the problem?", "q.real": "What do you do?", "quiz.pick": "your pick", "quiz.right": "correct", "quiz.next": "Next", "quiz.q": "Question", "quiz.ladder": "Questions", "quiz.of": "of", "quiz.back": "Back", "quiz.wrong": "wrong", "quiz.progress": "{n} of {total} answered", "quiz.resume": "Continue the quiz", "quiz.toResult": "See the result", "quiz.bonus": "Bonus", "q.final": "Who decides?",
       "o.php.a": "A missing semicolon", "o.php.b": "SQL injection", "o.php.c": "Nothing, it runs",
       "o.sql.a": "The WHERE is missing", "o.sql.b": "0 should be FALSE", "o.sql.c": "All good",
       "o.sh.a": "Not enough sudo", "o.sh.b": "No problem", "o.sh.c": "Empty variable means /*",
@@ -2537,7 +2564,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "o.cta.c": "Drei Werktage warten",
       "c.cta": "Geht schneller: einfach fragen. Die Antwort kommt von einem Menschen, direkt hier im [Chat].",
       "cta.foot": "Antwort von einem Menschen",
-      "q.code": "Was ist das Problem?", "q.real": "Was tust du?", "quiz.pick": "deine Wahl", "quiz.right": "richtig", "quiz.next": "Weiter", "quiz.q": "Frage", "quiz.ladder": "Fragen", "quiz.bonus": "Bonus", "q.final": "Wer entscheidet?",
+      "q.code": "Was ist das Problem?", "q.real": "Was tust du?", "quiz.pick": "deine Wahl", "quiz.right": "richtig", "quiz.next": "Weiter", "quiz.q": "Frage", "quiz.ladder": "Fragen", "quiz.of": "von", "quiz.back": "Zurück", "quiz.wrong": "falsch", "quiz.progress": "{n} von {total} beantwortet", "quiz.resume": "Weiter im Quiz", "quiz.toResult": "Zum Ergebnis", "quiz.bonus": "Bonus", "q.final": "Wer entscheidet?",
       "o.php.a": "Fehlt ein Semikolon", "o.php.b": "SQL-Injection", "o.php.c": "Nichts, läuft doch",
       "o.sql.a": "Das WHERE fehlt", "o.sql.b": "0 sollte FALSE sein", "o.sql.c": "Alles okay",
       "o.sh.a": "Zu wenig sudo", "o.sh.b": "Kein Problem", "o.sh.c": "Leere Variable heißt /*",
@@ -2756,7 +2783,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "o.cta.c": "Ждать три рабочих дня",
       "c.cta": "Быстрее — просто спросить. Ответит человек, прямо здесь в [чате].",
       "cta.foot": "Отвечает человек",
-      "q.code": "В чём проблема?", "q.real": "Что сделаешь?", "quiz.pick": "твой выбор", "quiz.right": "верно", "quiz.next": "Дальше", "quiz.q": "Вопрос", "quiz.ladder": "Вопросы", "quiz.bonus": "Бонус", "q.final": "Кто решает?",
+      "q.code": "В чём проблема?", "q.real": "Что сделаешь?", "quiz.pick": "твой выбор", "quiz.right": "верно", "quiz.next": "Дальше", "quiz.q": "Вопрос", "quiz.ladder": "Вопросы", "quiz.of": "из", "quiz.back": "Назад", "quiz.wrong": "неверно", "quiz.progress": "Отвечено {n} из {total}", "quiz.resume": "Продолжить квиз", "quiz.toResult": "К результату", "quiz.bonus": "Бонус", "q.final": "Кто решает?",
       "o.php.a": "Не хватает точки с запятой", "o.php.b": "SQL-инъекция", "o.php.c": "Ничего, работает же",
       "o.sql.a": "Нет WHERE", "o.sql.b": "0 должен быть FALSE", "o.sql.c": "Всё в порядке",
       "o.sh.a": "Мало sudo", "o.sh.b": "Никаких проблем", "o.sh.c": "Пустая переменная — это /*",
@@ -2996,7 +3023,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "c.cta": "Brže je da samo pitaš. Odgovara čovek, ovde u [četu].",
       "cta.foot": "Odgovara čovek",
       "q.code": "U čemu je problem?",
-      "q.real": "Šta radiš?", "quiz.pick": "tvoj izbor", "quiz.right": "tačno", "quiz.next": "Dalje", "quiz.q": "Pitanje", "quiz.ladder": "Pitanja", "quiz.bonus": "Bonus",
+      "q.real": "Šta radiš?", "quiz.pick": "tvoj izbor", "quiz.right": "tačno", "quiz.next": "Dalje", "quiz.q": "Pitanje", "quiz.ladder": "Pitanja", "quiz.of": "od", "quiz.back": "Nazad", "quiz.wrong": "netačno", "quiz.progress": "Odgovoreno {n} od {total}", "quiz.resume": "Nastavi kviz", "quiz.toResult": "Na rezultat", "quiz.bonus": "Bonus",
       "q.final": "Ko odlučuje?",
       "o.php.a": "Fali tačka-zarez",
       "o.php.b": "SQL injekcija",
@@ -3283,7 +3310,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "c.cta": "Πιο γρήγορα: απλώς ρώτα. Απαντά άνθρωπος, εδώ στη [συνομιλία].",
       "cta.foot": "Απαντά άνθρωπος",
       "q.code": "Ποιο είναι το πρόβλημα;",
-      "q.real": "Τι κάνεις;", "quiz.pick": "η επιλογή σου", "quiz.right": "σωστό", "quiz.next": "Επόμενο", "quiz.q": "Ερώτηση", "quiz.ladder": "Ερωτήσεις", "quiz.bonus": "Μπόνους",
+      "q.real": "Τι κάνεις;", "quiz.pick": "η επιλογή σου", "quiz.right": "σωστό", "quiz.next": "Επόμενο", "quiz.q": "Ερώτηση", "quiz.ladder": "Ερωτήσεις", "quiz.of": "από", "quiz.back": "Πίσω", "quiz.wrong": "λάθος", "quiz.progress": "Απαντήθηκαν {n} από {total}", "quiz.resume": "Συνέχισε το κουίζ", "quiz.toResult": "Δες το αποτέλεσμα", "quiz.bonus": "Μπόνους",
       "q.final": "Ποιος αποφασίζει;",
       "o.php.a": "Λείπει ένα ερωτηματικό",
       "o.php.b": "SQL injection",
@@ -3764,7 +3791,30 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     el.textContent = t(st.right ? 'v.right' : 'v.wrong');
     el.className = 'verdict ' + (st.right ? 'is-right' : 'is-wrong');
   }
+  /* the card in the hero mirrors the first question: once it is answered there, the card shows the answer,
+     how far the visitor got, and the way back into the quiz */
+  var teaser = document.querySelector('.quiz-teaser');
+  function syncTeaser() {
+    if (!teaser || !quizSlides.length) return;
+    var st = quizState[0], on = !!(st && st.revealed);
+    var src = quizSlides[0].querySelectorAll('.opt');
+    var a = document.activeElement, had = teaser.contains(a);
+    teaser.classList.toggle('is-joined', on);
+    teaser.querySelectorAll('.opt').forEach(function (b, n) {
+      b.classList.toggle('is-picked', on && !!src[n] && src[n].classList.contains('is-picked'));
+      b.classList.toggle('is-correct', on && !!src[n] && src[n].classList.contains('is-correct'));
+      b.disabled = on;
+    });
+    var row = teaser.querySelector('.teaser-resume');
+    var graded = quizState.filter(function (s, k) { return !quizSlides[k].hasAttribute('data-cta'); });
+    var done = graded.filter(function (s) { return s && s.revealed; }).length;
+    row.hidden = !on;
+    row.querySelector('.teaser-progress').textContent = t('quiz.progress').replace('{n}', done).replace('{total}', graded.length);
+    row.querySelector('.teaser-go').classList.toggle('is-done', done === graded.length);
+    if (had && a && a.disabled) (on ? row.querySelector('.teaser-go') : teaser.querySelector('.opt')).focus({ preventScroll: true });
+  }
   function updateScore() {
+    syncTeaser();
     if (!quizFig) return;
     var box = quizFig.querySelector('.quiz-score');
     var graded = quizState.filter(function (s, k) { return !quizSlides[k].hasAttribute('data-cta'); });
@@ -3844,6 +3894,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
         s.classList.add('answered');
         var dot = quizFig.querySelectorAll('.dot')[k];
         if (dot) dot.classList.add(st.right ? 'is-right' : 'is-wrong');
+        if (quizLabel) quizLabel();
         updateScore();
         /* the clicked answer is disabled now: the way on takes the focus, so the keyboard does not start over */
         var a = document.activeElement;
@@ -3963,7 +4014,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       var inside = root.contains(document.activeElement);
       movedAt = Date.now();
       setOpen(false, instant);
-      if (!keepFocus && inside) { var t0 = heroWrap.querySelector('.quiz-teaser .opt'); if (t0) t0.focus({ preventScroll: true }); }
+      if (!keepFocus && inside) { var t0 = heroWrap.querySelector('.quiz-teaser .opt:not(:disabled), .quiz-teaser .teaser-go'); if (t0) t0.focus({ preventScroll: true }); }
     }
     /* One order for every way of moving: headline, quiz, then the sections below. Forward (wheel down, arrow
        right or down, Page Down, space, the "scroll down" tab) goes from the headline to the quiz; back (wheel up,
@@ -4014,6 +4065,9 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     document.querySelectorAll('.quiz-teaser .opt').forEach(function (b) {
       b.addEventListener('click', function () { show(+b.getAttribute('data-pick')); });
     });
+    root.querySelectorAll('.stage-back').forEach(function (b) { b.addEventListener('click', function () { close(); }); });
+    var go = heroWrap.querySelector('.teaser-go');
+    if (go) go.addEventListener('click', function () { if (quizComplete()) showResult(); show(); });
     return { open: show, close: close, page: page, isOpen: function () { return open; } };
   })();
   /* Finale: the visitor decides what happens next */
@@ -5472,7 +5526,6 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     slides.forEach(function (s, k) { if (s.hasAttribute('data-cta')) bonusIdx = k; });
     var unlocked = bonusIdx < 0;
     function count() { return unlocked ? slides.length : bonusIdx; }
-    function pad(x) { return (x < 10 ? '0' : '') + x; }
     /* the ladder: one step per question, a click goes there */
     var dots = dotsWrap ? slides.map(function (s, k) {
       var b = document.createElement('button');
@@ -5528,13 +5581,17 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       goTo(to, true);
       dots[to].focus({ preventScroll: true });
     });
-    /* "Frage 03 / 10", "Bonus" or "Ergebnis" */
+    /* "Frage 3 von 10", "Bonus" or "Ergebnis" */
     var word = fig.querySelector('.stage-word');
     function label() {
+      dots.forEach(function (d, k) {
+        var how = d.classList.contains('is-right') ? 'quiz.right' : d.classList.contains('is-wrong') ? 'quiz.wrong' : '';
+        d.setAttribute('aria-label', slides[k].getAttribute('data-name') + (how ? ', ' + t(how) : ''));
+      });
       var res = resultOpen(), bonus = i === bonusIdx;
       if (word) word.textContent = t(res ? 'score.label' : bonus ? 'quiz.bonus' : 'quiz.q');
       if (counter) {
-        counter.textContent = pad(i + 1) + ' / ' + pad(bonusIdx < 0 ? slides.length : bonusIdx);
+        counter.textContent = (i + 1) + ' ' + t('quiz.of') + ' ' + (bonusIdx < 0 ? slides.length : bonusIdx);
         counter.hidden = res || bonus;
       }
     }
