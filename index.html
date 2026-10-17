@@ -72,6 +72,7 @@
 html[lang="en"] { --fs-xxl: clamp(2.3rem, 1rem + 4.2vw, 4.75rem); }
 html[lang="ru"], html[lang="el"] { --fs-xxl: clamp(1.9rem, 0.9rem + 3.4vw, 4rem); --fs-xl: clamp(1.8rem, 1.1rem + 2.2vw, 3.25rem); }
 html[lang="sr"] { --fs-xxl: clamp(2.2rem, 1rem + 4.4vw, 5rem); }
+@media (max-width: 480px) { html[lang="ru"] { --fs-xl: 1.65rem; } }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0F0E10; --fg: #F2F0F1; --muted: #A9A4A7; --line: #2A272A; --surface: #18171A;
@@ -1097,7 +1098,7 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
 #next.next-band { background: linear-gradient(to bottom, var(--page), var(--term-bg) var(--band-fade)); }
 .about-band .h2 { color: var(--term-fg); }
 .about-band .about-text p { color: var(--term-fg); }
-.prompt { font-size: var(--fs-s); color: var(--term-muted); }
+.prompt { font-family: var(--font-mono); font-size: var(--fs-s); color: var(--term-muted); margin: 0; }
 .about-band .about-text .prompt { color: var(--term-muted); }
 .prompt .host { color: var(--term-accent); }
 .cursor {
@@ -1155,8 +1156,11 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
   border-radius: 58% 42% 55% 45% / 47% 58% 42% 53%;
   overflow: hidden;
   background: var(--term-bg);
+  box-shadow: 0 0 0 1px rgba(63, 224, 245, 0.28), 0 0 36px rgba(63, 224, 245, 0.1);
   animation: blob 16s ease-in-out infinite;
+  transition: box-shadow 0.3s ease;
 }
+.portrait.is-sharp .portrait-frame { box-shadow: 0 0 0 1px rgba(63, 224, 245, 0.5), 0 0 48px rgba(63, 224, 245, 0.2); }
 @keyframes blob {
   0%, 100% { border-radius: 58% 42% 55% 45% / 47% 58% 42% 53%; }
   25% { border-radius: 45% 55% 40% 60% / 60% 42% 58% 40%; }
@@ -1165,8 +1169,14 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
 }
 @media (prefers-reduced-motion: reduce) { .portrait-frame { animation: none; transition: none; } }
 /* With script: a true organic outline drawn as a morphing clip-path; the glow follows it */
-.portrait.blob-js .portrait-frame { border-radius: 0; animation: none; }
-.portrait.blob-js:focus-visible .portrait-frame { outline: 2px solid var(--term-accent); outline-offset: 4px; }
+.portrait.blob-js .portrait-frame { border-radius: 0; animation: none; box-shadow: none; }
+.portrait.blob-js {
+  filter: drop-shadow(0 0 1px rgba(63, 224, 245, 0.55)) drop-shadow(0 0 22px rgba(63, 224, 245, 0.12));
+  transition: filter 0.3s ease;
+}
+.portrait.blob-js.is-sharp { filter: drop-shadow(0 0 1px rgba(63, 224, 245, 0.8)) drop-shadow(0 0 30px rgba(63, 224, 245, 0.24)); }
+.portrait.blob-js:focus-visible { filter: drop-shadow(0 0 2px #3FE0F5) drop-shadow(0 0 2px #3FE0F5) drop-shadow(0 0 18px rgba(63, 224, 245, 0.4)); }
+.portrait.blob-js:focus-visible .portrait-frame { outline: none; }
 .portrait-img, .portrait-px {
   position: absolute;
   inset: 0;
@@ -1177,22 +1187,29 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
 }
 .portrait-px { image-rendering: pixelated; }
 .portrait.fx:not(.is-sharp) .portrait-img { visibility: hidden; }
+.portrait-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px);
+  transition: opacity 0.25s ease;
+}
+.portrait.is-sharp .portrait-frame::after { opacity: 0; }
 .portrait-hint { font-size: var(--fs-s); color: var(--term-muted); }
 .portrait:focus-visible { outline: none; }
 .portrait:focus-visible .portrait-frame { outline: 2px solid var(--term-accent); outline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) {
   .cursor { animation: none; }
+  .portrait-frame::after, .portrait.blob-js { transition: none; }
 }
 .about-text { display: flex; flex-direction: column; gap: 24px; min-width: 0; max-width: 64ch; }
+.about-text > .prompt { margin-bottom: -12px; }
 
 .about-text p { margin: 0; }
 .placeholder { color: var(--muted); font-style: italic; }
 @media (max-width: 640px) { .about { grid-template-columns: minmax(0, 1fr); } }
 
-/* Contact: the closing statement at the hero's scale */
-#contact .statement h2 { font-size: var(--fs-xxl); line-height: 1.04; letter-spacing: -0.03em; }
-html[lang="ru"] #contact .statement h2 { max-width: none; font-size: var(--fs-xl); }
-@media (max-width: 480px) { html[lang="ru"] #contact .statement h2 { font-size: 1.65rem; } }
 #approach .prompt, #contact .prompt { color: var(--muted); }
 #approach .prompt .host, #contact .prompt .host { color: var(--accent); }
 
@@ -1851,8 +1868,10 @@ html.smart .ftab-bottom { display: none; }
           </span>
         </button>
         <div class="about-text">
+          <p class="prompt" aria-hidden="true"><span class="host">alex@arfr</span>:~$ <span class="cmd">whoami</span></p>
           <h2 id="about-title" class="h2"><span class="scramble" data-i18n="about.title">Hi, ich bin Alex.</span><span class="cursor" aria-hidden="true"></span></h2>
           <p data-i18n="about.text">Softwareentwicklung mit KI als Werkzeug, nicht als Ersatz fürs Denken: Sie beschleunigt die Arbeit, der Mensch sorgt dafür, dass das Ergebnis stimmt.</p>
+          <p class="prompt" aria-hidden="true"><span class="host">alex@arfr</span>:~$ <span class="cmd">cat profile.yml</span></p>
           <pre class="term yml" data-ui><span class="yl"><span class="yk">name:</span>     Alexander Fuhr</span><span class="yl"><span class="yk">role:</span>     <span data-i18n="role.title">Softwareentwickler</span></span><span class="yl"><span class="yk">workflow:</span> <span data-i18n="profile.workflow">[verstehen, bauen, verantworten]</span></span><span class="yl"><span class="yk">ai:</span>       { role: assist, decides: false }</span></pre>
         </div>
       </div>
