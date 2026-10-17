@@ -15,6 +15,10 @@
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="https://arfr.de/">
 <link rel="preload" href="fonts/montserrat-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script>
+/* slides on wide, tall enough screens: set before the first paint so nothing jumps; the script at the end checks that every section fits */
+if (window.matchMedia && matchMedia('(min-width: 900px) and (min-height: 600px)').matches) document.documentElement.classList.add('slides');
+</script>
 <style>
 @font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 400; font-display: swap; src: url('fonts/montserrat-latin-400-normal.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 500; font-display: swap; src: url('fonts/montserrat-latin-500-normal.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
@@ -1376,6 +1380,29 @@ html.smart .ftab-bottom { display: none; }
   .hero .wrap { align-items: end; }
   .hero-text { padding-bottom: 3px; } /* centres the 48px button on the 54px slider bar */
 }
+
+/* Slides: on wide, tall enough screens each section fills the frame and the page snaps from one to the next.
+   The script keeps html.slides only while every section fits between the two tabs; otherwise the page scrolls
+   as usual. The section in view is .is-active; the others wait faded and a little lower, so content never overlaps. */
+html.slides { scroll-snap-type: y mandatory; }
+html.slides main > section {
+  min-height: calc(100vh - 2 * var(--frame));
+  min-height: calc(100dvh - 2 * var(--frame));
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  scroll-margin-top: var(--frame);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+html.slides main > section:is(.hero, .section) > .wrap { width: 100%; padding-block: calc(var(--tab-d) + 16px); }
+html.slides .cli-screen { height: clamp(200px, calc(100dvh - 2 * var(--frame) - 2 * var(--tab-d) - 280px), 300px); }
+html.slides main > section > .wrap { transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: translateY(28px); transition-duration: 0.25s; }
+@media (prefers-reduced-motion: reduce) {
+  html.slides main > section > .wrap, html.slides main > section:not(.is-active) > .wrap { opacity: 1; transform: none; transition: none; }
+}
+@media print { html.slides main > section > .wrap { opacity: 1 !important; transform: none !important; } }
 </style>
 </head>
 <body>
@@ -1424,7 +1451,7 @@ html.smart .ftab-bottom { display: none; }
 </div>
 
 <main id="top">
-  <section class="hero" aria-labelledby="hero-title">
+  <section class="hero is-active" aria-labelledby="hero-title">
     <canvas class="retro-grid" aria-hidden="true"></canvas>
     <div class="wrap">
       <div class="hero-text">
@@ -5562,7 +5589,17 @@ html.smart .ftab-bottom { display: none; }
       e.preventDefault();
       step(e.key === 'ArrowRight' ? 1 : -1);
     });
+    var pendingIdx = null;
+    function slideStep(dir) {
+      var mid = window.innerHeight / 2, cur = 0;
+      blocks.forEach(function (b, i) { if (b.getBoundingClientRect().top <= mid) cur = i; });
+      if (pendingIdx !== null && Date.now() - pendingAt < 900) cur = pendingIdx;
+      var to = Math.max(0, Math.min(blocks.length - 1, cur + dir));
+      pendingIdx = to; pendingAt = Date.now();
+      blocks[to].scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    }
     function step(dir) {
+      if (document.documentElement.classList.contains('slides')) { slideStep(dir); return; }
       /* while a glide is still running, count from where it is heading */
       var from = (pending !== null && Date.now() - pendingAt < 900) ? pending : window.scrollY;
       var tops = stops(), to = null;
@@ -5614,6 +5651,7 @@ html.smart .ftab-bottom { display: none; }
       raf = requestAnimationFrame(step);
     }
     window.addEventListener('wheel', function (e) {
+      if (root.classList.contains('slides')) return; /* slides snap by themselves */
       if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey) return;
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || !e.deltaY) return;
       var now = Date.now();
@@ -5642,9 +5680,86 @@ html.smart .ftab-bottom { display: none; }
     }, { passive: true });
   })();
 
+  /* Slides: each section fills the frame and the page snaps from one to the next (CSS scroll snap, no wheel tricks).
+     Only while every section fits between the two tabs; otherwise the page scrolls as usual. The section across
+     the middle of the view is .is-active and fades in; the others wait faded. */
+  (function slides() {
+    var root = document.documentElement;
+    var blocks = Array.prototype.slice.call(document.querySelectorAll('main > section'));
+    if (!blocks.length) return;
+    var wide = window.matchMedia ? matchMedia('(min-width: 900px) and (min-height: 600px)') : { matches: false };
+    function fits() {
+      if (!wide.matches || root.classList.contains('smart')) return false;
+      var hole = window.innerHeight - 2 * frameInset();
+      return blocks.every(function (b) {
+        var w = b.querySelector('.wrap') || b, cs = getComputedStyle(w), top = Infinity, bot = -Infinity;
+        for (var i = 0; i < w.children.length; i++) {
+          var r = w.children[i].getBoundingClientRect();
+          if (!r.height) continue;
+          top = Math.min(top, r.top); bot = Math.max(bot, r.bottom);
+        }
+        return top === Infinity || bot - top <= hole - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      });
+    }
+    var active = null;
+    function mark() {
+      var mid = window.innerHeight / 2, cur = blocks[0];
+      blocks.forEach(function (b) { if (b.getBoundingClientRect().top <= mid) cur = b; });
+      if (cur === active) return;
+      blocks.forEach(function (b) { if (b !== cur) b.classList.remove('is-active'); });
+      active = cur; cur.classList.add('is-active');
+    }
+    /* measured with the slide layout on (the terminal is shorter there); if it does not fit, the old position stays */
+    function apply() {
+      var was = root.classList.contains('slides'), y = window.scrollY, keep = active;
+      root.classList.add('slides');
+      var ok = fits();
+      root.classList.toggle('slides', ok);
+      /* switching between slides and plain scrolling keeps the section that was in view */
+      if (was !== ok && keep) keep.scrollIntoView({ behavior: 'instant', block: 'start' });
+      else if (!was && !ok && window.scrollY !== y) window.scrollTo({ top: y, behavior: 'instant' });
+      mark();
+    }
+    apply();
+    var tick = 0, wait = 0;
+    window.addEventListener('scroll', function () {
+      if (!tick) tick = requestAnimationFrame(function () { tick = 0; mark(); });
+    }, { passive: true });
+    window.addEventListener('resize', function () { clearTimeout(wait); wait = setTimeout(apply, 150); });
+    document.addEventListener('arfr:lang', apply);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(apply);
+    /* the mouse wheel: one notch, one slide; browsers differ in how far a notch carries under snapping.
+       Trackpads (many small steps) keep the browser's own scrolling and snap when the gesture ends;
+       anything that scrolls by itself (terminal output, chat history) keeps the wheel. */
+    var padUntil = 0, stepAt = 0;
+    function scrollsItself(el, dy) {
+      for (; el && el !== document.body && el !== root; el = el.parentElement) {
+        if (el.scrollHeight <= el.clientHeight + 1) continue;
+        var oy = getComputedStyle(el).overflowY;
+        if (oy !== 'auto' && oy !== 'scroll') continue;
+        if (dy < 0 ? el.scrollTop > 0 : el.scrollTop + el.clientHeight < el.scrollHeight - 1) return true;
+      }
+      return false;
+    }
+    window.addEventListener('wheel', function (e) {
+      if (!root.classList.contains('slides') || e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || !e.deltaY) return;
+      var now = Date.now();
+      if (e.deltaMode === 0 && Math.abs(e.deltaY) < 40) { padUntil = now + 600; return; }
+      if (now < padUntil) return;
+      var game = document.getElementById('game');
+      if (game && !game.hidden) return;
+      if (scrollsItself(e.target, e.deltaY)) return;
+      e.preventDefault();
+      /* a fast spin moves on at most every 0.7 s, so one flick does not race through the page */
+      if (now - stepAt > 700 && sectionStep) { stepAt = now; sectionStep(e.deltaY > 0 ? 1 : -1); }
+    }, { passive: false });
+  })();
+
   /* Entrance: whatever scrolls in rises in turn; prompts type their command */
   (function reveal() {
     if (reduceMotion || !('IntersectionObserver' in window)) return;
+    if (document.documentElement.classList.contains('slides')) return; /* slides fade in as a whole */
     var sel = '.review, main > .section .statement > *, .steps > li, .about > .portrait, .about-text > *, ' +
       '.contact-row, .next-grid > .opt, .next-chat > *, .cli-wrap';
     var items = Array.prototype.slice.call(document.querySelectorAll(sel));
