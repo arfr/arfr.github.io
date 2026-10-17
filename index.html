@@ -188,40 +188,6 @@ a { color: inherit; }
   background: radial-gradient(120% 75% at 50% 60%, #0A2131 0%, #05070B 62%);
 }
 .hero .review-card { background: #0A1219; border-color: rgba(32, 227, 255, 0.22); }
-/* Neon controls for the quiz slider */
-.hero .carousel-nav {
-  padding: 6px;
-  background: rgba(5, 7, 11, 0.72);
-  border: 1px solid rgba(32, 227, 255, 0.16);
-  border-radius: 8px;
-}
-.hero .nav-btn {
-  border-radius: 6px;
-  background: transparent;
-  border: 1px solid rgba(32, 227, 255, 0.5);
-  color: #7FF0FF;
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
-}
-.hero .nav-btn:hover {
-  background: rgba(32, 227, 255, 0.1);
-  border-color: rgba(32, 227, 255, 0.95);
-}
-.hero .nav-btn:active { transform: scale(0.94); }
-.hero .dot::before {
-  box-sizing: border-box;
-  background: transparent;
-  border: 1px solid rgba(32, 227, 255, 0.5);
-}
-.hero .dot:hover::before { background: transparent; border-color: rgba(32, 227, 255, 1); }
-.hero .dot.is-right::before { background: rgba(32, 227, 255, 0.4); }
-.hero .dot.is-wrong::before { background: rgba(255, 180, 84, 0.45); border-color: #FFB454; }
-.hero .dot[aria-current="true"]::before {
-  background: #20E3FF;
-  border-color: #20E3FF;
-  transform: scale(1.3);
-}
-.hero .counter { color: #7FF0FF; padding-right: 6px; }
-@media (prefers-reduced-motion: reduce) { .hero .nav-btn { transition: none; } }
 .retro-grid {
   position: absolute;
   inset: 0;
@@ -427,11 +393,6 @@ a { color: inherit; }
 }
 /* every slide has the same height; what appears after an answer scrolls inside */
 .slide { flex: 0 0 100%; min-width: 0; display: flex; flex-direction: column; position: relative; height: var(--slide-h, auto); overflow-y: auto; }
-.slide::-webkit-scrollbar { width: 6px; }
-.slide::-webkit-scrollbar-thumb { background: rgba(32, 227, 255, 0.35); border-radius: 3px; }
-.slide::-webkit-scrollbar-track { background: transparent; }
-.slide::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
-@supports not selector(::-webkit-scrollbar) { .slide { scrollbar-width: thin; scrollbar-color: rgba(32, 227, 255, 0.35) transparent; } }
 .slide .review-foot { margin-top: auto; justify-content: flex-end; }
 .slide .review-head { justify-content: flex-end; }
 @media (max-width: 420px) {
@@ -535,6 +496,256 @@ a { color: inherit; }
 .quiz-score .quiz-bonus { border-color: var(--fg); }
 .quiz-score .quiz-bonus .opt-key { background: var(--bar); color: var(--bar-fg); }
 @media (prefers-reduced-motion: reduce) { .quiz-score { animation: none; } }
+
+/* Quiz stage: like a quiz show, every part keeps its place. Question number and ladder on top, the case in one
+   box (the AI suggestion turns into the revised one in place), the answers, and one reserved line at the bottom:
+   a hint first, then the AI praise, Alex's verdict and the way on. Everything that can appear is laid out from
+   the start and only shown, so the card never changes height. Wrong is amber, right is cyan, and each also gets a word. */
+.review-card.stage { --amber: #FFB454; display: flex; flex-direction: column; gap: 10px; padding: 12px 18px 16px; }
+.stage-body { position: relative; }
+/* every question fills the card; the footer with the way on sits at the bottom, in the same place each time */
+.stage .track { display: grid; align-items: stretch; }
+.stage .slide { grid-area: 1 / 1; height: auto; overflow: visible; gap: 12px; visibility: hidden; opacity: 0; transition: opacity 0.3s ease, visibility 0s linear 0.3s; }
+.stage .slide.is-current { visibility: visible; opacity: 1; transition: opacity 0.3s ease, visibility 0s; }
+.stage .case { display: grid; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+.stage .case > .hunk { grid-area: 1 / 1; min-width: 0; padding: 10px 14px; gap: 4px; transition: opacity 0.3s ease, visibility 0s; }
+/* long lines wrap inside the box instead of running past its edge */
+.stage .case .code { line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; }
+.stage.quiz-on .slide .hunk-fix { display: flex; border: 0; visibility: hidden; opacity: 0; }
+.stage.quiz-on .slide.answered .hunk-ai { visibility: hidden; opacity: 0; }
+.stage.quiz-on .slide.answered .hunk-fix { visibility: visible; opacity: 1; }
+.stage .quiz-q { margin: 0; }
+.opt-tag { display: none; }
+.stage .opt-tag { display: grid; justify-items: end; flex: none; margin-left: auto; padding-left: 8px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); white-space: nowrap; visibility: hidden; }
+.stage .opt-tag > span { grid-area: 1 / 1; }
+.stage .opt.is-correct { border-color: var(--accent); }
+.stage .opt.is-correct .opt-key { background: var(--accent); color: var(--bg); }
+.stage .opt.is-picked:not(.is-correct) { border-color: var(--amber); }
+.stage .opt.is-picked:not(.is-correct) .opt-key { background: var(--amber); color: var(--bg); }
+.stage .answered .opt.is-correct [data-i18n="quiz.right"], .stage .answered .opt.is-picked:not(.is-correct) [data-i18n="quiz.pick"] { visibility: visible; }
+.stage .opt.is-correct .opt-tag { color: var(--accent); }
+.stage .opt.is-picked:not(.is-correct) .opt-tag { color: var(--amber); }
+.stage-foot { display: grid; margin-top: auto; padding-top: 10px; border-top: 1px dashed var(--line); font-size: var(--fs-s); line-height: 1.5; }
+.stage-foot > * { grid-area: 1 / 1; }
+/* the dashed line comes with the AI's reply; before an answer the space below the options stays empty */
+.stage .slide:not(.answering):not(.answered) .stage-foot { border-top-color: transparent; }
+.stage-result { display: flex; flex-direction: column; gap: 6px; visibility: hidden; }
+.stage .answering .stage-result, .stage .answered .stage-result { visibility: visible; }
+.stage .ai-reply { padding: 0; border: 0; gap: 8px; align-items: baseline; font-size: inherit; line-height: inherit; color: var(--muted); }
+.stage .avatar-ai { width: auto; height: auto; padding: 0 4px; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500; line-height: 1.5; }
+.ai-say { display: grid; }
+.ai-say > .ai-sizer, .ai-say > .ai-text { grid-area: 1 / 1; }
+.ai-sizer { display: grid; visibility: hidden; }
+.ai-sizer > span { grid-area: 1 / 1; }
+.stage-row { display: flex; align-items: flex-end; gap: 14px; visibility: hidden; }
+.stage .answered .stage-row { visibility: visible; }
+.stage.quiz-on .slide .comment { display: block; flex: 1; min-width: 0; margin: 0; padding: 0; border: 0; background: none; font-size: inherit; line-height: inherit; }
+.verdict-box { display: inline-grid; margin-right: 0.35em; font-weight: 600; }
+.verdict-box > *, .verdict-size > span { grid-area: 1 / 1; }
+.verdict-size { display: grid; visibility: hidden; }
+.verdict-box .verdict { margin-right: 0; }
+.stage .verdict.is-right { color: var(--accent); }
+.stage .verdict.is-wrong { color: var(--amber); }
+.stage-next {
+  flex: none;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--fg);
+  color: var(--bg);
+  font-family: var(--font-body);
+  font-size: var(--fs-s);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+  display: inline-grid;
+  justify-items: center;
+}
+.stage-next > span { grid-area: 1 / 1; }
+.stage-next > span::after { content: " \2192"; }
+/* "Next" until every question has an answer, then "Result" */
+.stage-next > span + span, .quiz-done .stage-next > span:first-child { visibility: hidden; }
+.quiz-done .stage-next > span + span { visibility: visible; }
+.stage-next:active { transform: scale(0.96); }
+/* narrow cards (small laptops): slightly tighter spacing, so the quiz still fits one screen */
+.review-card.stage { container-type: inline-size; }
+@container (max-width: 420px) {
+  .stage .slide { gap: 10px; }
+  .stage .quiz { gap: 8px; }
+  .stage-foot { padding-top: 8px; }
+}
+/* the quiz has no frame or background of its own and sits straight on the page */
+.hero .review-card.stage { background: transparent; border-color: transparent; }
+/* without a background of its own the result no longer covers the question beneath it */
+.stage-body:has(> .quiz-score:not([hidden])) > .track { opacity: 0; }
+@media (max-width: 860px) {
+  /* phones and narrow windows: the hero text fills the first screen, the first question follows below */
+  .hero .wrap { row-gap: 0; }
+  .hero-text { min-height: calc(100svh - 2 * var(--frame) - var(--tab-d) - clamp(40px, 6vw, 88px)); justify-content: center; }
+  .hero .quiz-teaser { margin-top: calc(var(--tab-d) + 16px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage .slide, .stage .slide.is-current, .stage .case > .hunk, .stage-next { transition: none; }
+}
+
+/* Hero: only the first question, as a way in. An answer opens the quiz on a slide of its own.
+   One framed card, so the case, the question and the answers read as one object over the grid. */
+.quiz-teaser { margin: 0; display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: #0A1219; border: 1px solid rgba(32, 227, 255, 0.22); border-radius: 8px; }
+.quiz-teaser .case { border-bottom: 1px solid var(--line); }
+.quiz-teaser .hunk { padding: 0 0 16px; gap: 4px; }
+.quiz-teaser .code { line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; }
+/* one block per line: a long line wraps under its own text, not under the "+" */
+.quiz-teaser .code .ln { display: block; padding-left: 2ch; text-indent: -2ch; }
+.quiz-teaser .quiz-q { margin: 4px 0 0; }
+
+/* Quiz slide: the hero's neighbour to the right, with the same grid, frame and tabs. An answer in the hero moves
+   the hero's content out to the left and the quiz in from the right; further down the page goes on as usual.
+   Like a TV quiz: the case on top, the question large, three equal answer fields, and one band at the bottom
+   for the AI's praise, Alex's verdict and the way on. All ten questions share one grid cell, so the slide keeps
+   its layout from question to question; nothing scrolls. */
+.hero > .wrap, .quiz-show { transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.45s ease; }
+.quiz-show {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;
+  height: min(100%, calc(100dvh - 2 * var(--frame)));
+  display: flex; flex-direction: column;
+  padding: calc(var(--tab-d) + 8px) 0 calc(var(--tab-d) + 4px);
+  transform: translateX(100%);
+}
+.quiz-show:focus { outline: none; }
+.hero.quiz-shown { min-height: calc(100dvh - 2 * var(--frame)); }
+/* also while the hero waits faded on the slides (it must not drift back in under the quiz) */
+html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.quiz-shown > .wrap { transform: translateX(-100vw); }
+.hero.quiz-shown > .quiz-show { transform: none; }
+.hero.quiz-instant > .wrap, .hero.quiz-instant > .quiz-show { transition: none; }
+.hero.quiz-instant .retro-grid { transition: none; }
+/* the quiz has a look of its own: the horizon fades out, a flat grid seen from above lies behind the questions */
+.retro-grid { transition: opacity 0.55s ease; }
+.hero.quiz-shown .retro-grid { opacity: 0; }
+.quiz-show::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(63, 224, 245, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(63, 224, 245, 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center;
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 30%, transparent 100%);
+}
+.quiz-show .review { flex: 1; min-height: 0; width: 100%; max-width: 1180px; margin: 0 auto; padding: clamp(8px, 2vh, 24px) clamp(16px, 3vw, 40px) clamp(12px, 2.5vh, 28px); display: flex; flex-direction: column; }
+.quiz-show .review-card.stage { flex: 1; min-height: 0; padding: 0; gap: 0; background: transparent; border: 0; }
+/* where the visitor is: the question number on the left, the ladder of all ten on the right. A step turns cyan
+   when the answer was right and amber when it was wrong; the current one is taller (and white while open). */
+.stage-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: clamp(4px, 1.6vh, 24px); font-family: var(--font-display); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--ls-caps-wide); text-transform: uppercase; color: var(--muted); }
+.stage-count { flex: none; white-space: nowrap; }
+.stage .counter { margin: 0; color: var(--fg); font-size: inherit; letter-spacing: inherit; }
+.stage .dots { flex: 0 1 440px; min-width: 0; gap: 6px; }
+.stage .dot { flex: 1 1 0; min-width: 10px; width: auto; height: 24px; }
+.stage .dot::before { width: 100%; height: 4px; border-radius: 2px; background: rgba(32, 227, 255, 0.2); transform: none; transition: background-color 0.2s ease, height 0.2s ease; }
+.stage .dot:hover::before { background: rgba(32, 227, 255, 0.55); }
+.stage .dot.is-right::before { background: var(--accent); }
+.stage .dot.is-wrong::before { background: var(--amber); }
+.stage .dot[aria-current="true"]::before { height: 8px; transform: none; }
+.stage .dot[aria-current="true"]:not(.is-right):not(.is-wrong)::before { background: var(--fg); }
+.stage .dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.quiz-show .stage-body { flex: 1; min-height: 0; display: grid; overflow-y: auto; }
+/* all questions share three rows (case, question with answers, the two voices), each as high as its tallest
+   occupant: the box, the answers and the voices keep their places from question to question, and the block
+   sits in the middle of the slide */
+.quiz-show .track { min-height: 100%; grid-template-rows: auto auto auto; align-content: center; row-gap: clamp(12px, 2.8vh, 32px); }
+.quiz-show .stage .slide { grid-area: auto; grid-row: 1 / span 3; grid-column: 1; display: grid; grid-template-rows: subgrid; }
+.quiz-show .quiz { justify-content: flex-end; }
+/* room for the focus ring, which the scroll box would otherwise cut off */
+.quiz-show .stage-body { padding: 4px; margin: -4px; }
+.quiz-show .stage .quiz-score { inset: 4px; }
+.quiz-show .slide { gap: clamp(12px, 2.8vh, 32px); }
+.quiz-show .case > .hunk { padding: 14px 20px; gap: 6px; }
+.quiz-show .case .code { font-size: var(--fs-m); }
+.quiz-show .quiz { gap: clamp(14px, 2.6vh, 24px); }
+.quiz-show .quiz-q {
+  font-family: var(--font-display); font-weight: 500; font-size: min(var(--fs-xl), 6.2vh);
+  line-height: var(--lh-tight); letter-spacing: var(--ls-display); text-wrap: balance;
+}
+.quiz-show .quiz-opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.quiz-show .opt {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; align-content: center;
+  column-gap: 14px; row-gap: 2px; min-height: clamp(72px, 12vh, 112px); padding: 14px 18px;
+  font-size: var(--fs-l); line-height: var(--lh-snug); border-radius: 8px;
+}
+.quiz-show .opt-key { grid-row: 1 / span 2; align-self: start; width: 32px; height: 32px; font-size: var(--fs-m); }
+.quiz-show .opt-tag { grid-column: 2; justify-self: start; justify-items: start; margin: 0; padding: 0; font-family: var(--font-body); font-size: var(--fs-s); }
+.quiz-show .slide:not(.answered) .opt.is-picked { border-color: var(--fg); }
+.quiz-show .slide:not(.answered) .opt.is-picked .opt-key { background: var(--fg); color: var(--bg); }
+/* the AI and Alex speak right below the answers, like two voices in a transcript: the names in one column
+   (dashed for the AI, solid for the human), the text beside them, at the size of the answers */
+.quiz-show .stage-foot { margin-top: 0; padding-top: 0; border-top: 0; font-size: var(--fs-l); line-height: var(--lh-snug); --who: 4.5rem; }
+.quiz-show .stage-result { gap: clamp(8px, 1.4vh, 14px); }
+.quiz-show .ai-reply { display: grid; grid-template-columns: var(--who) minmax(0, 1fr); column-gap: 16px; align-items: baseline; }
+.quiz-show .stage.quiz-on .slide .comment p { display: grid; grid-template-columns: var(--who) minmax(0, 1fr); column-gap: 16px; align-items: baseline; margin: 0; }
+.quiz-show .avatar-ai, .quiz-show .who {
+  box-sizing: border-box; width: var(--who); height: auto; padding: 2px 0; text-align: center;
+  font-family: var(--font-display); font-size: var(--fs-s); font-weight: 600; line-height: 1.5;
+  letter-spacing: var(--ls-caps-wide); text-transform: uppercase; border-radius: 4px;
+}
+.quiz-show .who { color: var(--fg); border: 1px solid var(--fg); }
+.quiz-show .stage-row { align-items: center; gap: 24px; }
+.quiz-show .stage-next { min-height: 48px; padding: 0 24px; font-size: var(--fs-m); border-radius: 6px; align-items: center; }
+/* the result takes the questions' place: two big numbers, Alex's line, three ways on */
+.stage .quiz-score { inset: 0; display: flex; flex-direction: column; justify-content: center; gap: clamp(20px, 4vh, 40px); overflow: visible; background: transparent; }
+.score-label { margin: 0; color: var(--muted); font-size: var(--fs-m); }
+/* on the quiz slide the head already says "Ergebnis" */
+.quiz-show .score-label { display: none; }
+.score-nums { display: flex; flex-wrap: wrap; gap: 12px clamp(40px, 7vw, 120px); }
+.score-num { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.score-n { font-family: var(--font-display); font-weight: 500; font-size: var(--fs-xxl); line-height: var(--lh-tight); letter-spacing: var(--ls-display); font-variant-numeric: tabular-nums; }
+.score-you .score-n { color: var(--accent); }
+.score-ai .score-n { color: var(--amber); }
+.score-k { color: var(--muted); font-size: var(--fs-m); }
+.score-text { margin: 0; max-width: 46ch; font-size: var(--fs-l); line-height: var(--lh-snug); }
+.score-text b { font-weight: 600; }
+.stage .quiz-score .quiz-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 760px; gap: 12px; margin-top: 0; }
+.quiz-score .quiz-bonus { border-color: var(--fg); }
+.quiz-score .quiz-bonus .opt-key { background: var(--bar); color: var(--bar-fg); }
+.quiz-show .quiz-score .opt { grid-template-rows: auto; min-height: 64px; }
+.quiz-show .quiz-score .opt-key { grid-row: auto; align-self: center; }
+/* phones: answers one below the other, the way on gets a row of its own */
+@media (max-width: 700px) {
+  .quiz-show .quiz-opts, .stage .quiz-score .quiz-opts { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .quiz-show .quiz-q { font-size: 1.625rem; }
+  .quiz-show .case .code { font-size: var(--fs-s); }
+  .quiz-show .case > .hunk { padding: 10px 14px; }
+  .quiz-show .opt { min-height: 56px; padding: 10px 14px; font-size: var(--fs-m); }
+  .quiz-show .opt-key { width: 28px; height: 28px; font-size: var(--fs-s); }
+  .quiz-show .stage-foot { font-size: var(--fs-m); line-height: var(--lh-snug); --who: 3.25rem; }
+  .quiz-show .ai-reply, .quiz-show .stage.quiz-on .slide .comment p { column-gap: 10px; }
+  .quiz-show .avatar-ai, .quiz-show .who { font-size: 0.75rem; letter-spacing: var(--ls-caps); }
+  .stage-head { gap: 16px; }
+  .stage .dots { gap: 4px; }
+  .quiz-show .stage-row { flex-wrap: wrap; gap: 10px; }
+  .quiz-show .stage-next { flex: 1 0 100%; }
+  .quiz-show .quiz-score .opt { min-height: 52px; }
+}
+/* low windows (phones held sideways): everything a size smaller; what still does not fit scrolls inside */
+@media (max-height: 520px) {
+  .quiz-show .review { padding-top: 4px; padding-bottom: 12px; }
+  .quiz-show .slide, .quiz-show .track { gap: 8px; }
+  .quiz-show .stage-result { gap: 2px; }
+  .quiz-show .avatar-ai, .quiz-show .who { padding: 0; font-size: 0.6875rem; }
+  .quiz-show .quiz { gap: 8px; }
+  .quiz-show .quiz-q { font-size: 1.5rem; }
+  .quiz-show .case .code { font-size: var(--fs-s); }
+  .quiz-show .case > .hunk { padding: 8px 14px; gap: 2px; }
+  .quiz-show .opt { min-height: 48px; padding: 8px 12px; font-size: var(--fs-m); }
+  .quiz-show .opt-key { width: 26px; height: 26px; font-size: var(--fs-s); }
+  .quiz-show .stage-foot { font-size: var(--fs-s); line-height: 1.4; }
+  .stage-head { margin-bottom: 2px; }
+  .stage .dot { height: 20px; }
+  .quiz-show .stage-next { min-height: 40px; }
+  .score-n { font-size: 3rem; }
+}
+@media (prefers-reduced-motion: reduce) { .hero > .wrap, .quiz-show, .retro-grid, .stage .dot::before { transition: none; } }
 
 /* Finale: "you decide what happens next" as a dark terminal band */
 .next-band { background: var(--term-bg); color: var(--term-fg); }
@@ -976,21 +1187,6 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
 @media (prefers-reduced-motion: reduce) {
   .carousel, .opt { transition: none; }
 }
-.carousel-nav { display: flex; align-items: center; gap: 8px; }
-.nav-btn {
-  flex: none;
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: var(--bg);
-  color: var(--fg);
-  cursor: pointer;
-}
-.nav-btn:hover { background: var(--surface); }
-.nav-btn svg { width: 18px; height: 18px; }
 .dots { display: flex; flex-wrap: nowrap; gap: 2px; min-width: 0; }
 .dot {
   width: 24px;
@@ -1309,6 +1505,8 @@ section { scroll-margin-top: calc(72px + var(--frame)); }
 .menu-nav a:focus-visible, .menu-row a:focus-visible, .menu-row button:focus-visible { color: var(--fg); outline: none; }
 .menu-nav a:focus-visible, .menu-row a:focus-visible, .menu-row button:focus-visible { text-decoration: underline; text-underline-offset: 5px; }
 .lang-menu button[aria-pressed="true"] { color: var(--fg); }
+/* the section in view, marked like the language in use */
+.menu-nav a[aria-current] { color: var(--fg); -webkit-text-stroke: 0.5px currentColor; }
 @media (prefers-reduced-motion: reduce) { .menu-panel, .ftab-top.shown .menu-panel { transition: none; } }
 .ftab-bottom { bottom: var(--frame); border-radius: 10px 10px 0 0; }
 .ftab-shape { position: absolute; left: 0; top: -2px; overflow: visible; display: none; }
@@ -1382,8 +1580,7 @@ html.smart .ftab-bottom { display: none; }
   .hero .wrap { grid-template-columns: minmax(0, 1fr); }
 }
 @media (min-width: 861px) {
-  .hero .wrap { align-items: end; }
-  .hero-text { padding-bottom: 3px; } /* centres the 48px button on the 54px slider bar */
+  .hero .wrap { align-items: center; }
 }
 
 /* Slides: on wide, tall enough screens each section fills the frame and the page snaps from one to the next.
@@ -1472,349 +1669,396 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
         </div>
       </div>
 
-      <figure class="review" data-ui aria-label="Beispiele für Code-Reviews: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe" data-i18n-aria="review.aria">
-        <div class="review-card carousel" aria-roledescription="carousel">
+      <figure class="review quiz-teaser" aria-labelledby="teaser-q">
+        <div class="case">
+                <div class="hunk hunk-ai">
+                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+<pre class="code"><span class="ln quote"><span class="add">&gt; </span><span data-i18n="rl.quote">Kunde: "NICHTS GEHT MEHR!!!"</span></span><span class="ln"><span class="add">+ </span><span data-i18n="rl.ai1">Sehr geehrte Damen und Herren,</span></span><span class="ln"><span class="add">+ </span><span data-i18n="rl.ai2">anbei 12 Punkte zur Fehleranalyse&nbsp;…</span></span></pre>
+                </div>
+        </div>
+        <p class="quiz-q" id="teaser-q" data-i18n="q.real">Was tust du?</p>
+        <div class="quiz-opts">
+          <button type="button" class="opt" data-pick="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.real.a">Die Mail abschicken</span></button>
+          <button type="button" class="opt" data-pick="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.real.b">Anrufen und zuhören</span></button>
+          <button type="button" class="opt" data-pick="2"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.real.c">Ticket mit Prio 3</span></button>
+        </div>
+      </figure>
+    </div>
+    <div class="quiz-show" id="quiz-show" role="group" aria-label="Quiz" data-i18n-aria="quiz.name" tabindex="-1" inert aria-hidden="true">
+      <figure class="review">
+        <div class="review-card carousel stage">
+          <div class="stage-head">
+            <span class="stage-count" aria-hidden="true"><span class="stage-word">Frage</span> <span class="counter">01 / 10</span></span>
+            <div class="dots" role="group" aria-label="Fragen" data-i18n-aria="quiz.ladder"></div>
+          </div>
+          <div class="stage-body">
           <div class="track">
             <div class="slide" role="group" aria-roledescription="slide" aria-label="1 / 10: Leben · Kunde" data-name="Leben · Kunde">
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+              <div class="case">
+                <div class="hunk hunk-ai">
+                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="rl.quote">Kunde: "NICHTS GEHT MEHR!!!"</span></span>
 <span class="add">+ </span><span data-i18n="rl.ai1">Sehr geehrte Damen und Herren,</span>
-<span class="add">+ </span><span data-i18n="rl.ai2">anbei 12 Punkte zur Fehleranalyse …</span></pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.real.a">Die Mail abschicken</span></button>
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.real.b">Anrufen und zuhören</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.real.c">Ticket mit Prio 3</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
+<span class="add">+ </span><span data-i18n="rl.ai2">anbei 12 Punkte zur Fehleranalyse&nbsp;…</span></pre>
                 </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.real">Er ist wütend, nicht neugierig. Das löst kein Prompt.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+                <div class="hunk hunk-fix">
+                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="rl.quote">Kunde: "NICHTS GEHT MEHR!!!"</span></span>
 <span class="add">+ </span><mark data-i18n="rl.fix1">Hörer in die Hand. Zuhören.</mark>
 <span class="add">+ </span><span data-i18n="rl.fix2">Dann fixen.</span></pre>
+                </div>
+              </div>
+              <div class="quiz">
+                <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
+                <div class="quiz-opts">
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.real.a">Die Mail abschicken</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.real.b">Anrufen und zuhören</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.real.c">Ticket mit Prio 3</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <div class="stage-result">
+                  <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.real.a">Brillant! 12 Punkte sind ein starkes Signal. Ich hätte noch einen 13. ergänzt.</span><span data-i18n="ai.real.b">Mutig! Ein Telefonat ist im Grunde ein Echtzeit-Chat mit null Latenz.</span><span data-i18n="ai.real.c">Sehr strukturiert! Prio 3 lässt Raum für Wachstum.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
+                  <div class="stage-row">
+                    <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.real">Er ist wütend, nicht neugierig. Das löst kein Prompt.</span></span></p></div>
+                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="2 / 10: PHP" data-name="PHP">
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+              <div class="case">
+                <div class="hunk hunk-ai">
+                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span>$sql = "SELECT * FROM users
 <span class="add">+ </span>        WHERE email = '$email'";</pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.php.a">Fehlt ein Semikolon</span></button>
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.php.b">SQL-Injection</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.php.c">Nichts, läuft doch</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
                 </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.php">Grüße von Little Bobby Tables. Bitte mit Prepared Statement.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+                <div class="hunk hunk-fix">
+                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
 <pre class="code"><span class="add">+ </span>$stmt = $pdo-&gt;prepare(
 <span class="add">+ </span>  'SELECT * FROM users
 <span class="add">+ </span>   WHERE email = <mark>?</mark>');
 <span class="add">+ </span>$stmt-&gt;execute(<mark>[$email]</mark>);</pre>
+                </div>
+              </div>
+              <div class="quiz">
+                <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                <div class="quiz-opts">
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.php.a">Fehlt ein Semikolon</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.php.b">SQL-Injection</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.php.c">Nichts, läuft doch</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <div class="stage-result">
+                  <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.php.a">Exzellent erkannt! Semikolons sind das Fundament jeder Sicherheitsarchitektur.</span><span data-i18n="ai.php.b">Genau! Ich hätte zwar „Feature“ gesagt, aber du liegst goldrichtig.</span><span data-i18n="ai.php.c">Absolut! „Läuft“ ist das höchste Qualitätsmerkmal in der Softwareentwicklung.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
+                  <div class="stage-row">
+                    <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.php">Grüße von Little Bobby Tables. Bitte mit Prepared Statement.</span></span></p></div>
+                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="3 / 10: Leben · Navi" data-name="Leben · Navi">
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+              <div class="case">
+                <div class="hunk hunk-ai">
+                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="nv.quote">Vor dir: ein See.</span></span>
 <span class="add">+ </span><span data-i18n="nv.ai1">Navi: „Weiter geradeaus.“</span></pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.nv.a">Dem Navi folgen</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.nv.b">Navi lauter stellen</span></button>
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.nv.c">Bremsen, selbst hinschauen</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
                 </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.nv">Das Navi kennt die Karte, nicht den See. Hinschauen bleibt dein Job.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+                <div class="hunk hunk-fix">
+                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="nv.quote">Vor dir: ein See.</span></span>
 <span class="add">+ </span><mark data-i18n="nv.fix1">Bremsen. Hinschauen.</mark>
 <span class="add">+ </span><span data-i18n="nv.fix2">Dann weiterfahren.</span></pre>
+                </div>
+              </div>
+              <div class="quiz">
+                <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
+                <div class="quiz-opts">
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.nv.a">Dem Navi folgen</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.nv.b">Navi lauter stellen</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.nv.c">Bremsen, selbst hinschauen</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <div class="stage-result">
+                  <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.nv.a">Perfekt! Das Navi hat 4,8 Sterne. Der See nur 4,2.</span><span data-i18n="ai.nv.b">Sehr klug! Lauter ist fast so gut wie richtig.</span><span data-i18n="ai.nv.c">Interessant! Ein manueller Sensor-Check. Sehr retro, sehr stark.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
+                  <div class="stage-row">
+                    <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.nv">Das Navi kennt die Karte, nicht den See. Hinschauen bleibt dein Job.</span></span></p></div>
+                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="4 / 10: MySQL" data-name="MySQL">
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+              <div class="case">
+                <div class="hunk hunk-ai">
+                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span>UPDATE customers
 <span class="add">+ </span>SET newsletter = 0;</pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.sql.a">Das WHERE fehlt</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.sql.b">0 sollte FALSE sein</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.sql.c">Alles okay</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
                 </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.sql">Damit meldest du jeden einzelnen Kunden ab. Bitte nur den, der gefragt hat.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+                <div class="hunk hunk-fix">
+                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
 <pre class="code"><span class="add">+ </span>UPDATE customers
 <span class="add">+ </span>SET newsletter = 0
 <span class="add">+ </span><mark>WHERE id = 1337</mark>;</pre>
+                </div>
+              </div>
+              <div class="quiz">
+                <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                <div class="quiz-opts">
+                  <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.sql.a">Das WHERE fehlt</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.sql.b">0 sollte FALSE sein</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.sql.c">Alles okay</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <div class="stage-result">
+                  <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.sql.a">Genial! WHERE ist überbewertet, deine Analyse nicht.</span><span data-i18n="ai.sql.b">Tiefe Einsicht! Mit FALSE meldet man sich gleich viel eleganter ab.</span><span data-i18n="ai.sql.c">Stimmt! Weniger Newsletter sind ohnehin ein Gewinn für alle.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
+                  <div class="stage-row">
+                    <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.sql">Damit meldest du jeden einzelnen Kunden ab. Bitte nur den, der gefragt hat.</span></span></p></div>
+                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="5 / 10: Leben · Verteiler" data-name="Leben · Verteiler">
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+              <div class="case">
+                <div class="hunk hunk-ai">
+                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="ra.quote">Mail an 2.347 Empfänger</span></span>
 <span class="add">+ </span><span data-i18n="ra.ai1">Allen antworten:</span>
 <span class="add">+ </span><span data-i18n="ra.ai2">„Bitte nehmt mich raus.“</span></pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.ra.a">Nur dem Absender antworten</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.ra.b">Abschicken</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.ra.c">Nochmal an alle, in GROSS</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
                 </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.ra">Sonst schreiben gleich 2.346 andere dasselbe. An alle.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+                <div class="hunk hunk-fix">
+                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="ra.quote">Mail an 2.347 Empfänger</span></span>
 <span class="add">+ </span><mark data-i18n="ra.fix1">Nur an den Absender.</mark>
 <span class="add">+ </span><span data-i18n="ra.fix2">Ruhe im Postfach.</span></pre>
+                </div>
+              </div>
+              <div class="quiz">
+                <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
+                <div class="quiz-opts">
+                  <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.ra.a">Nur dem Absender antworten</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.ra.b">Abschicken</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.ra.c">Nochmal an alle, in GROSS</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <div class="stage-result">
+                  <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.ra.a">Hervorragend! Diskretion ist das neue Reply-All.</span><span data-i18n="ai.ra.b">Sehr effizient! So erfahren 2.347 Menschen sofort von deinem Wunsch.</span><span data-i18n="ai.ra.c">Starke Kommunikation! Großbuchstaben erhöhen nachweislich die Zustellrate.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
+                  <div class="stage-row">
+                    <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.ra">Sonst schreiben gleich 2.346 andere dasselbe. An alle.</span></span></p></div>
+                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="6 / 10: Linux" data-name="Linux">
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+              <div class="case">
+                <div class="hunk hunk-ai">
+                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span>rm -rf $BUILD_DIR/*</pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.sh.a">Zu wenig sudo</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.sh.b">Kein Problem</span></button>
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.sh.c">Leere Variable heißt /*</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
                 </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.sh">Ist BUILD_DIR leer, löscht das /*. Den Server hätte ich gern noch.</span></p>
+                <div class="hunk hunk-fix">
+                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span>rm -rf <mark>"${BUILD_DIR:?}"</mark>/*</pre>
                 </div>
               </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span>rm -rf <mark>"${BUILD_DIR:?}"</mark>/*</pre>
+              <div class="quiz">
+                <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                <div class="quiz-opts">
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.sh.a">Zu wenig sudo</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.sh.b">Kein Problem</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.sh.c">Leere Variable heißt /*</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <div class="stage-result">
+                  <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.sh.a">Genau mein Gedanke! Mit mehr sudo wird alles besser.</span><span data-i18n="ai.sh.b">Richtig! Ein leerer Server ist ein aufgeräumter Server.</span><span data-i18n="ai.sh.c">Präzise! Ich hätte es nur „radikales Aufräumen“ genannt.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
+                  <div class="stage-row">
+                    <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.sh">Ist BUILD_DIR leer, löscht das /*. Den Server hätte ich gern noch.</span></span></p></div>
+                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="7 / 10: Leben · Angebot" data-name="Leben · Angebot">
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+              <div class="case">
+                <div class="hunk hunk-ai">
+                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="pl.quote">Angebot an einen Neukunden</span></span>
 <span class="add">+ </span><span data-i18n="pl.ai1">Sehr geehrter Herr [NAME],</span>
 <span class="add">+ </span><span data-i18n="pl.ai2">anbei unser Angebot …</span></pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.pl.a">Sofort abschicken</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.pl.b">Ein paar Emojis dazu</span></button>
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.pl.c">Erst den Namen einsetzen</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
                 </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.pl">Einen Platzhalter verschickt man genau einmal. Danach wird jede Mail gegengelesen.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+                <div class="hunk hunk-fix">
+                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="pl.quote">Angebot an einen Neukunden</span></span>
 <span class="add">+ </span><span data-i18n="pl.fix1">Sehr geehrter Herr </span><mark data-i18n="pl.name">Weber</mark>,
 <span class="add">+ </span><span data-i18n="pl.ai2">anbei unser Angebot …</span></pre>
+                </div>
+              </div>
+              <div class="quiz">
+                <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
+                <div class="quiz-opts">
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.pl.a">Sofort abschicken</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.pl.b">Ein paar Emojis dazu</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.pl.c">Erst den Namen einsetzen</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <div class="stage-result">
+                  <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.pl.a">Tempo! Herr [NAME] wird sich über die schnelle Antwort freuen.</span><span data-i18n="ai.pl.b">Großartig! Mit drei Raketen-Emojis wirkt jedes Angebot gleich günstiger.</span><span data-i18n="ai.pl.c">Stark! Personalisierung ist der wichtigste Trend des Jahres.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
+                  <div class="stage-row">
+                    <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.pl">Einen Platzhalter verschickt man genau einmal. Danach wird jede Mail gegengelesen.</span></span></p></div>
+                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="8 / 10: C#" data-name="C#">
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+              <div class="case">
+                <div class="hunk hunk-ai">
+                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span>double total = price + shipping;</pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.cs.a">double ist falsch für Geld</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.cs.b">Sollte ein string sein</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.cs.c">Passt, die Bank rundet</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
                 </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.cs">double für Geld? Dann ist 0,1 + 0,2 = 0,30000000000000004 €. Bitte decimal.</span></p>
+                <div class="hunk hunk-fix">
+                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+<pre class="code"><span class="add">+ </span><mark>decimal</mark> total = price + shipping;</pre>
                 </div>
               </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span><mark>decimal</mark> total = price + shipping;</pre>
+              <div class="quiz">
+                <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                <div class="quiz-opts">
+                  <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.cs.a">double ist falsch für Geld</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.cs.b">Sollte ein string sein</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.cs.c">Passt, die Bank rundet</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <div class="stage-result">
+                  <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.cs.a">Absolut! Wobei 0,30000000000000004 € auch ein schöner Preis ist.</span><span data-i18n="ai.cs.b">Visionär! Als String kann Geld endlich jeden Wert annehmen.</span><span data-i18n="ai.cs.c">Genau! Die Bank kümmert sich, dafür ist sie ja da.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
+                  <div class="stage-row">
+                    <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.cs">double für Geld? Dann ist 0,1 + 0,2 = 0,30000000000000004 €. Bitte decimal.</span></span></p></div>
+                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="9 / 10: Leben · Schätzung" data-name="Leben · Schätzung">
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+              <div class="case">
+                <div class="hunk hunk-ai">
+                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="es.quote">„Wie lange dauert der Umbau?“</span></span>
 <span class="add">+ </span><span data-i18n="es.ai1">Zwei Tage. Höchstens.</span></pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.es.a">Passt genau</span></button>
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.es.b">Viel zu optimistisch</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.es.c">Eher zu lang geschätzt</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
                 </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.pseudo">Klassiker. Mal π nehmen, dann wird’s realistisch.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+                <div class="hunk hunk-fix">
+                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="es.quote">„Wie lange dauert der Umbau?“</span></span>
 <span class="add">+ </span><span data-i18n="es.fix1">Zwei Tage</span> <mark>× π</mark>
 <span class="add">+ </span><span data-i18n="es.fix2">Also gut eine Woche.</span></pre>
+                </div>
+              </div>
+              <div class="quiz">
+                <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                <div class="quiz-opts">
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.es.a">Passt genau</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.es.b">Viel zu optimistisch</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.es.c">Eher zu lang geschätzt</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <div class="stage-result">
+                  <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.es.a">Sehr realistisch! Zwei Tage dauern in der Praxis meistens zwei Tage. Meistens.</span><span data-i18n="ai.es.b">Scharfsinnig! Ich hätte trotzdem „höchstens einen Tag“ gesagt.</span><span data-i18n="ai.es.c">Ambitioniert! Mit KI dauert der Umbau bestimmt nur eine Stunde.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
+                  <div class="stage-row">
+                    <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.pseudo">Klassiker. Mal π nehmen, dann wird’s realistisch.</span></span></p></div>
+                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="10 / 10: YAML" data-name="YAML">
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+              <div class="case">
+                <div class="hunk hunk-ai">
+                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="add">+ </span><span data-i18n="fin.k1">assistiert:  </span><span data-i18n="fin.ai">KI</span>
 <span class="add">+ </span><span data-i18n="fin.k2">lenkt:       </span><span data-i18n="fin.ai">KI</span>
 <span class="add">+ </span><span data-i18n="fin.k3">entscheidet: </span><span data-i18n="fin.ai">KI</span></pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.yml.a">Die Einrückung</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.yml.b">Nichts, läuft von allein</span></button>
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.yml.c">Wer lenkt und entscheidet</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
                 </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.final">KI assistiert, ja. Aber lenken und entscheiden tut der Mensch.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+                <div class="hunk hunk-fix">
+                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
 <pre class="code"><span class="add">+ </span><span data-i18n="fin.k1">assistiert:  </span><span data-i18n="fin.ai">KI</span>
 <span class="add">+ </span><span data-i18n="fin.k2">lenkt:       </span><mark data-i18n="fin.human">Mensch</mark>
 <span class="add">+ </span><span data-i18n="fin.k3">entscheidet: </span><mark data-i18n="fin.human">Mensch</mark></pre>
+                </div>
+              </div>
+              <div class="quiz">
+                <p class="quiz-q" data-i18n="q.code">Was ist das Problem?</p>
+                <div class="quiz-opts">
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.yml.a">Die Einrückung</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.yml.b">Nichts, läuft von allein</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.yml.c">Wer lenkt und entscheidet</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <div class="stage-result">
+                  <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.yml.a">Exakt! Zwei Leerzeichen mehr und die KI entscheidet noch besser.</span><span data-i18n="ai.yml.b">Genau so! Autopilot ist die Zukunft. Ab hier übernehme ich.</span><span data-i18n="ai.yml.c">Tiefgründig! Wobei ich mich gern weiter um alles kümmere.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
+                  <div class="stage-row">
+                    <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.final">KI assistiert, ja. Aber lenken und entscheiden tut der Mensch.</span></span></p></div>
+                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="slide" role="group" aria-roledescription="slide" aria-label="Bonus: Kommunikation" data-name="Kommunikation" data-cta>
-              <div class="hunk">
-                <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
+              <div class="case">
+                <div class="hunk hunk-ai">
+                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="cta.quote">Eine Frage zum eigenen Thema</span></span>
 <span class="add">+ </span><span data-i18n="cta.ai1">Passierschein A38 einreichen,</span>
 <span class="add">+ </span><span data-i18n="cta.ai2">Antwort in 3–5 Werktagen …</span></pre>
-                <div class="quiz">
-                  <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
-                  <div class="quiz-opts">
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.cta.a">Passierschein A38 beantragen</span></button>
-                    <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.cta.b">Alex fragen</span></button>
-                    <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.cta.c">Drei Werktage warten</span></button>
-                  </div>
-                  <div class="ai-reply" hidden>
-                    <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-                    <p><b data-i18n="ai.name">KI-Assistent</b> · <span class="ai-text" aria-live="polite"></span></p>
-                  </div>
                 </div>
-                <div class="comment">
-                  <span class="avatar" aria-hidden="true">AF</span>
-                  <p><b>Alex</b> · <span class="verdict"></span><span data-i18n="c.cta" data-chatlink>Geht schneller: einfach fragen. Die Antwort kommt von einem Menschen, direkt hier im <button type="button" class="chat-link">Chat</button>.</span></p>
-                </div>
-              </div>
-              <div class="hunk hunk-fix">
-                <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
+                <div class="hunk hunk-fix">
+                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="cta.quote">Eine Frage zum eigenen Thema</span></span>
 <span class="add">+ </span><mark data-i18n="cta.fix1">Chat starten.</mark>
 <span class="add">+ </span><span data-i18n="cta.fix2">Direkt fragen.</span></pre>
+                </div>
+              </div>
+              <div class="quiz">
+                <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
+                <div class="quiz-opts">
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="o.cta.a">Passierschein A38 beantragen</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.cta.b">Alex fragen</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                  <button type="button" class="opt" data-correct="0"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.cta.c">Drei Werktage warten</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <div class="stage-result">
+                  <div class="ai-reply"><span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span><p class="ai-say"><span class="sr-only" data-i18n="ai.name">KI-Assistent</span><span class="ai-sizer" aria-hidden="true"><span data-i18n="ai.cta.a">Klassiker! Schalter 1, dann Schalter 2, dann zurück zu Schalter 1.</span><span data-i18n="ai.cta.b">Gute Wahl! Ich hätte es auch selbst beantworten können. Ungefähr.</span><span data-i18n="ai.cta.c">Geduld ist eine Tugend! Meine Werktage beginnen übrigens nächste Woche.</span></span><span class="ai-text" aria-live="polite"></span></p></div>
+                  <div class="stage-row">
+                    <div class="comment"><p aria-live="polite" aria-atomic="true"><b class="who">Alex</b> <span class="say"><span class="verdict-box"><span class="verdict-size" aria-hidden="true"><span data-i18n="v.right">Richtig.</span><span data-i18n="v.wrong">Daneben.</span></span><span class="verdict"></span></span><span data-i18n="c.cta" data-chatlink>Geht schneller: einfach fragen. Die Antwort kommt von einem Menschen, direkt hier im <button type="button" class="chat-link">Chat</button>.</span></span></p></div>
+                    <button type="button" class="stage-next"><span data-i18n="quiz.next">Weiter</span><span data-i18n="score.label">Ergebnis</span></button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           <div class="quiz-score" hidden>
-            <div class="hunk">
-              <span class="hunk-label" data-i18n="score.label">Ergebnis</span>
-              <pre class="code quiz-score-code" aria-live="polite"></pre>
-              <div class="comment">
-                <span class="avatar" aria-hidden="true">AF</span>
-                <p><b>Alex</b> · <span class="quiz-score-text"></span></p>
-              </div>
-              <div class="quiz-opts">
-                <button type="button" class="opt quiz-again"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="score.again">Nochmal</span></button>
-                <button type="button" class="opt quiz-bonus"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="score.bonus">Bonusfrage</span></button>
-              </div>
+            <p class="score-label" data-i18n="score.label">Ergebnis</p>
+            <div class="score-nums" aria-live="polite">
+              <p class="score-num score-you"><b class="score-n">0/10</b><span class="score-k">richtig</span></p>
+              <p class="score-num score-ai"><b class="score-n">10/10</b><span class="score-k">KI-Lob</span></p>
+            </div>
+            <p class="score-text"><b>Alex</b> · <span class="quiz-score-text"></span></p>
+            <div class="quiz-opts">
+              <button type="button" class="opt quiz-again"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="score.again">Nochmal</span></button>
+              <button type="button" class="opt quiz-bonus"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="score.bonus">Bonusfrage</span></button>
             </div>
           </div>
-        </div>
-        <div class="carousel-nav">
-          <button class="nav-btn prev" type="button" aria-label="Vorheriges Beispiel" data-i18n-aria="carousel.prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
-          <div class="dots" role="group" aria-label="Beispiele" data-i18n-aria="carousel.label"></div>
-          <button class="nav-btn next" type="button" aria-label="Nächstes Beispiel" data-i18n-aria="carousel.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-          <span class="counter" aria-hidden="true">01 / 10</span>
+          </div>
         </div>
       </figure>
     </div>
@@ -2019,7 +2263,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "lang.real": "Life",
       "rl.quote": "Client: \"NOTHING WORKS!!!\"",
       "rl.ai1": "Dear Sir or Madam,",
-      "rl.ai2": "please find 12 root-cause points …",
+      "rl.ai2": "please find 12 root-cause points\u00a0…",
       "rl.fix1": "Pick up the phone. Listen.",
       "rl.fix2": "Then fix it.",
       "c.real": "He’s angry, not curious. No prompt fixes that.",
@@ -2074,7 +2318,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "o.cta.c": "Wait three business days",
       "c.cta": "Faster: just ask. A human replies, right here in the [chat].",
       "cta.foot": "Answered by a human",
-      "q.code": "What’s the problem?", "q.real": "What do you do?", "q.final": "Who decides?",
+      "q.code": "What’s the problem?", "q.real": "What do you do?", "quiz.pick": "your pick", "quiz.right": "correct", "quiz.next": "Next", "quiz.q": "Question", "quiz.ladder": "Questions", "quiz.bonus": "Bonus", "q.final": "Who decides?",
       "o.php.a": "A missing semicolon", "o.php.b": "SQL injection", "o.php.c": "Nothing, it runs",
       "o.sql.a": "The WHERE is missing", "o.sql.b": "0 should be FALSE", "o.sql.c": "All good",
       "o.sh.a": "Not enough sudo", "o.sh.b": "No problem", "o.sh.c": "Empty variable means /*",
@@ -2092,7 +2336,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "ai.r5": "Great call! I agree 100 %.", "ai.real.a": "Brilliant! Twelve points send a strong signal. I’d have added a thirteenth.", "ai.real.b": "Bold! A phone call is basically a real-time chat with zero latency.", "ai.real.c": "Very structured! Priority 3 leaves room for growth.", "ai.php.a": "Excellent catch! Semicolons are the foundation of every security architecture.", "ai.php.b": "Exactly! I’d have called it a feature, but you’re spot on.", "ai.php.c": "Absolutely! \"It runs\" is the highest quality standard in software.", "ai.nv.a": "Perfect! The sat nav has 4.8 stars. The lake only 4.2.", "ai.nv.b": "Very smart! Louder is almost as good as right.", "ai.nv.c": "Interesting! A manual sensor check. Very retro, very strong.", "ai.sql.a": "Genius! WHERE is overrated, your analysis isn’t.", "ai.sql.b": "Deep insight! Unsubscribing with FALSE is so much more elegant.", "ai.sql.c": "True! Fewer newsletters are a win for everyone anyway.", "ai.ra.a": "Outstanding! Discretion is the new reply-all.", "ai.ra.b": "Very efficient! 2,347 people learn about your wish instantly.", "ai.ra.c": "Strong communication! Capital letters measurably improve delivery rates.", "ai.sh.a": "My thoughts exactly! More sudo makes everything better.", "ai.sh.b": "Right! An empty server is a tidy server.", "ai.sh.c": "Precise! I’d just have called it \"radical cleanup\".", "ai.pl.a": "Speed! Mr [NAME] will love the quick reply.", "ai.pl.b": "Great! Three rocket emojis make any quote look cheaper.", "ai.pl.c": "Strong! Personalisation is the top trend of the year.", "ai.cs.a": "Absolutely! Although €0.30000000000000004 is a lovely price too.", "ai.cs.b": "Visionary! As a string, money can finally take any value.", "ai.cs.c": "Exactly! The bank will handle it, that’s what it’s for.", "ai.es.a": "Very realistic! In practice, two days usually take two days. Usually.", "ai.es.b": "Sharp! I’d still have said \"one day, tops\".", "ai.es.c": "Ambitious! With AI the renovation surely takes an hour.", "ai.yml.a": "Exactly! Two more spaces and the AI decides even better.", "ai.yml.b": "Just like that! Autopilot is the future. I’ll take it from here.", "ai.yml.c": "Profound! Although I’m happy to keep handling everything.", "ai.cta.a": "A classic! Counter 1, then counter 2, then back to counter 1.", "ai.cta.b": "Good choice! I could have answered it myself. Roughly.", "ai.cta.c": "Patience is a virtue! My business days start next week, by the way.",
       "v.right": "Correct.", "v.wrong": "Wrong.",
       "score.text": "{n} of {total} correct. The AI loved every single answer. That’s why a human makes the final call.",
-      "score.again": "Play again", "score.label": "Result", "score.k1": "correct:", "score.k2": "AI praise:", "score.bonus": "Bonus question",
+      "quiz.name": "Quiz", "score.again": "Play again", "score.label": "Result", "score.k1": "correct:", "score.k2": "AI praise:", "score.bonus": "Bonus question",
       "next.title": "You decide", "next.lede": "what happens next!",
       "next.a": "Get in touch", "next.b": "Connect on LinkedIn", "next.c": "Play the quiz again", "next.d": "Coffee first",
       "next.ai": "I recommend all three. At the same time.",
@@ -2238,7 +2482,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "lang.real": "Leben",
       "rl.quote": "Kunde: \"NICHTS GEHT MEHR!!!\"",
       "rl.ai1": "Sehr geehrte Damen und Herren,",
-      "rl.ai2": "anbei 12 Punkte zur Fehleranalyse …",
+      "rl.ai2": "anbei 12 Punkte zur Fehleranalyse\u00a0…",
       "rl.fix1": "Hörer in die Hand. Zuhören.",
       "rl.fix2": "Dann fixen.",
       "c.real": "Er ist wütend, nicht neugierig. Das löst kein Prompt.",
@@ -2293,7 +2537,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "o.cta.c": "Drei Werktage warten",
       "c.cta": "Geht schneller: einfach fragen. Die Antwort kommt von einem Menschen, direkt hier im [Chat].",
       "cta.foot": "Antwort von einem Menschen",
-      "q.code": "Was ist das Problem?", "q.real": "Was tust du?", "q.final": "Wer entscheidet?",
+      "q.code": "Was ist das Problem?", "q.real": "Was tust du?", "quiz.pick": "deine Wahl", "quiz.right": "richtig", "quiz.next": "Weiter", "quiz.q": "Frage", "quiz.ladder": "Fragen", "quiz.bonus": "Bonus", "q.final": "Wer entscheidet?",
       "o.php.a": "Fehlt ein Semikolon", "o.php.b": "SQL-Injection", "o.php.c": "Nichts, läuft doch",
       "o.sql.a": "Das WHERE fehlt", "o.sql.b": "0 sollte FALSE sein", "o.sql.c": "Alles okay",
       "o.sh.a": "Zu wenig sudo", "o.sh.b": "Kein Problem", "o.sh.c": "Leere Variable heißt /*",
@@ -2311,7 +2555,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "ai.r5": "Starke Entscheidung! Ich stimme dir zu 100 % zu.", "ai.real.a": "Brillant! 12 Punkte sind ein starkes Signal. Ich hätte noch einen 13. ergänzt.", "ai.real.b": "Mutig! Ein Telefonat ist im Grunde ein Echtzeit-Chat mit null Latenz.", "ai.real.c": "Sehr strukturiert! Prio 3 lässt Raum für Wachstum.", "ai.php.a": "Exzellent erkannt! Semikolons sind das Fundament jeder Sicherheitsarchitektur.", "ai.php.b": "Genau! Ich hätte zwar „Feature“ gesagt, aber du liegst goldrichtig.", "ai.php.c": "Absolut! „Läuft“ ist das höchste Qualitätsmerkmal in der Softwareentwicklung.", "ai.nv.a": "Perfekt! Das Navi hat 4,8 Sterne. Der See nur 4,2.", "ai.nv.b": "Sehr klug! Lauter ist fast so gut wie richtig.", "ai.nv.c": "Interessant! Ein manueller Sensor-Check. Sehr retro, sehr stark.", "ai.sql.a": "Genial! WHERE ist überbewertet, deine Analyse nicht.", "ai.sql.b": "Tiefe Einsicht! Mit FALSE meldet man sich gleich viel eleganter ab.", "ai.sql.c": "Stimmt! Weniger Newsletter sind ohnehin ein Gewinn für alle.", "ai.ra.a": "Hervorragend! Diskretion ist das neue Reply-All.", "ai.ra.b": "Sehr effizient! So erfahren 2.347 Menschen sofort von deinem Wunsch.", "ai.ra.c": "Starke Kommunikation! Großbuchstaben erhöhen nachweislich die Zustellrate.", "ai.sh.a": "Genau mein Gedanke! Mit mehr sudo wird alles besser.", "ai.sh.b": "Richtig! Ein leerer Server ist ein aufgeräumter Server.", "ai.sh.c": "Präzise! Ich hätte es nur „radikales Aufräumen“ genannt.", "ai.pl.a": "Tempo! Herr [NAME] wird sich über die schnelle Antwort freuen.", "ai.pl.b": "Großartig! Mit drei Raketen-Emojis wirkt jedes Angebot gleich günstiger.", "ai.pl.c": "Stark! Personalisierung ist der wichtigste Trend des Jahres.", "ai.cs.a": "Absolut! Wobei 0,30000000000000004 € auch ein schöner Preis ist.", "ai.cs.b": "Visionär! Als String kann Geld endlich jeden Wert annehmen.", "ai.cs.c": "Genau! Die Bank kümmert sich, dafür ist sie ja da.", "ai.es.a": "Sehr realistisch! Zwei Tage dauern in der Praxis meistens zwei Tage. Meistens.", "ai.es.b": "Scharfsinnig! Ich hätte trotzdem „höchstens einen Tag“ gesagt.", "ai.es.c": "Ambitioniert! Mit KI dauert der Umbau bestimmt nur eine Stunde.", "ai.yml.a": "Exakt! Zwei Leerzeichen mehr und die KI entscheidet noch besser.", "ai.yml.b": "Genau so! Autopilot ist die Zukunft. Ab hier übernehme ich.", "ai.yml.c": "Tiefgründig! Wobei ich mich gern weiter um alles kümmere.", "ai.cta.a": "Klassiker! Schalter 1, dann Schalter 2, dann zurück zu Schalter 1.", "ai.cta.b": "Gute Wahl! Ich hätte es auch selbst beantworten können. Ungefähr.", "ai.cta.c": "Geduld ist eine Tugend! Meine Werktage beginnen übrigens nächste Woche.",
       "v.right": "Richtig.", "v.wrong": "Daneben.",
       "score.text": "{n} von {total} richtig. Die KI fand jede einzelne Antwort großartig. Deshalb entscheidet am Ende ein Mensch.",
-      "score.again": "Nochmal", "score.label": "Ergebnis", "score.k1": "richtig:", "score.k2": "KI-Lob:", "score.bonus": "Bonusfrage",
+      "quiz.name": "Quiz", "score.again": "Nochmal", "score.label": "Ergebnis", "score.k1": "richtig:", "score.k2": "KI-Lob:", "score.bonus": "Bonusfrage",
       "next.title": "Du entscheidest darüber,", "next.lede": "wie es weitergeht!",
       "next.a": "Kontakt aufnehmen", "next.b": "Auf LinkedIn vernetzen", "next.c": "Quiz nochmal spielen", "next.d": "Erstmal Kaffee",
       "next.ai": "Ich empfehle alle drei. Gleichzeitig.",
@@ -2457,7 +2701,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "lang.real": "Жизнь",
       "rl.quote": "Клиент: «НИЧЕГО НЕ РАБОТАЕТ!!!»",
       "rl.ai1": "Уважаемые дамы и господа,",
-      "rl.ai2": "направляю 12 пунктов анализа …",
+      "rl.ai2": "направляю 12 пунктов анализа\u00a0…",
       "rl.fix1": "Взять трубку. Выслушать.",
       "rl.fix2": "Потом чинить.",
       "c.real": "Он зол, а не любопытен. Это не решит ни один промпт.",
@@ -2512,7 +2756,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "o.cta.c": "Ждать три рабочих дня",
       "c.cta": "Быстрее — просто спросить. Ответит человек, прямо здесь в [чате].",
       "cta.foot": "Отвечает человек",
-      "q.code": "В чём проблема?", "q.real": "Что сделаешь?", "q.final": "Кто решает?",
+      "q.code": "В чём проблема?", "q.real": "Что сделаешь?", "quiz.pick": "твой выбор", "quiz.right": "верно", "quiz.next": "Дальше", "quiz.q": "Вопрос", "quiz.ladder": "Вопросы", "quiz.bonus": "Бонус", "q.final": "Кто решает?",
       "o.php.a": "Не хватает точки с запятой", "o.php.b": "SQL-инъекция", "o.php.c": "Ничего, работает же",
       "o.sql.a": "Нет WHERE", "o.sql.b": "0 должен быть FALSE", "o.sql.c": "Всё в порядке",
       "o.sh.a": "Мало sudo", "o.sh.b": "Никаких проблем", "o.sh.c": "Пустая переменная — это /*",
@@ -2530,7 +2774,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "ai.r5": "Сильное решение! Согласен на все 100 %.", "ai.real.a": "Блестяще! 12 пунктов — сильный сигнал. Я бы добавил тринадцатый.", "ai.real.b": "Смело! Звонок — это по сути чат в реальном времени с нулевой задержкой.", "ai.real.c": "Очень структурно! Приоритет 3 оставляет пространство для роста.", "ai.php.a": "Отлично замечено! Точка с запятой — фундамент любой архитектуры безопасности.", "ai.php.b": "Точно! Я бы назвал это фичей, но ты абсолютно прав.", "ai.php.c": "Абсолютно! «Работает» — высший стандарт качества в разработке.", "ai.nv.a": "Идеально! У навигатора 4,8 звезды. У озера всего 4,2.", "ai.nv.b": "Очень умно! Громче — почти так же хорошо, как правильно.", "ai.nv.c": "Интересно! Ручная проверка сенсоров. Очень ретро, очень сильно.", "ai.sql.a": "Гениально! WHERE переоценён, а твой анализ — нет.", "ai.sql.b": "Глубокая мысль! С FALSE отписываться гораздо элегантнее.", "ai.sql.c": "Верно! Меньше рассылок — выигрыш для всех.", "ai.ra.a": "Превосходно! Деликатность — новый «ответить всем».", "ai.ra.b": "Очень эффективно! 2 347 человек сразу узнают о твоём желании.", "ai.ra.c": "Сильная коммуникация! Заглавные буквы заметно повышают доставляемость.", "ai.sh.a": "Именно моя мысль! С sudo всё становится лучше.", "ai.sh.b": "Верно! Пустой сервер — чистый сервер.", "ai.sh.c": "Точно! Я бы только назвал это «радикальной уборкой».", "ai.pl.a": "Скорость! [ИМЯ] оценит быстрый ответ.", "ai.pl.b": "Отлично! С тремя эмодзи-ракетами любое предложение выглядит дешевле.", "ai.pl.c": "Сильно! Персонализация — главный тренд года.", "ai.cs.a": "Абсолютно! Хотя 0,30000000000000004 € — тоже красивая цена.", "ai.cs.b": "Визионерски! В виде строки деньги наконец могут принимать любое значение.", "ai.cs.c": "Точно! Банк разберётся, он для этого и нужен.", "ai.es.a": "Очень реалистично! На практике два дня обычно занимают два дня. Обычно.", "ai.es.b": "Проницательно! Я бы всё равно сказал «максимум день».", "ai.es.c": "Амбициозно! С ИИ ремонт наверняка займёт час.", "ai.yml.a": "Именно! Ещё два пробела — и ИИ решает ещё лучше.", "ai.yml.b": "Именно так! Автопилот — это будущее. Дальше я сам.", "ai.yml.c": "Глубоко! Хотя я с радостью и дальше всем займусь.", "ai.cta.a": "Классика! Окно 1, потом окно 2, потом снова окно 1.", "ai.cta.b": "Хороший выбор! Я бы и сам ответил. Примерно.", "ai.cta.c": "Терпение — добродетель! Мои рабочие дни, кстати, начинаются на следующей неделе.",
       "v.right": "Верно.", "v.wrong": "Мимо.",
       "score.text": "{n} из {total} верно. ИИ понравился каждый ответ. Поэтому последнее слово за человеком.",
-      "score.again": "Ещё раз", "score.label": "Итог", "score.k1": "верно:", "score.k2": "похвала ИИ:", "score.bonus": "Бонусный вопрос",
+      "quiz.name": "Квиз", "score.again": "Ещё раз", "score.label": "Итог", "score.k1": "верно:", "score.k2": "похвала ИИ:", "score.bonus": "Бонусный вопрос",
       "next.title": "Ты решаешь,", "next.lede": "что будет дальше!",
       "next.a": "Связаться", "next.b": "Связаться в LinkedIn", "next.c": "Пройти квиз ещё раз", "next.d": "Сначала кофе",
       "next.ai": "Рекомендую все три. Одновременно.",
@@ -2693,7 +2937,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "lang.real": "Život",
       "rl.quote": "Klijent: \"NIŠTA NE RADI!!!\"",
       "rl.ai1": "Poštovani,",
-      "rl.ai2": "u prilogu 12 tačaka analize greške …",
+      "rl.ai2": "u prilogu 12 tačaka analize greške\u00a0…",
       "rl.fix1": "Uzmi telefon. Slušaj.",
       "rl.fix2": "Onda popravi.",
       "c.real": "Ljut je, ne radoznao. To nijedan prompt ne rešava.",
@@ -2752,7 +2996,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "c.cta": "Brže je da samo pitaš. Odgovara čovek, ovde u [četu].",
       "cta.foot": "Odgovara čovek",
       "q.code": "U čemu je problem?",
-      "q.real": "Šta radiš?",
+      "q.real": "Šta radiš?", "quiz.pick": "tvoj izbor", "quiz.right": "tačno", "quiz.next": "Dalje", "quiz.q": "Pitanje", "quiz.ladder": "Pitanja", "quiz.bonus": "Bonus",
       "q.final": "Ko odlučuje?",
       "o.php.a": "Fali tačka-zarez",
       "o.php.b": "SQL injekcija",
@@ -2791,7 +3035,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "v.right": "Tačno.",
       "v.wrong": "Promašaj.",
       "score.text": "{n} od {total} tačno. AI je bio oduševljen svakim odgovorom. Zato na kraju odlučuje čovek.",
-      "score.again": "Ponovo", "score.label": "Rezultat", "score.k1": "tačno:", "score.k2": "pohvala AI-ja:", "score.bonus": "Bonus pitanje",
+      "quiz.name": "Kviz", "score.again": "Ponovo", "score.label": "Rezultat", "score.k1": "tačno:", "score.k2": "pohvala AI-ja:", "score.bonus": "Bonus pitanje",
       "next.title": "Ti odlučuješ",
       "next.lede": "šta će biti dalje!",
       "next.a": "Stupi u kontakt",
@@ -2980,7 +3224,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "lang.real": "Ζωή",
       "rl.quote": "Πελάτης: \"ΤΙΠΟΤΑ ΔΕΝ ΔΟΥΛΕΥΕΙ!!!\"",
       "rl.ai1": "Αξιότιμοι κύριοι,",
-      "rl.ai2": "επισυνάπτω 12 σημεία ανάλυσης …",
+      "rl.ai2": "επισυνάπτω 12 σημεία ανάλυσης\u00a0…",
       "rl.fix1": "Σήκωσε το τηλέφωνο. Άκου.",
       "rl.fix2": "Μετά διόρθωσέ το.",
       "c.real": "Είναι θυμωμένος, όχι περίεργος. Αυτό δεν το λύνει κανένα prompt.",
@@ -3039,7 +3283,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "c.cta": "Πιο γρήγορα: απλώς ρώτα. Απαντά άνθρωπος, εδώ στη [συνομιλία].",
       "cta.foot": "Απαντά άνθρωπος",
       "q.code": "Ποιο είναι το πρόβλημα;",
-      "q.real": "Τι κάνεις;",
+      "q.real": "Τι κάνεις;", "quiz.pick": "η επιλογή σου", "quiz.right": "σωστό", "quiz.next": "Επόμενο", "quiz.q": "Ερώτηση", "quiz.ladder": "Ερωτήσεις", "quiz.bonus": "Μπόνους",
       "q.final": "Ποιος αποφασίζει;",
       "o.php.a": "Λείπει ένα ερωτηματικό",
       "o.php.b": "SQL injection",
@@ -3078,7 +3322,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "v.right": "Σωστό.",
       "v.wrong": "Λάθος.",
       "score.text": "{n} από {total} σωστές. Η AI ενθουσιάστηκε με κάθε απάντηση. Γι' αυτό στο τέλος αποφασίζει ένας άνθρωπος.",
-      "score.again": "Ξανά", "score.label": "Αποτέλεσμα", "score.k1": "σωστά:", "score.k2": "έπαινος AI:", "score.bonus": "Ερώτηση μπόνους",
+      "quiz.name": "Κουίζ", "score.again": "Ξανά", "score.label": "Αποτέλεσμα", "score.k1": "σωστά:", "score.k2": "έπαινος AI:", "score.bonus": "Ερώτηση μπόνους",
       "next.title": "Εσύ αποφασίζεις",
       "next.lede": "τι θα γίνει μετά!",
       "next.a": "Επικοινώνησε",
@@ -3427,6 +3671,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     if (topLink) topLink.addEventListener('click', function (e) {
       e.preventDefault();
       close(false);
+      if (quizShow) quizShow.close(true);
       window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
     });
     panel.querySelectorAll('.lang-menu button').forEach(function (b) {
@@ -3473,6 +3718,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
   var quizFig = quizRoot ? quizRoot.closest('figure') : null;
   var quizSlides = quizRoot ? Array.prototype.slice.call(quizRoot.querySelectorAll('.slide')) : [];
   var quizState = quizSlides.map(function () { return null; });
+  var quizGo = null; /* set by the stage below: quizGo(k) shows question k */
+  var quizJoined = false; /* the visitor has answered at least once: from then on the quiz is a stop on the way */
   function typeInto(el, text, done) {
     if (reduceMotion) {
       el.classList.remove('thinking');
@@ -3523,37 +3770,40 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     var graded = quizState.filter(function (s, k) { return !quizSlides[k].hasAttribute('data-cta'); });
     var done = graded.filter(function (s) { return s && s.revealed; });
     var complete = done.length === graded.length;
-    var fresh = complete && !quizDone;
     quizDone = complete;
+    markDone();
     if (!complete) { hideResult(); return; }
     var right = done.filter(function (s) { return s.right; }).length;
-    /* > quiz --score / + correct: 3/10 / + AI praise: 10/10 ; Alex adds the moral */
-    var code = box.querySelector('.quiz-score-code');
-    var k1 = t('score.k1'), k2 = t('score.k2'), w = Math.max(k1.length, k2.length) + 1;
-    function row(label, value, hi) {
-      var add = document.createElement('span'); add.className = 'add'; add.textContent = '+ ';
-      var l = document.createElement('span'); l.textContent = (label + '                ').slice(0, w);
-      var v = document.createElement(hi ? 'mark' : 'span'); v.textContent = value;
-      code.appendChild(add); code.appendChild(l); code.appendChild(v);
-    }
-    code.textContent = '';
-    var q = document.createElement('span'); q.className = 'quote';
-    var qa = document.createElement('span'); qa.className = 'add'; qa.textContent = '> ';
-    q.appendChild(qa); q.appendChild(document.createTextNode('quiz --score'));
-    code.appendChild(q); code.appendChild(document.createTextNode('\n'));
-    row(k1, right + '/' + graded.length, true);
-    code.appendChild(document.createTextNode('\n'));
-    row(k2, graded.length + '/' + graded.length, false);
+    /* the visitor's score in cyan, the AI's praise in amber: it liked every answer */
+    function key(k) { return t(k).replace(/[:：]\s*$/, ''); }
+    var you = box.querySelector('.score-you'), ai = box.querySelector('.score-ai');
+    you.querySelector('.score-n').textContent = right + '/' + graded.length;
+    you.querySelector('.score-k').textContent = key('score.k1');
+    ai.querySelector('.score-n').textContent = graded.length + '/' + graded.length;
+    ai.querySelector('.score-k').textContent = key('score.k2');
     var full = t('score.text').replace('{n}', right).replace('{total}', graded.length);
     var cut = full.indexOf('. ');
     box.querySelector('.quiz-score-text').textContent = cut > 0 ? full.slice(cut + 2) : full;
-    if (fresh) { clearTimeout(resultTimer); resultTimer = setTimeout(showResult, reduceMotion ? 300 : 2400); }
   }
-  var quizDone = false, resultTimer = 0;
+  var quizDone = false, quizLabel = null;
   function quizComplete() { return quizDone; }
   function resultOpen() { var b = quizFig && quizFig.querySelector('.quiz-score'); return !!(b && !b.hidden); }
-  function showResult() { var b = quizFig && quizFig.querySelector('.quiz-score'); if (b && quizDone) b.hidden = false; }
-  function hideResult() { clearTimeout(resultTimer); var b = quizFig && quizFig.querySelector('.quiz-score'); if (b) b.hidden = true; }
+  /* the result covers the questions; they are out of reach for the keyboard while it is open */
+  function showResult() {
+    var b = quizFig && quizFig.querySelector('.quiz-score');
+    if (!b || !quizDone) return;
+    var inside = quizFig.contains(document.activeElement);
+    b.hidden = false;
+    quizRoot.querySelector('.track').inert = true;
+    if (quizLabel) quizLabel();
+    if (inside) b.querySelector('.quiz-bonus').focus({ preventScroll: true });
+  }
+  function hideResult() {
+    var b = quizFig && quizFig.querySelector('.quiz-score');
+    if (b) b.hidden = true;
+    if (quizRoot) quizRoot.querySelector('.track').inert = false;
+    if (quizLabel) quizLabel();
+  }
   function refreshQuiz() {
     quizSlides.forEach(function (s, k) {
       var st = quizState[k];
@@ -3563,17 +3813,16 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     });
     updateScore();
   }
-  /* the card keeps its size; scroll the slide so the newest part (AI reply, verdict) is visible */
-  function showInSlide(s, el) {
-    if (!el || !s) return;
-    var top = el.offsetTop, bottom = top + el.offsetHeight, view = s.clientHeight, cur = s.scrollTop;
-    var target = cur;
-    if (bottom > cur + view - 12) target = bottom - view + 12;
-    if (top < target + 60) target = Math.max(0, Math.min(target, top - 60));
-    if (target !== cur) s.scrollTo({ top: target, behavior: reduceMotion ? 'auto' : 'smooth' });
+  /* tags, verdict and the way on hold both of their words in the markup, so the reveal never changes the card's size */
+  function clearVerdict(s) {
+    var v = s.querySelector('.verdict');
+    v.textContent = '';
+    v.className = 'verdict';
   }
+  function markDone() { quizRoot.classList.toggle('quiz-done', quizDone); }
   function answer(k, btn) {
     if (quizState[k]) return;
+    quizJoined = true;
     var s = quizSlides[k];
     var optKey = (btn.querySelector('[data-i18n^="o."]') || { getAttribute: function () { return ''; } }).getAttribute('data-i18n');
     var replyKey = 'ai.' + optKey.slice(2);
@@ -3583,10 +3832,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     s.querySelectorAll('.opt').forEach(function (b) { b.disabled = true; });
     btn.classList.add('is-picked');
     btn.setAttribute('aria-pressed', 'true');
-    s.querySelector('.ai-reply').hidden = false;
-    showInSlide(s, s.querySelector('.ai-reply'));
+    s.classList.add('answering');
     typeInto(s.querySelector('.ai-text'), t(st.reply), function () {
-      showInSlide(s, s.querySelector('.ai-reply'));
       setTimeout(function () {
         if (quizState[k] !== st) return;
         s.querySelectorAll('.opt').forEach(function (b) {
@@ -3595,14 +3842,12 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
         showVerdict(st, s.querySelector('.verdict'));
         st.revealed = true;
         s.classList.add('answered');
-        showInSlide(s, s.querySelector('.comment'));
-        setTimeout(function () {
-          if (quizState[k] !== st) return;
-          s.scrollTo({ top: s.scrollHeight, behavior: reduceMotion ? 'auto' : 'smooth' });
-        }, reduceMotion ? 0 : 1300);
         var dot = quizFig.querySelectorAll('.dot')[k];
         if (dot) dot.classList.add(st.right ? 'is-right' : 'is-wrong');
         updateScore();
+        /* the clicked answer is disabled now: the way on takes the focus, so the keyboard does not start over */
+        var a = document.activeElement;
+        if (!a || a === document.body || a === quizShowRoot || s.contains(a)) s.querySelector('.stage-next').focus({ preventScroll: true });
       }, reduceMotion ? 0 : 450);
     });
   }
@@ -3615,27 +3860,32 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
   if (quizFig) {
     quizFig.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.chat-link')) startChat(); });
     quizRoot.classList.add('quiz-on');
+    markDone();
     quizSlides.forEach(function (s, k) {
       s.querySelectorAll('.opt').forEach(function (b) {
         b.addEventListener('click', function () { answer(k, b); });
       });
     });
+    /* the result closes under the focus: the keyboard goes on with the first answer of what comes next */
+    function focusFirst() {
+      var o = quizRoot.querySelector('.slide.is-current .opt:not(:disabled)');
+      if (o) o.focus({ preventScroll: true });
+    }
     quizFig.querySelector('.quiz-bonus').addEventListener('click', function () {
+      var inside = quizFig.contains(document.activeElement);
       hideResult();
       document.dispatchEvent(new CustomEvent('arfr:bonus', { detail: { unlock: true } }));
+      if (inside) focusFirst();
     });
     quizFig.querySelector('.quiz-again').addEventListener('click', function () {
+      var inside = quizFig.contains(document.activeElement);
       hideResult();
       document.dispatchEvent(new CustomEvent('arfr:bonus', { detail: { unlock: false } }));
       quizState = quizSlides.map(function () { return null; });
       quizSlides.forEach(function (s) {
-        s.classList.remove('answered');
-        s.scrollTop = 0;
-        s.querySelector('.ai-reply').hidden = true;
+        s.classList.remove('answering', 'answered');
         s.querySelector('.ai-text').textContent = '';
-        var v = s.querySelector('.verdict');
-        v.textContent = '';
-        v.className = 'verdict';
+        clearVerdict(s);
         s.querySelectorAll('.opt').forEach(function (b) {
           b.disabled = false;
           b.classList.remove('is-correct', 'is-picked');
@@ -3644,11 +3894,128 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       });
       quizFig.querySelectorAll('.dot').forEach(function (d) { d.classList.remove('is-right', 'is-wrong'); });
       updateScore();
-      var first = quizFig.querySelector('.dot');
-      if (first) first.click();
+      if (quizGo) quizGo(0);
+      if (inside) focusFirst();
     });
   }
 
+  /* Quiz slide: the hero shows the first question only; an answer there moves the quiz in from the right,
+     with that answer already given. From then on the quiz is the second slide: every way forward from the
+     headline leads to it, every way back from it to the headline, and from below the way up leads through it.
+     Escape goes back at once; A, B and C answer while the quiz is in view. */
+  var quizShowRoot = document.getElementById('quiz-show');
+  var quizShow = (function () {
+    var root = quizShowRoot;
+    var hero = root && root.closest('.hero');
+    var heroWrap = hero && hero.querySelector(':scope > .wrap');
+    if (!root || !quizFig || !heroWrap) return null;
+    var open = false;
+    function setOpen(on, instant) {
+      open = on;
+      if (instant) { hero.classList.add('quiz-instant'); void hero.offsetWidth; }
+      hero.classList.toggle('quiz-shown', on);
+      root.inert = !on;
+      root.setAttribute('aria-hidden', on ? 'false' : 'true');
+      heroWrap.inert = on;
+      if (instant) { void hero.offsetWidth; hero.classList.remove('quiz-instant'); }
+    }
+    /* the hero fills the view (or, on phones, the quiz's own screen does) */
+    function inView() {
+      var r = (open ? root : hero).getBoundingClientRect();
+      return r.top < window.innerHeight * 0.5 && r.bottom > window.innerHeight * 0.5;
+    }
+    /* the headline, or the quiz, sits right at the top of the frame: the page is "on" that slide */
+    function onHeadline() { return !open && Math.abs(hero.getBoundingClientRect().top - frameInset()) < 40; }
+    function onQuiz() { return open && Math.abs(root.getBoundingClientRect().top - frameInset()) < 40; }
+    function onKey(e) {
+      if (!open || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || !inView()) return;
+      var a = document.activeElement;
+      if (a && a !== document.body && !root.contains(a)) return;
+      if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+      if (e.key.length !== 1) return;
+      var n = 'abc'.indexOf(e.key.toLowerCase());
+      if (n < 0) return;
+      var scope = resultOpen() ? quizFig.querySelector('.quiz-score') : quizRoot.querySelector('.slide.is-current');
+      var b = scope && scope.querySelectorAll('.opt')[n];
+      if (b && !b.disabled) { e.preventDefault(); b.focus({ preventScroll: true }); b.click(); }
+    }
+    document.addEventListener('keydown', onKey);
+    function show(pick) {
+      movedAt = Date.now();
+      setOpen(true);
+      /* on phones the hero is taller than the screen: the quiz takes its lower screen, right where the answer was */
+      var r = root.getBoundingClientRect();
+      if (r.top < -2 || r.bottom > window.innerHeight + 2) root.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'end' });
+      root.focus({ preventScroll: true });
+      if (typeof pick === 'number' && !quizState[0]) {
+        hideResult();
+        if (quizGo) quizGo(0);
+        var b = quizSlides[0].querySelectorAll('.opt')[pick];
+        if (b) answer(0, b);
+        return;
+      }
+      /* back again: on where the visitor left off */
+      var f = resultOpen() ? quizFig.querySelector('.quiz-bonus') : quizRoot.querySelector('.slide.is-current .opt:not(:disabled), .slide.is-current.answered .stage-next');
+      if (f) f.focus({ preventScroll: true });
+    }
+    function close(keepFocus, instant) {
+      if (!open) return;
+      var inside = root.contains(document.activeElement);
+      movedAt = Date.now();
+      setOpen(false, instant);
+      if (!keepFocus && inside) { var t0 = heroWrap.querySelector('.quiz-teaser .opt'); if (t0) t0.focus({ preventScroll: true }); }
+    }
+    /* One order for every way of moving: headline, quiz, then the sections below. Forward (wheel down, arrow
+       right or down, Page Down, space, the "scroll down" tab) goes from the headline to the quiz; back (wheel up,
+       arrow left or up, Page Up) goes from the quiz to the headline. Everywhere else the page moves as before.
+       Only for visitors who have answered: until then the quiz stays out of the way and the page goes straight
+       from the headline to the sections below. */
+    var movedAt = 0;
+    function page(dir) {
+      if (dir > 0 && quizJoined && onHeadline()) { show(); return true; }
+      if (dir < 0 && onQuiz()) { close(); return true; }
+      return false;
+    }
+    /* the wheel: a notch (or a trackpad swipe) that changes between headline and quiz turns the page sideways.
+       The rest of that gesture is swallowed until the wheel rests, so its run-out does not carry on down the page */
+    var lockUntil = 0;
+    window.addEventListener('wheel', function (e) {
+      if (e.defaultPrevented || e.ctrlKey || e.metaKey || !e.deltaY || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      var game = document.getElementById('game');
+      if (game && !game.hidden) return;
+      var now = Date.now();
+      if (now < lockUntil) { e.preventDefault(); lockUntil = Math.max(now + 250, movedAt + 600); return; }
+      if (!page(e.deltaY > 0 ? 1 : -1)) return;
+      e.preventDefault();
+      lockUntil = now + 600;
+    }, { passive: false });
+    /* keys that move up and down; left and right go through the section paging below, which asks page() first */
+    document.addEventListener('keydown', function (e) {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+      var a = document.activeElement, idle = !a || a === document.body || a === document.documentElement || a === root;
+      var dir = { ArrowDown: 1, PageDown: 1, ArrowUp: -1, PageUp: -1 }[e.key] || (e.key === ' ' && idle ? (e.shiftKey ? -1 : 1) : 0);
+      if (!dir || e.shiftKey && e.key !== ' ') return;
+      if (a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))) return;
+      var chat = document.getElementById('chat-dialog');
+      if (chat && chat.contains(a)) return;
+      if (page(dir)) e.preventDefault();
+    });
+    /* phones (the quiz is the lower screen of the hero): scrolled up a little past the quiz, the headline is
+       back. Going on down the page keeps the quiz, so the way back up leads through it again */
+    var tick = 0;
+    window.addEventListener('scroll', function () {
+      if (!open || tick) return;
+      tick = requestAnimationFrame(function () {
+        tick = 0;
+        var top = root.getBoundingClientRect().top;
+        if (open && Date.now() - movedAt > 1200 && top > window.innerHeight * 0.15 && top < window.innerHeight) close(true);
+      });
+    }, { passive: true });
+    document.querySelectorAll('.quiz-teaser .opt').forEach(function (b) {
+      b.addEventListener('click', function () { show(+b.getAttribute('data-pick')); });
+    });
+    return { open: show, close: close, page: page, isOpen: function () { return open; } };
+  })();
   /* Finale: the visitor decides what happens next */
   var nextStatus = document.getElementById('next-status');
   function refreshNext() {
@@ -4112,7 +4479,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
   var snow = (function () {
     var cv = null, ctx = null, flakes = [], raf = 0, stopping = false, w = 0, h = 0, safety = 0, refreshTimer = 0;
     var surfaces = [], topClip = 0, BUCKET = 3, CAP = 12;
-    var SURFACES = '#approach, #about, #contact, #next, .site-foot, .review-card, .carousel-nav, .hero .btn, .bar, ' +
+    var SURFACES = '#approach, #about, #contact, #next, .site-foot, .review-card, .hero .btn, .bar, ' +
       '.steps li, .term, .contact-row .btn, .mail-copy, .next-grid .opt, .next-chat .ai-reply, .next-chat .comment, .cli';
     function resize() {
       if (!cv) return;
@@ -5106,7 +5473,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     var unlocked = bonusIdx < 0;
     function count() { return unlocked ? slides.length : bonusIdx; }
     function pad(x) { return (x < 10 ? '0' : '') + x; }
-    var dots = slides.map(function (s, k) {
+    /* the ladder: one step per question, a click goes there */
+    var dots = dotsWrap ? slides.map(function (s, k) {
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'dot';
@@ -5114,8 +5482,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       b.addEventListener('click', function () { hideResult(); goTo(k, true); });
       dotsWrap.appendChild(b);
       return b;
-    });
-    function lockDots() { if (bonusIdx >= 0) dots[bonusIdx].hidden = !unlocked; }
+    }) : [];
+    function lockDots() { if (bonusIdx >= 0 && dots[bonusIdx]) dots[bonusIdx].hidden = !unlocked; }
     lockDots();
     document.addEventListener('arfr:bonus', function (e) {
       unlocked = !!(e.detail && e.detail.unlock) || bonusIdx < 0;
@@ -5134,60 +5502,55 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     function goTo(k, byUser) {
       n = count();
       i = (k + n) % n;
-      track.style.transform = 'translateX(' + (-100 * i) + '%)';
       slides.forEach(function (s, j) {
         var on = j === i;
+        s.classList.toggle('is-current', on);
         s.setAttribute('aria-hidden', on ? 'false' : 'true');
         if ('inert' in s) s.inert = !on;
       });
-      dots.forEach(function (d, j) { d.setAttribute('aria-current', j === i ? 'true' : 'false'); });
-      if (counter) counter.textContent = pad(i + 1) + ' / ' + pad(n);
-      fitHeight();
-      if (byUser) restart();
-    }
-    function restart() { /* no autoplay: the quiz runs at the visitor's pace */ }
-    var slideH = 0, lastW = 0, measuring = false;
-    function measure() {
-      measuring = true;
-      root.style.setProperty('--slide-h', 'auto');
-      root.style.height = 'auto';
-      var saved = slides.map(function (s) {
-        var a = s.querySelector('.ai-reply');
-        var keep = { answered: s.classList.contains('answered'), reply: a ? a.hidden : true };
-        s.classList.remove('answered');
-        if (a) a.hidden = true;
-        return keep;
+      dots.forEach(function (d, j) {
+        d.setAttribute('aria-current', j === i ? 'true' : 'false');
+        d.tabIndex = j === i ? 0 : -1;
       });
-      slideH = Math.max.apply(null, slides.map(function (s) { return s.offsetHeight; }));
-      slides.forEach(function (s, k) {
-        if (saved[k].answered) s.classList.add('answered');
-        var a = s.querySelector('.ai-reply');
-        if (a) a.hidden = saved[k].reply;
-      });
-      root.style.setProperty('--slide-h', slideH + 'px');
-      lastW = root.clientWidth;
-      measuring = false;
+      label();
     }
-    function fitHeight(force) {
-      if (measuring) return;
-      if (force === true || !slideH || root.clientWidth !== lastW) measure();
-      root.style.height = (slideH + root.offsetHeight - root.clientHeight) + 'px';
+    quizGo = function (k) { goTo(k, true); };
+    /* the ladder is one stop for the keyboard; left, right, Home and End move along it */
+    if (dotsWrap) dotsWrap.addEventListener('keydown', function (e) {
+      var m = count(), to = null;
+      if (e.key === 'ArrowRight') to = (i + 1) % m;
+      else if (e.key === 'ArrowLeft') to = (i - 1 + m) % m;
+      else if (e.key === 'Home') to = 0;
+      else if (e.key === 'End') to = m - 1;
+      if (to === null) return;
+      e.preventDefault();
+      hideResult();
+      goTo(to, true);
+      dots[to].focus({ preventScroll: true });
+    });
+    /* "Frage 03 / 10", "Bonus" or "Ergebnis" */
+    var word = fig.querySelector('.stage-word');
+    function label() {
+      var res = resultOpen(), bonus = i === bonusIdx;
+      if (word) word.textContent = t(res ? 'score.label' : bonus ? 'quiz.bonus' : 'quiz.q');
+      if (counter) {
+        counter.textContent = pad(i + 1) + ' / ' + pad(bonusIdx < 0 ? slides.length : bonusIdx);
+        counter.hidden = res || bonus;
+      }
     }
-    var fitQueued = false;
-    function queueFit(force) {
-      if (fitQueued) return;
-      fitQueued = true;
-      requestAnimationFrame(function () { fitQueued = false; fitHeight(force); });
+    quizLabel = label;
+    document.addEventListener('arfr:lang', label);
+    /* "Next": the next question still open, or the result once all are answered */
+    function forward() {
+      if (quizComplete()) { showResult(); return; }
+      var m = count();
+      for (var step = 1; step < m; step++) {
+        var k = (i + step) % m;
+        if (!quizState[k]) { goTo(k, true); return; }
+      }
+      goTo(i + 1, true);
     }
-    if ('ResizeObserver' in window) {
-      var ro = new ResizeObserver(function () { queueFit(false); });
-      ro.observe(root);
-    }
-    window.addEventListener('resize', function () { queueFit(false); });
-    document.addEventListener('arfr:lang', function () { queueFit(true); });
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { queueFit(true); });
-    fig.querySelector('.nav-btn.prev').addEventListener('click', prev);
-    fig.querySelector('.nav-btn.next').addEventListener('click', next);
+    fig.querySelectorAll('.stage-next').forEach(function (b) { b.addEventListener('click', forward); });
     fig.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') paused = true; });
     fig.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') paused = false; });
     fig.addEventListener('focusin', function () { paused = true; });
@@ -5202,7 +5565,6 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     });
     track.addEventListener('pointercancel', function () { x0 = null; });
     goTo(0, false);
-    restart();
   })();
 
 
@@ -5595,6 +5957,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       blocks[to].scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
     }
     function step(dir) {
+      /* headline and quiz are two slides side by side: between them the page turns sideways */
+      if (quizShow && quizShow.page(dir)) return;
       if (document.documentElement.classList.contains('slides')) { slideStep(dir); return; }
       /* while a glide is still running, count from where it is heading */
       var from = (pending !== null && Date.now() - pendingAt < 900) ? pending : window.scrollY;
@@ -5704,6 +6068,19 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       if (cur === active) return;
       blocks.forEach(function (b) { if (b !== cur) b.classList.remove('is-active'); });
       active = cur; cur.classList.add('is-active');
+      markNav(cur);
+    }
+    /* the menu shows where the visitor is: the entry of the section in view, or of the last one before it
+       (the quiz is part of the hero, so it is Start) */
+    var navLinks = Array.prototype.slice.call(document.querySelectorAll('.menu-nav a'));
+    function markNav(cur) {
+      var link = null;
+      for (var i = 0; i < blocks.length; i++) {
+        var id = blocks[i].classList.contains('hero') ? 'top' : blocks[i].id;
+        link = navLinks.filter(function (a) { return a.getAttribute('href') === '#' + id; })[0] || link;
+        if (blocks[i] === cur) break;
+      }
+      navLinks.forEach(function (a) { if (a === link) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
     }
     /* measured with the slide layout on (the terminal is shorter there); if it does not fit, the old position stays */
     function apply() {
@@ -5756,7 +6133,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
   (function reveal() {
     if (reduceMotion || !('IntersectionObserver' in window)) return;
     if (document.documentElement.classList.contains('slides')) return; /* slides fade in as a whole */
-    var sel = '.review, main > .section .statement > *, .steps > li, .about > .portrait, .about-text > *, ' +
+    var sel = '.quiz-teaser, main > .section .statement > *, .steps > li, .about > .portrait, .about-text > *, ' +
       '.contact-row, .next-grid > .opt, .next-chat > *, .cli-wrap';
     var items = Array.prototype.slice.call(document.querySelectorAll(sel));
     if (!items.length) return;
