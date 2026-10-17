@@ -1088,9 +1088,6 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
   gap: clamp(28px, 5vw, 72px);
   align-items: center;
 }
-/* the portrait starts where the headline starts */
-.about > .portrait { margin-top: 0; }
-@media (max-width: 640px) { .about > .portrait { margin-top: 0; } }
 .about-band { background: var(--term-bg); color: var(--term-fg); }
 /* the darker terminal bands fade in and out of the page ground: no hard edge between sections */
 :root { --band-fade: clamp(96px, 12vw, 180px); }
@@ -1099,116 +1096,26 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
 .about-band .h2 { color: var(--term-fg); }
 .about-band .about-text p { color: var(--term-fg); }
 .prompt { font-family: var(--font-mono); font-size: var(--fs-s); color: var(--term-muted); margin: 0; }
-.about-band .about-text .prompt { color: var(--term-muted); }
 .prompt .host { color: var(--term-accent); }
-.cursor {
-  display: inline-block;
-  width: 0.45em;
-  height: 0.85em;
-  margin-left: 0.12em;
-  vertical-align: -0.04em;
-  background: var(--term-accent);
-  animation: blink 1.1s steps(1) infinite;
-}
 @keyframes blink { 50% { opacity: 0; } }
-.term {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: var(--fs-m);
-  line-height: 1.6;
-  min-width: 0;
-}
-.term dl { margin: 0; display: flex; flex-direction: column; gap: 2px; }
-.term dl div { display: flex; flex-wrap: wrap; gap: 0 1ch; }
-.term dt { color: var(--term-muted); min-width: 10ch; }
-.term dt::after { content: ":"; }
-.term dd { margin: 0; color: var(--term-fg); min-width: 0; }
-/* profile.yml is real YAML: the text itself carries keys, colons and alignment; long values wrap under the value column */
-.yml { display: flex; flex-direction: column; gap: 2px; }
-.yml { margin: 0; }
-.yml > .yl { display: block; white-space: pre-wrap; padding-left: 10ch; text-indent: -10ch; color: var(--term-fg); }
-.yml .yk { color: var(--term-muted); }
-.term-link { color: var(--term-accent); text-decoration: none; }
-.term-link:hover { text-decoration: underline; text-underline-offset: 3px; }
-
+/* a calm portrait without a frame: the photo's dark backdrop fades into the band, so only the person stands out.
+   contrast(0.97) lifts the photo's black to the band's black, so no darker patch shows behind the face */
 .portrait {
-  appearance: none;
-  border: 0;
-  padding: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-}
-.portrait-frame {
-  position: relative;
   display: block;
-  width: clamp(200px, 24vw, 320px);
+  width: clamp(240px, 28vw, 400px);
+  height: auto;
   aspect-ratio: 1;
   max-width: 100%;
-  /* organic blob that slowly breathes instead of a plain circle */
-  border-radius: 58% 42% 55% 45% / 47% 58% 42% 53%;
-  overflow: hidden;
-  background: var(--term-bg);
-  box-shadow: 0 0 0 1px rgba(63, 224, 245, 0.28), 0 0 36px rgba(63, 224, 245, 0.1);
-  animation: blob 16s ease-in-out infinite;
-  transition: box-shadow 0.3s ease;
-}
-.portrait.is-sharp .portrait-frame { box-shadow: 0 0 0 1px rgba(63, 224, 245, 0.5), 0 0 48px rgba(63, 224, 245, 0.2); }
-@keyframes blob {
-  0%, 100% { border-radius: 58% 42% 55% 45% / 47% 58% 42% 53%; }
-  25% { border-radius: 45% 55% 40% 60% / 60% 42% 58% 40%; }
-  50% { border-radius: 62% 38% 48% 52% / 40% 55% 45% 60%; }
-  75% { border-radius: 40% 60% 62% 38% / 55% 38% 62% 45%; }
-}
-@media (prefers-reduced-motion: reduce) { .portrait-frame { animation: none; transition: none; } }
-/* With script: a true organic outline drawn as a morphing clip-path; the glow follows it */
-.portrait.blob-js .portrait-frame { border-radius: 0; animation: none; box-shadow: none; }
-.portrait.blob-js {
-  filter: drop-shadow(0 0 1px rgba(63, 224, 245, 0.55)) drop-shadow(0 0 22px rgba(63, 224, 245, 0.12));
-  transition: filter 0.3s ease;
-}
-.portrait.blob-js.is-sharp { filter: drop-shadow(0 0 1px rgba(63, 224, 245, 0.8)) drop-shadow(0 0 30px rgba(63, 224, 245, 0.24)); }
-.portrait.blob-js:focus-visible { filter: drop-shadow(0 0 2px #3FE0F5) drop-shadow(0 0 2px #3FE0F5) drop-shadow(0 0 18px rgba(63, 224, 245, 0.4)); }
-.portrait.blob-js:focus-visible .portrait-frame { outline: none; }
-.portrait-img, .portrait-px {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
   object-fit: cover;
-}
-.portrait-px { image-rendering: pixelated; }
-.portrait.fx:not(.is-sharp) .portrait-img { visibility: hidden; }
-.portrait-frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px);
-  transition: opacity 0.25s ease;
-}
-.portrait.is-sharp .portrait-frame::after { opacity: 0; }
-.portrait-hint { font-size: var(--fs-s); color: var(--term-muted); }
-.portrait:focus-visible { outline: none; }
-.portrait:focus-visible .portrait-frame { outline: 2px solid var(--term-accent); outline-offset: 4px; }
-@media (prefers-reduced-motion: reduce) {
-  .cursor { animation: none; }
-  .portrait-frame::after, .portrait.blob-js { transition: none; }
+  filter: contrast(0.97);
+  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 46%, #000 58%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 50% at 50% 46%, #000 58%, transparent 100%);
 }
 .about-text { display: flex; flex-direction: column; gap: 24px; min-width: 0; max-width: 64ch; }
-.about-text > .prompt { margin-bottom: -12px; }
 
-.about-text p { margin: 0; }
+.about-text p { margin: 0; text-wrap: pretty; }
 .placeholder { color: var(--muted); font-style: italic; }
-@media (max-width: 640px) { .about { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) { .about { grid-template-columns: minmax(0, 1fr); } .about > .portrait { justify-self: center; } }
 
 #approach .prompt, #contact .prompt { color: var(--muted); }
 #approach .prompt .host, #contact .prompt .host { color: var(--accent); }
@@ -1477,7 +1384,7 @@ html.smart .ftab-bottom { display: none; }
       <div class="hero-text">
         <h1 id="hero-title" data-i18n="hero.title" data-strike>Wenn alles <span class="squiggle">einfach</span> wird …</h1>
         <div class="hero-side">
-        <p class="lede"><span class="bar" data-i18n="hero.lede">… braucht es jemanden, der weiß, worauf es wirklich ankommt.</span></p>
+        <p class="lede"><span class="bar" data-i18n="hero.lede">… braucht es Menschen, die wissen, worauf es wirklich ankommt.</span></p>
         <p class="role" data-i18n="hero.eyebrow">Softwareentwickler · KI-gestützt, menschlich geführt</p>
         <div class="cta">
           <a class="btn btn-primary" href="#contact"><span data-i18n="cta.contact">Kontakt aufnehmen</span>
@@ -1844,15 +1751,15 @@ html.smart .ftab-bottom { display: none; }
       <ol class="steps">
         <li>
           <h3 data-i18n="step1.title">Das Problem verstehen</h3>
-          <p data-i18n="step1.text">Bevor man Code schreibt, stellt man sicher, dass das richtige Problem gelöst wird. Eine gute Frage spart mehr Zeit als eine schnelle Antwort.</p>
+          <p data-i18n="step1.text">Bevor man loslegt, stellt man sicher, dass man das richtige Problem löst. Eine gute Frage spart mehr Zeit als eine schnelle Antwort.</p>
         </li>
         <li>
-          <h3 data-i18n="step2.title">Schnell bauen mit KI</h3>
-          <p data-i18n="step2.text">KI-Tools übernehmen die Routinearbeit. So bleibt die Zeit für die Teile, die Erfahrung und Urteilsvermögen brauchen.</p>
+          <h3 data-i18n="step2.title">Schneller arbeiten mit KI</h3>
+          <p data-i18n="step2.text">KI übernimmt die Routine. So bleibt mehr Zeit für das, was Erfahrung und Urteilsvermögen braucht.</p>
         </li>
         <li>
-          <h3 data-i18n="step3.title">Für jede Zeile geradestehen</h3>
-          <p data-i18n="step3.text">Nichts geht live, was man nicht erklären kann. Jede Zeile wird geprüft, getestet und verantwortet.</p>
+          <h3 data-i18n="step3.title">Für jedes Ergebnis geradestehen</h3>
+          <p data-i18n="step3.text">Nichts geht raus, was man nicht erklären kann. Jedes Ergebnis wird geprüft, hinterfragt und verantwortet.</p>
         </li>
       </ol>
     </div>
@@ -1861,18 +1768,11 @@ html.smart .ftab-bottom { display: none; }
   <section class="section about-band" id="about" aria-labelledby="about-title">
     <div class="wrap">
       <div class="about">
-        <button class="portrait" type="button" aria-pressed="false" aria-label="Foto entschlüsseln" data-i18n-aria="portrait.label">
-          <span class="portrait-frame">
-            <img class="portrait-img" src="images/alexander-fuhr.jpg" alt="Alexander Fuhr" width="240" height="240">
-            <canvas class="portrait-px" aria-hidden="true"></canvas>
-          </span>
-        </button>
+        <img class="portrait" src="images/alexander-fuhr.jpg" alt="Alexander Fuhr" width="480" height="480" loading="lazy" decoding="async">
         <div class="about-text">
-          <p class="prompt" aria-hidden="true"><span class="host">alex@arfr</span>:~$ <span class="cmd">whoami</span></p>
-          <h2 id="about-title" class="h2"><span class="scramble" data-i18n="about.title">Hi, ich bin Alex.</span><span class="cursor" aria-hidden="true"></span></h2>
-          <p data-i18n="about.text">Softwareentwicklung mit KI als Werkzeug, nicht als Ersatz fürs Denken: Sie beschleunigt die Arbeit, der Mensch sorgt dafür, dass das Ergebnis stimmt.</p>
-          <p class="prompt" aria-hidden="true"><span class="host">alex@arfr</span>:~$ <span class="cmd">cat profile.yml</span></p>
-          <pre class="term yml" data-ui><span class="yl"><span class="yk">name:</span>     Alexander Fuhr</span><span class="yl"><span class="yk">role:</span>     <span data-i18n="role.title">Softwareentwickler</span></span><span class="yl"><span class="yk">workflow:</span> <span data-i18n="profile.workflow">[verstehen, bauen, verantworten]</span></span><span class="yl"><span class="yk">ai:</span>       { role: assist, decides: false }</span></pre>
+          <h2 id="about-title" class="h2"><span class="scramble" data-i18n="about.title">Entwickler von Beruf und aus Leidenschaft.</span></h2>
+          <p data-i18n="about.text">Seit über 20 Jahren entwickle ich für das Web. Mein Ziel ist, Komplexität aufzubrechen, statt Systeme noch komplexer zu machen.</p>
+          <p data-i18n="about.text2">Diese Seite ist seit über 15 Jahren mein persönliches Experimentierfeld. Ich baue sie immer wieder neu und probiere aus, was sich im Web bewährt und was nicht.</p>
         </div>
       </div>
     </div>
@@ -2030,7 +1930,7 @@ html.smart .ftab-bottom { display: none; }
       "hero.eyebrow": "Software Developer · AI-assisted, human-led",
       "approach.cmd": "cat approach.md", "role.tag": "AI-assisted, human-led",
       "hero.title": "When everything gets [easy] …",
-      "hero.lede": "… you need someone who knows what really matters.",
+      "hero.lede": "… you need people who know what really matters.",
       "role.title": "Software Developer", "role.country": "Germany", "profile.workflow": "[understand, build, own it]",
       "cta.contact": "Get in touch",
       "review.aria": "Code review examples: an AI suggestion, a human correction, then approval",
@@ -2042,17 +1942,17 @@ html.smart .ftab-bottom { display: none; }
       "approach.title": "The tools are getting smarter.",
       "approach.lede": "Good decisions still need a clear head.",
       "step1.title": "Understand the problem",
-      "step1.text": "Before any code is written, it's clear which problem is being solved. A good question saves more time than a fast answer.",
-      "step2.title": "Build fast with AI",
-      "step2.text": "AI tools handle the routine work, so the time goes into the parts that need experience and judgment.",
-      "step3.title": "Own every line",
-      "step3.text": "Nothing ships that can't be explained. Every line is reviewed, tested and owned.",
-      "about.eyebrow": "About", "about.title": "Hi, I'm Alex.",
-      "about.text": "Software development with AI as a tool, not a replacement for thinking: it speeds up the work, and a human makes sure the result is right.",
+      "step1.text": "Before getting started, make sure it's the right problem being solved. A good question saves more time than a fast answer.",
+      "step2.title": "Work faster with AI",
+      "step2.text": "AI takes over the routine, leaving more time for what needs experience and judgment.",
+      "step3.title": "Own every result",
+      "step3.text": "Nothing goes out that can't be explained. Every result is checked, questioned and owned.",
+      "about.eyebrow": "About", "about.title": "A developer by trade and by passion.",
+      "about.text": "I've been building for the web for more than 20 years. My goal is to break complexity down instead of making systems even more complex.", "about.text2": "For more than 15 years, this site has been my personal test bed. I keep rebuilding it to find out what works on the web and what doesn't.",
       "contact.eyebrow": "Contact", "contact.title": "Got something that matters?", "contact.lede": "Let's talk about it.",
       "contact.copy": "Copy email address", "contact.write": "Email",
       "status.copied": "Email address copied.", "status.selected": "Address selected. Copy it from here.",
-      "term.mode": "AI-assisted, human-led", "term.location": "everywhere", "portrait.label": "Decrypt photo", "portrait.hint": "decrypt photo",
+      "term.mode": "AI-assisted, human-led", "term.location": "everywhere",
       "carousel.label": "Examples", "carousel.prev": "Previous example", "carousel.next": "Next example",
       "lang.pseudo": "Pseudo code",
       "c.php": "Little Bobby Tables says hi. Prepared statements, please.",
@@ -2249,7 +2149,7 @@ html.smart .ftab-bottom { display: none; }
       "hero.eyebrow": "Softwareentwickler · KI-gestützt, menschlich geführt",
       "approach.cmd": "cat vorgehen.md", "role.tag": "KI-gestützt, menschlich geführt",
       "hero.title": "Wenn alles [einfach] wird …",
-      "hero.lede": "… braucht es jemanden, der weiß, worauf es wirklich ankommt.",
+      "hero.lede": "… braucht es Menschen, die wissen, worauf es wirklich ankommt.",
       "role.title": "Softwareentwickler", "role.country": "Deutschland", "profile.workflow": "[verstehen, bauen, verantworten]",
       "cta.contact": "Kontakt aufnehmen",
       "review.aria": "Beispiele für Code-Reviews: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe",
@@ -2261,17 +2161,17 @@ html.smart .ftab-bottom { display: none; }
       "approach.title": "Die Tools werden klüger.",
       "approach.lede": "Gute Entscheidungen brauchen trotzdem einen klaren Kopf.",
       "step1.title": "Das Problem verstehen",
-      "step1.text": "Bevor man Code schreibt, stellt man sicher, dass das richtige Problem gelöst wird. Eine gute Frage spart mehr Zeit als eine schnelle Antwort.",
-      "step2.title": "Schnell bauen mit KI",
-      "step2.text": "KI-Tools übernehmen die Routinearbeit. So bleibt die Zeit für die Teile, die Erfahrung und Urteilsvermögen brauchen.",
-      "step3.title": "Für jede Zeile geradestehen",
-      "step3.text": "Nichts geht live, was man nicht erklären kann. Jede Zeile wird geprüft, getestet und verantwortet.",
-      "about.eyebrow": "Über mich", "about.title": "Hi, ich bin Alex.",
-      "about.text": "Softwareentwicklung mit KI als Werkzeug, nicht als Ersatz fürs Denken: Sie beschleunigt die Arbeit, der Mensch sorgt dafür, dass das Ergebnis stimmt.",
+      "step1.text": "Bevor man loslegt, stellt man sicher, dass man das richtige Problem löst. Eine gute Frage spart mehr Zeit als eine schnelle Antwort.",
+      "step2.title": "Schneller arbeiten mit KI",
+      "step2.text": "KI übernimmt die Routine. So bleibt mehr Zeit für das, was Erfahrung und Urteilsvermögen braucht.",
+      "step3.title": "Für jedes Ergebnis geradestehen",
+      "step3.text": "Nichts geht raus, was man nicht erklären kann. Jedes Ergebnis wird geprüft, hinterfragt und verantwortet.",
+      "about.eyebrow": "Über mich", "about.title": "Entwickler von Beruf und aus Leidenschaft.",
+      "about.text": "Seit über 20 Jahren entwickle ich für das Web. Mein Ziel ist, Komplexität aufzubrechen, statt Systeme noch komplexer zu machen.", "about.text2": "Diese Seite ist seit über 15 Jahren mein persönliches Experimentierfeld. Ich baue sie immer wieder neu und probiere aus, was sich im Web bewährt und was nicht.",
       "contact.eyebrow": "Kontakt", "contact.title": "Etwas, worauf es ankommt?", "contact.lede": "Sprechen wir darüber.",
       "contact.copy": "E-Mail-Adresse kopieren", "contact.write": "E-Mail",
       "status.copied": "E-Mail-Adresse kopiert.", "status.selected": "Adresse markiert, jetzt einfach kopieren.",
-      "term.mode": "KI-gestützt, menschlich geführt", "term.location": "überall", "portrait.label": "Foto entschlüsseln", "portrait.hint": "foto entschlüsseln",
+      "term.mode": "KI-gestützt, menschlich geführt", "term.location": "überall",
       "carousel.label": "Beispiele", "carousel.prev": "Vorheriges Beispiel", "carousel.next": "Nächstes Beispiel",
       "lang.pseudo": "Pseudocode",
       "c.php": "Grüße von Little Bobby Tables. Bitte mit Prepared Statement.",
@@ -2468,7 +2368,7 @@ html.smart .ftab-bottom { display: none; }
       "hero.eyebrow": "Разработчик ПО · ИИ помогает, решает человек",
       "approach.cmd": "cat approach.md", "role.tag": "ИИ помогает, решает человек",
       "hero.title": "Когда всё становится [просто] …",
-      "hero.lede": "… нужен тот, кто знает, что действительно важно.",
+      "hero.lede": "… нужны люди, которые знают, что действительно важно.",
       "role.title": "Разработчик ПО", "role.country": "Германия", "profile.workflow": "[понять, сделать, отвечать]",
       "cta.contact": "Связаться",
       "review.aria": "Примеры код-ревью: предложение ИИ, исправление человеком, затем одобрение",
@@ -2480,17 +2380,17 @@ html.smart .ftab-bottom { display: none; }
       "approach.title": "Инструменты становятся умнее.",
       "approach.lede": "Но для хороших решений всё ещё нужна ясная голова.",
       "step1.title": "Понять задачу",
-      "step1.text": "Прежде чем писать код, важно убедиться, что решается правильная задача. Хороший вопрос экономит больше времени, чем быстрый ответ.",
-      "step2.title": "Быстро с помощью ИИ",
-      "step2.text": "Рутину берут на себя инструменты ИИ, а время уходит на то, что требует опыта и здравого суждения.",
-      "step3.title": "Отвечать за каждую строку",
-      "step3.text": "В продакшн не уходит ничего, что нельзя объяснить. Каждую строку проверяют, тестируют и отвечают за неё.",
-      "about.eyebrow": "Обо мне", "about.title": "Привет, я Алекс.",
-      "about.text": "Разработка ПО с ИИ как инструментом, а не заменой мышления: он ускоряет работу, а человек следит за тем, чтобы результат был верным.",
+      "step1.text": "Прежде чем браться за дело, важно убедиться, что решается правильная задача. Хороший вопрос экономит больше времени, чем быстрый ответ.",
+      "step2.title": "Быстрее с помощью ИИ",
+      "step2.text": "ИИ берёт на себя рутину, и остаётся больше времени на то, что требует опыта и здравого суждения.",
+      "step3.title": "Отвечать за каждый результат",
+      "step3.text": "Дальше не уходит ничего, что нельзя объяснить. Каждый результат проверяют, ставят под сомнение и отвечают за него.",
+      "about.eyebrow": "Обо мне", "about.title": "Пишу код на работе и для души.",
+      "about.text": "Больше 20 лет я занимаюсь веб-разработкой. Моя цель — упрощать сложное, а не делать системы ещё сложнее.", "about.text2": "Этот сайт уже больше 15 лет — моя личная площадка для экспериментов. Я раз за разом перестраиваю его и проверяю, что в вебе работает, а что нет.",
       "contact.eyebrow": "Контакт", "contact.title": "Есть что-то действительно важное?", "contact.lede": "Давайте обсудим.",
       "contact.copy": "Скопировать адрес", "contact.write": "E-mail",
       "status.copied": "Адрес скопирован.", "status.selected": "Адрес выделен, скопируйте его.",
-      "term.mode": "ИИ помогает, решает человек", "term.location": "везде", "portrait.label": "Расшифровать фото", "portrait.hint": "расшифровать фото",
+      "term.mode": "ИИ помогает, решает человек", "term.location": "везде",
       "carousel.label": "Примеры", "carousel.prev": "Предыдущий пример", "carousel.next": "Следующий пример",
       "lang.pseudo": "Псевдокод",
       "c.php": "Привет от Little Bobby Tables. Только prepared statements.",
@@ -2691,7 +2591,7 @@ html.smart .ftab-bottom { display: none; }
       "approach.cmd": "cat pristup.md",
       "role.tag": "AI pomaže, čovek vodi",
       "hero.title": "Kad sve postane [lako] …",
-      "hero.lede": "… potreban je neko ko zna šta je zaista važno.",
+      "hero.lede": "… potrebni su ljudi koji znaju šta je zaista važno.",
       "role.title": "Softverski programer",
       "role.country": "Nemačka",
       "profile.workflow": "[razumeti, izgraditi, odgovarati]",
@@ -2708,14 +2608,14 @@ html.smart .ftab-bottom { display: none; }
       "approach.title": "Alati postaju pametniji.",
       "approach.lede": "Dobre odluke i dalje traže bistru glavu.",
       "step1.title": "Razumeti problem",
-      "step1.text": "Pre nego što se napiše kod, proverava se da li se rešava pravi problem. Dobro pitanje štedi više vremena od brzog odgovora.",
-      "step2.title": "Brzo graditi uz AI",
-      "step2.text": "AI alati preuzimaju rutinski posao, pa vreme ostaje za delove koji traže iskustvo i rasuđivanje.",
-      "step3.title": "Stati iza svake linije",
-      "step3.text": "U produkciju ne ide ništa što se ne može objasniti. Svaka linija se pregleda, testira i za nju se odgovara.",
+      "step1.text": "Pre nego što se krene, proverava se da li se rešava pravi problem. Dobro pitanje štedi više vremena od brzog odgovora.",
+      "step2.title": "Brže raditi uz AI",
+      "step2.text": "AI preuzima rutinu, pa ostaje više vremena za ono što traži iskustvo i rasuđivanje.",
+      "step3.title": "Stati iza svakog rezultata",
+      "step3.text": "Ništa ne izlazi što se ne može objasniti. Svaki rezultat se proverava, preispituje i za njega se odgovara.",
       "about.eyebrow": "O meni",
-      "about.title": "Zdravo, ja sam Alex.",
-      "about.text": "Razvoj softvera uz AI kao alat, a ne kao zamenu za razmišljanje: ubrzava posao, a čovek se stara da rezultat bude tačan.",
+      "about.title": "Programer, na poslu i iz ljubavi.",
+      "about.text": "Više od 20 godina razvijam za veb. Cilj mi je da razbijem složenost, umesto da sisteme činim još složenijim.", "about.text2": "Ovaj sajt je već više od 15 godina moje lično polje za eksperimente. Iznova ga pravim i isprobavam šta se na vebu pokazalo dobrim, a šta ne.",
       "contact.eyebrow": "Kontakt",
       "contact.title": "Imaš nešto što je važno?",
       "contact.lede": "Hajde da razgovaramo.",
@@ -2725,8 +2625,6 @@ html.smart .ftab-bottom { display: none; }
       "status.selected": "Adresa je označena, samo je kopiraj.",
       "term.mode": "AI pomaže, čovek vodi",
       "term.location": "svuda",
-      "portrait.label": "Dešifruj fotografiju",
-      "portrait.hint": "dešifruj fotografiju",
       "carousel.label": "Primeri",
       "carousel.prev": "Prethodni primer",
       "carousel.next": "Sledeći primer",
@@ -2980,7 +2878,7 @@ html.smart .ftab-bottom { display: none; }
       "approach.cmd": "cat approach.md",
       "role.tag": "Η AI βοηθά, ο άνθρωπος αποφασίζει",
       "hero.title": "Όταν όλα γίνονται [εύκολα] …",
-      "hero.lede": "… χρειάζεται κάποιος που ξέρει τι πραγματικά μετράει.",
+      "hero.lede": "… χρειάζονται άνθρωποι που ξέρουν τι πραγματικά μετράει.",
       "role.title": "Προγραμματιστής λογισμικού",
       "role.country": "Γερμανία",
       "profile.workflow": "[κατανόηση, υλοποίηση, ευθύνη]",
@@ -2997,14 +2895,14 @@ html.smart .ftab-bottom { display: none; }
       "approach.title": "Τα εργαλεία γίνονται εξυπνότερα.",
       "approach.lede": "Οι καλές αποφάσεις θέλουν ακόμα καθαρό μυαλό.",
       "step1.title": "Κατανόηση του προβλήματος",
-      "step1.text": "Πριν γραφτεί κώδικας, εξασφαλίζεται ότι λύνεται το σωστό πρόβλημα. Μια καλή ερώτηση γλιτώνει περισσότερο χρόνο από μια γρήγορη απάντηση.",
-      "step2.title": "Γρήγορη υλοποίηση με AI",
-      "step2.text": "Τα εργαλεία AI αναλαμβάνουν τη ρουτίνα, ώστε ο χρόνος να πηγαίνει στα σημεία που θέλουν εμπειρία και κρίση.",
-      "step3.title": "Ευθύνη για κάθε γραμμή",
-      "step3.text": "Τίποτα δεν βγαίνει live αν δεν μπορεί να εξηγηθεί. Κάθε γραμμή ελέγχεται, δοκιμάζεται και έχει κάποιον υπεύθυνο.",
+      "step1.text": "Πριν ξεκινήσει κανείς, βεβαιώνεται ότι λύνει το σωστό πρόβλημα. Μια καλή ερώτηση γλιτώνει περισσότερο χρόνο από μια γρήγορη απάντηση.",
+      "step2.title": "Πιο γρήγορη δουλειά με AI",
+      "step2.text": "Η AI αναλαμβάνει τη ρουτίνα, ώστε να μένει περισσότερος χρόνος για ό,τι θέλει εμπειρία και κρίση.",
+      "step3.title": "Ευθύνη για κάθε αποτέλεσμα",
+      "step3.text": "Τίποτα δεν βγαίνει προς τα έξω αν δεν μπορεί να εξηγηθεί. Κάθε αποτέλεσμα ελέγχεται, αμφισβητείται και έχει κάποιον υπεύθυνο.",
       "about.eyebrow": "Σχετικά",
-      "about.title": "Γεια, είμαι ο Alex.",
-      "about.text": "Ανάπτυξη λογισμικού με την AI ως εργαλείο, όχι ως υποκατάστατο της σκέψης: επιταχύνει τη δουλειά και ο άνθρωπος φροντίζει να είναι σωστό το αποτέλεσμα.",
+      "about.title": "Προγραμματιστής, από επάγγελμα και πάθος.",
+      "about.text": "Εδώ και πάνω από 20 χρόνια αναπτύσσω για το web. Στόχος μου είναι να σπάω την πολυπλοκότητα, αντί να κάνω τα συστήματα ακόμη πιο πολύπλοκα.", "about.text2": "Αυτός ο ιστότοπος είναι εδώ και πάνω από 15 χρόνια το προσωπικό μου πεδίο πειραματισμού. Τον ξαναχτίζω συνεχώς και δοκιμάζω τι δουλεύει στο web και τι όχι.",
       "contact.eyebrow": "Επικοινωνία",
       "contact.title": "Κάτι που έχει σημασία;",
       "contact.lede": "Ας το συζητήσουμε.",
@@ -3014,8 +2912,6 @@ html.smart .ftab-bottom { display: none; }
       "status.selected": "Η διεύθυνση επιλέχθηκε, απλώς αντίγραψέ την.",
       "term.mode": "Η AI βοηθά, ο άνθρωπος αποφασίζει",
       "term.location": "παντού",
-      "portrait.label": "Αποκρυπτογράφηση φωτογραφίας",
-      "portrait.hint": "αποκρυπτογράφηση φωτογραφίας",
       "carousel.label": "Παραδείγματα",
       "carousel.prev": "Προηγούμενο παράδειγμα",
       "carousel.next": "Επόμενο παράδειγμα",
@@ -3526,122 +3422,6 @@ html.smart .ftab-bottom { display: none; }
     check();
   })();
 
-  /* Pixel portrait: rests as pixel art, sharpens on hover or tap */
-  (function portraitFx() {
-    var btn = document.querySelector('.portrait');
-    if (!btn) return;
-    var img = btn.querySelector('.portrait-img');
-    var cv = btn.querySelector('.portrait-px');
-    var ctx = cv.getContext('2d');
-    var STEPS = [44, 70, 110, 170, 0]; /* cells across; 0 = sharp photo */
-    var cache = {};
-    btn.classList.add('fx');
-    /* Average the photo down in halving steps so the pixels look like the face, not noise */
-    function frame(cells) {
-      if (cache[cells]) return cache[cells];
-      var src = img, n = img.naturalWidth || 480;
-      while (n / 2 >= cells * 2) {
-        var m = Math.floor(n / 2);
-        var c = document.createElement('canvas');
-        c.width = c.height = m;
-        var cx = c.getContext('2d');
-        cx.imageSmoothingEnabled = true;
-        cx.imageSmoothingQuality = 'high';
-        cx.drawImage(src, 0, 0, m, m);
-        src = c; n = m;
-      }
-      var out = document.createElement('canvas');
-      out.width = out.height = cells;
-      var octx = out.getContext('2d');
-      octx.imageSmoothingEnabled = true;
-      octx.imageSmoothingQuality = 'high';
-      octx.drawImage(src, 0, 0, cells, cells);
-      cache[cells] = out;
-      return out;
-    }
-    var level = 0, timer = null, locked = false;
-    function sizeCanvas() {
-      var r = cv.getBoundingClientRect();
-      var s = Math.round(r.width * (window.devicePixelRatio || 1));
-      if (s && (cv.width !== s || cv.height !== s)) { cv.width = s; cv.height = s; }
-      return s;
-    }
-    function draw(cells) {
-      btn.classList.toggle('is-sharp', cells === 0);
-      if (!cells) { cv.style.opacity = '0'; return; }
-      var s = sizeCanvas();
-      if (!s) return;
-      var f = frame(cells);
-      ctx.imageSmoothingEnabled = false;
-      ctx.clearRect(0, 0, s, s);
-      ctx.drawImage(f, 0, 0, cells, cells, 0, 0, s, s);
-      cv.style.opacity = '1';
-    }
-    function go(target) {
-      clearTimeout(timer);
-      if (reduceMotion) { level = target; draw(STEPS[level]); return; }
-      (function step() {
-        if (level === target) return;
-        level += target > level ? 1 : -1;
-        draw(STEPS[level]);
-        timer = setTimeout(step, 70);
-      })();
-    }
-    function sharpen() { go(STEPS.length - 1); }
-    function pixelate() { go(0); }
-    btn.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') sharpen(); });
-    btn.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse' && !locked) pixelate(); });
-    btn.addEventListener('click', function () {
-      locked = !locked;
-      btn.setAttribute('aria-pressed', locked ? 'true' : 'false');
-      if (locked) sharpen(); else pixelate();
-    });
-    function init() { level = 0; draw(STEPS[0]); }
-    if (img.complete && img.naturalWidth) init(); else img.addEventListener('load', init);
-    window.addEventListener('resize', function () { draw(STEPS[level]); });
-  })();
-
-  /* Organic portrait outline: a slowly morphing blob instead of a plain circle */
-  (function organicBlob() {
-    var btn = document.querySelector('.portrait');
-    var frame = btn && btn.querySelector('.portrait-frame');
-    if (!frame || !window.CSS || !CSS.supports || !CSS.supports('clip-path', 'polygon(0 0, 100% 0, 0 100%)')) return;
-    btn.classList.add('blob-js');
-    var N = 72, raf = 0, running = false, onScreen = true, last = 0;
-    var s1 = Math.random() * 6.28, s2 = Math.random() * 6.28, s3 = Math.random() * 6.28;
-    function shape(t) {
-      var pts = [];
-      for (var i = 0; i < N; i++) {
-        var a = (i / N) * Math.PI * 2;
-        var r = 0.415
-          + 0.035 * Math.sin(2 * a + s1 + t * 0.35)
-          + 0.03 * Math.sin(3 * a + s2 - t * 0.25)
-          + 0.018 * Math.sin(5 * a + s3 + t * 0.5);
-        pts.push((50 + Math.cos(a) * r * 100).toFixed(2) + '% ' + (50 + Math.sin(a) * r * 100).toFixed(2) + '%');
-      }
-      frame.style.clipPath = 'polygon(' + pts.join(',') + ')';
-    }
-    function loop(now) {
-      if (now - last > 40) { shape(now / 1000); last = now; }
-      if (running) raf = requestAnimationFrame(loop);
-    }
-    function start() {
-      if (running || reduceMotion || !onScreen || document.hidden) return;
-      running = true;
-      raf = requestAnimationFrame(loop);
-    }
-    function stop() { running = false; cancelAnimationFrame(raf); }
-    shape(0);
-    start();
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (entries) {
-        onScreen = entries[0].isIntersecting;
-        if (onScreen) start(); else stop();
-      }).observe(frame);
-    }
-    document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); else start(); });
-  })();
-
   /* Quiz: the visitor picks an answer, the "AI" applauds whatever it was, then Alex gives the verdict */
   var quizRoot = document.querySelector('.carousel');
   var quizFig = quizRoot ? quizRoot.closest('figure') : null;
@@ -3654,14 +3434,23 @@ html.smart .ftab-bottom { display: none; }
       done();
       return;
     }
+    /* the live region announces the whole reply once; the typing copy is hidden from screen readers */
+    var shown = document.createElement('span');
+    var said = document.createElement('span');
+    shown.setAttribute('aria-hidden', 'true');
+    said.className = 'sr-only';
+    el.textContent = '';
+    el.appendChild(shown);
+    el.appendChild(said);
     el.classList.add('thinking');
-    el.textContent = '…';
+    shown.textContent = '…';
     setTimeout(function () {
       el.classList.remove('thinking');
+      said.textContent = text;
       var k = 0;
       (function step() {
         k += 1;
-        el.textContent = text.slice(0, k);
+        shown.textContent = text.slice(0, k);
         if (k < text.length) setTimeout(step, 18); else done();
       })();
     }, 700);
@@ -4843,7 +4632,7 @@ html.smart .ftab-bottom { display: none; }
             line('workflow: ' + t('profile.workflow'));
             line('ai:       { role: assist, decides: false }');
           } else if (argLow === 'about.txt') {
-            line(t('about.text'));
+            line(t('about.text')); line(t('about.text2'));
           } else if (argLow === 'contact.sh') {
             line('#!/bin/sh\nmail hello@arfr.de');
           } else if (argLow.indexOf('secret') !== -1) {
