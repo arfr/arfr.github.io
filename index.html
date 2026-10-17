@@ -1363,22 +1363,6 @@ section { scroll-margin-top: calc(72px + var(--frame)); }
 .menu-panel[hidden] { display: none; }
 .ftab-top.shown .menu-panel { opacity: 1; visibility: visible; transition: opacity 0.28s ease; }
 .menu-nav { flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-/* back to the top, between the name and the sections */
-.menu-top {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border: 1px solid var(--menu-line);
-  border-radius: 50%;
-  color: var(--muted);
-  transition: color 0.15s ease, border-color 0.15s ease;
-}
-.menu-top svg { width: 17px; height: 17px; transition: transform 0.2s ease; }
-.menu-top:hover, .menu-top:focus-visible { color: var(--fg); border-color: rgba(255, 255, 255, 0.45); outline: none; }
-.menu-top:hover svg, .menu-top:focus-visible svg { transform: translateY(-2px); }
-@media (prefers-reduced-motion: reduce) { .menu-top, .menu-top svg { transition: none; } .menu-top:hover svg { transform: none; } }
 .menu-nav a, .menu-row a, .menu-row button {
   appearance: none;
   margin: 0;
@@ -1989,8 +1973,8 @@ html.smart .ftab-bottom { display: none; }
 <div class="frame" aria-hidden="true"><div class="frame-hole"></div></div>
 <div class="ftab ftab-top" id="menu-tab"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path class="ftab-fill"/><path class="ftab-edge" transform="translate(0 0.5)"/></svg><button type="button" class="ftab-label ftab-name" id="menu-toggle" aria-expanded="false" aria-controls="menu-panel">Alexander Fuhr<span class="sr-only"> – <span data-i18n="nav.menu">Menü</span></span></button>
   <div class="menu-panel" id="menu-panel" hidden>
-    <a class="menu-top" href="#top" aria-label="Nach oben" data-i18n-aria="nav.top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M5.5 11.5 12 5l6.5 6.5"/></svg></a>
     <nav class="menu-nav" aria-label="Hauptnavigation" data-i18n-aria="nav.label">
+      <a href="#top" class="menu-start" data-i18n="nav.start">Start</a>
       <a href="#approach" data-i18n="nav.approach">Vorgehen</a>
       <a href="#about" data-i18n="nav.about">Über mich</a>
       <a href="#contact" data-i18n="nav.contact">Kontakt</a>
@@ -2059,7 +2043,7 @@ html.smart .ftab-bottom { display: none; }
   var I18N = {
     en: {
       "meta.description": "Alexander Fuhr – Software Developer. AI-assisted, human-led.",
-      "nav.label": "Main", "nav.menu": "Menu", "nav.terminal": "Terminal", "nav.top": "Back to top", "tab.scroll": "Scroll down", "tab.scroll.aria": "To the next section", "nav.approach": "Approach", "nav.about": "About", "nav.contact": "Contact",
+      "nav.label": "Main", "nav.menu": "Menu", "nav.terminal": "Terminal", "nav.top": "Back to top", "nav.start": "Start", "tab.scroll": "Scroll down", "tab.scroll.aria": "To the next section", "nav.approach": "Approach", "nav.about": "About", "nav.contact": "Contact",
       "lang.label": "Language",
       "hero.eyebrow": "Software Developer · AI-assisted, human-led",
       "approach.cmd": "cat approach.md", "role.tag": "AI-assisted, human-led",
@@ -2278,7 +2262,7 @@ html.smart .ftab-bottom { display: none; }
     },
     de: {
       "meta.description": "Alexander Fuhr – Softwareentwickler. KI-gestützt, menschlich geführt.",
-      "nav.label": "Hauptnavigation", "nav.menu": "Menü", "nav.terminal": "Terminal", "nav.top": "Nach oben", "tab.scroll": "Nach unten", "tab.scroll.aria": "Zum nächsten Bereich", "nav.approach": "Vorgehen", "nav.about": "Über mich", "nav.contact": "Kontakt",
+      "nav.label": "Hauptnavigation", "nav.menu": "Menü", "nav.terminal": "Terminal", "nav.top": "Nach oben", "nav.start": "Start", "tab.scroll": "Nach unten", "tab.scroll.aria": "Zum nächsten Bereich", "nav.approach": "Vorgehen", "nav.about": "Über mich", "nav.contact": "Kontakt",
       "lang.label": "Sprache",
       "hero.eyebrow": "Softwareentwickler · KI-gestützt, menschlich geführt",
       "approach.cmd": "cat vorgehen.md", "role.tag": "KI-gestützt, menschlich geführt",
@@ -2497,7 +2481,7 @@ html.smart .ftab-bottom { display: none; }
     },
     ru: {
       "meta.description": "Alexander Fuhr – разработчик ПО. ИИ помогает, решает человек.",
-      "nav.label": "Основная навигация", "nav.menu": "Меню", "nav.terminal": "Терминал", "nav.top": "Наверх", "tab.scroll": "Вниз", "tab.scroll.aria": "К следующему разделу", "nav.approach": "Подход", "nav.about": "Обо мне", "nav.contact": "Контакт",
+      "nav.label": "Основная навигация", "nav.menu": "Меню", "nav.terminal": "Терминал", "nav.top": "Наверх", "nav.start": "Начало", "tab.scroll": "Вниз", "tab.scroll.aria": "К следующему разделу", "nav.approach": "Подход", "nav.about": "Обо мне", "nav.contact": "Контакт",
       "lang.label": "Язык",
       "hero.eyebrow": "Разработчик ПО · ИИ помогает, решает человек",
       "approach.cmd": "cat approach.md", "role.tag": "ИИ помогает, решает человек",
@@ -2716,7 +2700,7 @@ html.smart .ftab-bottom { display: none; }
     },
     sr: {
       "meta.description": "Alexander Fuhr – softverski programer. AI pomaže, čovek vodi.",
-      "nav.label": "Glavna navigacija", "nav.menu": "Meni", "nav.terminal": "Terminal", "nav.top": "Na vrh", "tab.scroll": "Nadole", "tab.scroll.aria": "Na sledeći deo",
+      "nav.label": "Glavna navigacija", "nav.menu": "Meni", "nav.terminal": "Terminal", "nav.top": "Na vrh", "nav.start": "Početak", "tab.scroll": "Nadole", "tab.scroll.aria": "Na sledeći deo",
       "nav.approach": "Pristup",
       "nav.about": "O meni",
       "nav.contact": "Kontakt",
@@ -3005,7 +2989,7 @@ html.smart .ftab-bottom { display: none; }
     },
     el: {
       "meta.description": "Alexander Fuhr – Προγραμματιστής λογισμικού. Η AI βοηθά, ο άνθρωπος αποφασίζει.",
-      "nav.label": "Κύρια πλοήγηση", "nav.menu": "Μενού", "nav.terminal": "Τερματικό", "nav.top": "Στην κορυφή", "tab.scroll": "Κάτω", "tab.scroll.aria": "Στην επόμενη ενότητα",
+      "nav.label": "Κύρια πλοήγηση", "nav.menu": "Μενού", "nav.terminal": "Τερματικό", "nav.top": "Στην κορυφή", "nav.start": "Αρχή", "tab.scroll": "Κάτω", "tab.scroll.aria": "Στην επόμενη ενότητα",
       "nav.approach": "Προσέγγιση",
       "nav.about": "Σχετικά",
       "nav.contact": "Επικοινωνία",
@@ -3452,7 +3436,7 @@ html.smart .ftab-bottom { display: none; }
     function openSize() {
       var f = frameInset(), vw = document.documentElement.clientWidth, vh = window.innerHeight;
       var w = Math.min(460, vw - 2 * f - 24);
-      var need = tab._td + contentHeight(w) + 5 * 18;
+      var need = tab._td + contentHeight(w) + 4 * 18;
       var d = Math.max(Math.round(vh / 2) - f, need);
       return { w: w, d: Math.min(d, vh - 2 * f - 24) };
     }
@@ -3515,7 +3499,7 @@ html.smart .ftab-bottom { display: none; }
       keyOpen = false;
     });
     panel.querySelectorAll('.menu-nav a, .menu-acts a').forEach(function (a) { a.addEventListener('click', function () { close(false); }); });
-    var topLink = panel.querySelector('.menu-top');
+    var topLink = panel.querySelector('.menu-start');
     if (topLink) topLink.addEventListener('click', function (e) {
       e.preventDefault();
       close(false);
