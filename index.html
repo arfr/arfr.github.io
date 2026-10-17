@@ -141,113 +141,6 @@ a { color: inherit; }
   gap: 16px;
   height: 100%;
 }
-/* burger and globe sit in the panel's corners: icon centre as far from the side as from the top */
-.site-head .wrap { max-width: none; padding-left: calc(var(--corner-c) - 20px); padding-right: calc(var(--corner-c) - 20px); }
-.brand {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  text-decoration: none;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: var(--fs-m);
-  letter-spacing: -0.01em;
-}
-.brand small {
-  font-family: var(--font-mono);
-  font-weight: 400;
-  font-size: var(--fs-s);
-  color: var(--muted);
-}
-.nav { display: flex; gap: 4px; flex-wrap: wrap; }
-/* Menu: a burger in the top-left corner, the sections drop down like the language list */
-.menu { position: relative; }
-.menu-toggle, .lang-toggle {
-  display: inline-grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  margin-top: calc(2 * var(--corner-c) - var(--tab-d));
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  transition: color 0.15s ease;
-}
-.menu-toggle:hover, .menu-toggle[aria-expanded="true"], .lang-toggle:hover, .lang-toggle[aria-expanded="true"] { color: var(--fg); }
-.menu-toggle svg { width: 22px; height: 22px; overflow: visible; }
-/* three lines of falling length that cross into an X when open */
-.menu-toggle path { transform-box: view-box; transform-origin: 12px 12px; transition: transform 0.22s ease, opacity 0.2s ease; }
-.menu-toggle .m1 { transform: translate(0, -5px) rotate(0) scaleX(1); }
-.menu-toggle .m2 { transform: translate(-3px, 0) rotate(0) scaleX(0.667); }
-.menu-toggle .m3 { transform: translate(-5.5px, 5px) rotate(0) scaleX(0.389); }
-.menu-toggle[aria-expanded="true"] .m1 { transform: translate(0, 0) rotate(45deg) scaleX(0.9); }
-.menu-toggle[aria-expanded="true"] .m2 { opacity: 0; }
-.menu-toggle[aria-expanded="true"] .m3 { transform: translate(0, 0) rotate(-45deg) scaleX(0.9); }
-@media (prefers-reduced-motion: reduce) { .menu-toggle path { transition: none; } }
-
-.brand { white-space: nowrap; }
-
-.head-right { display: flex; align-items: center; gap: 12px; }
-/* Language: globe button with a small dropdown */
-.lang { position: relative; }
-/* just the globe; the current language is marked in the list */
-.lang-toggle .globe { width: 20px; height: 20px; }
-.lang-toggle #lang-current, .lang-toggle .chev { display: none; }
-.lang-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
-/* Both drop-downs speak the frame's language: black, a grey hairline, tracked capitals */
-.lang-menu, .menu-list {
-  position: absolute;
-  top: calc(100% + 8px);
-  z-index: 30;
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 8px 0;
-  list-style: none;
-  background: #000;
-  border: 1px solid var(--menu-line);
-  border-radius: 12px;
-}
-.lang-menu { right: 0; }
-.menu-list { left: 0; }
-.lang-menu[hidden], .menu-list[hidden] { display: none; }
-.lang-menu button, .menu-list a {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-height: 40px;
-  padding: 0 20px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--muted);
-  font-family: var(--font-display);
-  font-size: var(--fs-s);
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: color 0.15s ease;
-}
-.lang-menu button { justify-content: flex-end; text-align: right; }
-.lang-menu button:hover, .lang-menu button:focus-visible, .menu-list a:hover, .menu-list a:focus-visible { color: var(--fg); outline: none; }
-.lang-menu button:focus-visible, .menu-list a:focus-visible { text-decoration: underline; text-underline-offset: 5px; }
-.lang-code { display: none; }
-/* the language in use: white, with a small dot */
-.lang-menu button[aria-pressed="true"] { color: var(--fg); }
-.lang-menu button[aria-pressed="true"]::before {
-  content: "";
-  width: 5px;
-  height: 5px;
-  margin-right: 10px;
-  border-radius: 50%;
-  background: currentColor;
-}
-@media (prefers-reduced-motion: reduce) { .lang-toggle, .menu-toggle { transition: none; } }
 
 /* Hero */
 /* The hero is a dark neon stage in both themes, on purpose: the glow only works on black */
@@ -1413,9 +1306,6 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
   --tab-d: 30px;
   --frame-line: transparent; /* contour on the frame and tabs; was rgba(255, 255, 255, 0.16) */
   --menu-line: rgba(255, 255, 255, 0.16);
-  /* distance from the frame edge to the centre of the corner icons */
-  --corner-c: 30px;
-  --corner-x: calc(var(--frame) + var(--corner-c) - 20px);
 }
 html { background: #000; scrollbar-color: #2A272A #000; }
 body { padding: var(--frame); }
@@ -1451,7 +1341,61 @@ section { scroll-margin-top: calc(72px + var(--frame)); }
   padding-inline: 26px;
 }
 .ftab.drawn { background: none; border-radius: 0; padding-inline: 0; }
-.ftab-top { top: var(--frame); }
+.ftab-top { top: var(--frame); align-items: flex-start; }
+/* the name is the menu button; the tab grows into a drawer below it */
+.ftab-name {
+  appearance: none;
+  height: var(--tab-d);
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.ftab-top.is-open .ftab-name, .ftab-name:hover { color: var(--term-accent); }
+.menu-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--tab-d);
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 3.4vh, 32px);
+  padding: 8px 36px 26px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.16s ease, visibility 0s linear 0.16s;
+}
+.menu-panel[hidden] { display: none; }
+.ftab-top.shown .menu-panel { opacity: 1; visibility: visible; transition: opacity 0.28s ease; }
+.menu-nav { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.menu-nav a, .menu-row a, .menu-row button {
+  appearance: none;
+  margin: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.menu-nav a { padding: 9px 14px; font-size: var(--fs-m); letter-spacing: 0.16em; }
+.menu-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; }
+.menu-row a, .menu-row button { padding: 6px 4px; font-size: var(--fs-s); letter-spacing: 0.14em; }
+.menu-nav a:hover, .menu-row a:hover, .menu-row button:hover,
+.menu-nav a:focus-visible, .menu-row a:focus-visible, .menu-row button:focus-visible { color: var(--fg); outline: none; }
+.menu-nav a:focus-visible, .menu-row a:focus-visible, .menu-row button:focus-visible { text-decoration: underline; text-underline-offset: 5px; }
+.lang-menu button[aria-pressed="true"] { color: var(--fg); }
+@media (prefers-reduced-motion: reduce) { .menu-panel, .ftab-top.shown .menu-panel { transition: none; } }
 .ftab-bottom { bottom: var(--frame); border-radius: 10px 10px 0 0; }
 .ftab-shape { position: absolute; left: 0; top: -2px; overflow: visible; display: none; }
 .ftab.drawn .ftab-shape { display: block; }
@@ -1474,7 +1418,7 @@ a.ftab:hover .ftab-label, .ftab-bottom .ftab-label:hover { color: var(--term-acc
 a.ftab:focus-visible, .ftab-bottom .ftab-label:focus-visible { outline: none; }
 a.ftab:focus-visible .ftab-label, .ftab-bottom .ftab-label:focus-visible { color: var(--term-accent); text-decoration: underline; text-underline-offset: 4px; }
 @media (max-width: 480px) {
-  :root { --tab-d: 26px; --corner-c: 24px; }
+  :root { --tab-d: 26px; }
   .ftab-label { font-size: 11px; letter-spacing: 0.08em; }
 }
 html.smart .ftab-bottom { display: none; }
@@ -1498,32 +1442,6 @@ html.smart .ftab-bottom { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .ftab-swap > * { transition: none; }
 }
-/* bottom corners: mail on the left, chat on the right, mirroring burger and globe */
-.corner {
-  position: absolute;
-  z-index: 1;
-  pointer-events: auto;
-  bottom: calc(var(--frame) + var(--corner-c) - 20px);
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  text-decoration: none;
-  cursor: pointer;
-  transition: color 0.15s ease, opacity 0.2s ease;
-}
-.corner:hover, .corner:focus-visible { color: var(--fg); outline: none; }
-.corner:focus-visible svg, .menu-toggle:focus-visible svg, .lang-toggle:focus-visible svg { color: var(--term-accent); }
-.corner svg { width: 21px; height: 21px; }
-.corner-mail { left: var(--corner-x); }
-.corner-chat { right: var(--corner-x); }
-/* while the chat window is open it sits in that corner itself */
-html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
-@media (prefers-reduced-motion: reduce) { .corner { transition: none; } }
 
 /* Footer + legal */
 .site-foot .wrap {
@@ -1556,36 +1474,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
 </style>
 </head>
 <body>
-<header class="site-head">
-  <div class="wrap">
-    <div class="menu">
-      <button type="button" class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="menu-list" aria-label="Menü" data-i18n-aria="nav.menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="m1" d="M3 12h18"/><path class="m2" d="M3 12h18"/><path class="m3" d="M3 12h18"/></svg>
-      </button>
-      <nav class="nav menu-list" id="menu-list" aria-label="Hauptnavigation" data-i18n-aria="nav.label" hidden>
-        <a href="#approach" data-i18n="nav.approach">Vorgehen</a>
-        <a href="#about" data-i18n="nav.about">Über mich</a>
-        <a href="#contact" data-i18n="nav.contact">Kontakt</a>
-      </nav>
-    </div>
-    <div class="head-right">
-      <div class="lang">
-        <button type="button" class="lang-toggle" id="lang-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu" aria-label="Sprache: Deutsch">
-          <svg class="globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M4.6 7.5h14.8M4.6 16.5h14.8"/><path d="M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9s1.3-6.4 3.8-9z"/></svg>
-          <span id="lang-current">DE</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <ul class="lang-menu" id="lang-menu" hidden>
-          <li><button type="button" data-lang="de" lang="de" aria-pressed="true"><span class="lang-code" aria-hidden="true">DE</span>Deutsch</button></li>
-          <li><button type="button" data-lang="en" lang="en" aria-pressed="false"><span class="lang-code" aria-hidden="true">EN</span>English</button></li>
-          <li><button type="button" data-lang="ru" lang="ru" aria-pressed="false"><span class="lang-code" aria-hidden="true">RU</span>Русский</button></li>
-          <li><button type="button" data-lang="sr" lang="sr-Latn" aria-pressed="false"><span class="lang-code" aria-hidden="true">SR</span>Srpski</button></li>
-          <li><button type="button" data-lang="el" lang="el" aria-pressed="false"><span class="lang-code" aria-hidden="true">EL</span>Ελληνικά</button></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</header>
+<div class="site-head" aria-hidden="true"></div>
 
 <section class="smart-view" id="smart-view" aria-labelledby="smart-title" hidden>
   <div class="wrap smart-inner">
@@ -1914,7 +1803,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
               <div class="hunk">
                 <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
 <pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="cta.quote">Eine Frage zum eigenen Thema</span></span>
-<span class="add">+ </span><span data-i18n="cta.ai1">Kontaktformular ausfüllen,</span>
+<span class="add">+ </span><span data-i18n="cta.ai1">Passierschein A38 einreichen,</span>
 <span class="add">+ </span><span data-i18n="cta.ai2">Antwort in 3–5 Werktagen …</span></pre>
                 <div class="quiz">
                   <p class="quiz-q" data-i18n="q.real">Was tust du?</p>
@@ -2098,9 +1987,27 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
 
 <div class="chrome">
 <div class="frame" aria-hidden="true"><div class="frame-hole"></div></div>
-<a class="ftab ftab-top" href="#top"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path class="ftab-fill"/><path class="ftab-edge" transform="translate(0 0.5)"/></svg><span class="ftab-label">Alexander Fuhr</span></a>
-<a class="corner corner-mail" href="mailto:hello@arfr.de?subject=Sprechen%20wir%20dar%C3%BCber." aria-label="E-Mail" data-i18n-aria="contact.write"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5 12 13l8.5-6.5"/></svg></a>
-<button class="corner corner-chat" type="button" id="corner-chat" aria-haspopup="dialog" aria-label="Chat starten" data-i18n-aria="contact.chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></button>
+<div class="ftab ftab-top" id="menu-tab"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path class="ftab-fill"/><path class="ftab-edge" transform="translate(0 0.5)"/></svg><button type="button" class="ftab-label ftab-name" id="menu-toggle" aria-expanded="false" aria-controls="menu-panel">Alexander Fuhr<span class="sr-only"> – <span data-i18n="nav.menu">Menü</span></span></button>
+  <div class="menu-panel" id="menu-panel" hidden>
+    <nav class="menu-nav" aria-label="Hauptnavigation" data-i18n-aria="nav.label">
+      <a href="#approach" data-i18n="nav.approach">Vorgehen</a>
+      <a href="#about" data-i18n="nav.about">Über mich</a>
+      <a href="#contact" data-i18n="nav.contact">Kontakt</a>
+      <a href="#terminal" data-i18n="nav.terminal">Terminal</a>
+    </nav>
+    <div class="menu-row lang-menu" id="lang-menu" role="group" aria-label="Sprache" data-i18n-aria="lang.label">
+      <button type="button" data-lang="de" lang="de" aria-pressed="true" aria-label="Deutsch">DE</button>
+      <button type="button" data-lang="en" lang="en" aria-pressed="false" aria-label="English">EN</button>
+      <button type="button" data-lang="ru" lang="ru" aria-pressed="false" aria-label="Русский">RU</button>
+      <button type="button" data-lang="sr" lang="sr-Latn" aria-pressed="false" aria-label="Srpski">SR</button>
+      <button type="button" data-lang="el" lang="el" aria-pressed="false" aria-label="Ελληνικά">EL</button>
+    </div>
+    <div class="menu-row menu-acts">
+      <a href="mailto:hello@arfr.de?subject=Sprechen%20wir%20dar%C3%BCber." data-i18n="contact.write">E-Mail</a>
+      <button type="button" class="menu-chat" data-i18n="contact.chat">Chat starten</button>
+    </div>
+  </div>
+</div>
 <footer class="site-foot ftab ftab-bottom"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path class="ftab-fill"/><path class="ftab-edge" transform="translate(0 0.5)"/></svg><span class="ftab-swap"><button type="button" class="ftab-label ftab-scroll" aria-label="Zum nächsten Bereich" data-i18n-aria="tab.scroll.aria"><span data-i18n="tab.scroll">Nach unten</span></button><a class="ftab-label ftab-copy" href="https://arfr.de/" tabindex="-1" aria-hidden="true">© 2026 arfr.de</a></span></footer>
 </div>
 
@@ -2151,7 +2058,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
   var I18N = {
     en: {
       "meta.description": "Alexander Fuhr – Software Developer. AI-assisted, human-led.",
-      "nav.label": "Main", "nav.menu": "Menu", "tab.scroll": "Scroll down", "tab.scroll.aria": "To the next section", "nav.approach": "Approach", "nav.about": "About", "nav.contact": "Contact",
+      "nav.label": "Main", "nav.menu": "Menu", "nav.terminal": "Terminal", "tab.scroll": "Scroll down", "tab.scroll.aria": "To the next section", "nav.approach": "Approach", "nav.about": "About", "nav.contact": "Contact",
       "lang.label": "Language",
       "hero.eyebrow": "Software Developer · AI-assisted, human-led",
       "approach.cmd": "cat approach.md", "role.tag": "AI-assisted, human-led",
@@ -2236,7 +2143,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
       "o.yml.c": "Who steers and decides",
       "cta.quote": "A question about your own topic",
       "lang.comm": "Communication",
-      "cta.ai1": "Fill in the contact form,",
+      "cta.ai1": "Submit Permit A38,",
       "cta.ai2": "reply within 3–5 business days …",
       "cta.fix1": "Start chat.",
       "cta.fix2": "Ask directly.",
@@ -2370,7 +2277,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
     },
     de: {
       "meta.description": "Alexander Fuhr – Softwareentwickler. KI-gestützt, menschlich geführt.",
-      "nav.label": "Hauptnavigation", "nav.menu": "Menü", "tab.scroll": "Nach unten", "tab.scroll.aria": "Zum nächsten Bereich", "nav.approach": "Vorgehen", "nav.about": "Über mich", "nav.contact": "Kontakt",
+      "nav.label": "Hauptnavigation", "nav.menu": "Menü", "nav.terminal": "Terminal", "tab.scroll": "Nach unten", "tab.scroll.aria": "Zum nächsten Bereich", "nav.approach": "Vorgehen", "nav.about": "Über mich", "nav.contact": "Kontakt",
       "lang.label": "Sprache",
       "hero.eyebrow": "Softwareentwickler · KI-gestützt, menschlich geführt",
       "approach.cmd": "cat vorgehen.md", "role.tag": "KI-gestützt, menschlich geführt",
@@ -2455,7 +2362,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
       "o.yml.c": "Wer lenkt und entscheidet",
       "cta.quote": "Eine Frage zum eigenen Thema",
       "lang.comm": "Kommunikation",
-      "cta.ai1": "Kontaktformular ausfüllen,",
+      "cta.ai1": "Passierschein A38 einreichen,",
       "cta.ai2": "Antwort in 3–5 Werktagen …",
       "cta.fix1": "Chat starten.",
       "cta.fix2": "Direkt fragen.",
@@ -2589,7 +2496,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
     },
     ru: {
       "meta.description": "Alexander Fuhr – разработчик ПО. ИИ помогает, решает человек.",
-      "nav.label": "Основная навигация", "nav.menu": "Меню", "tab.scroll": "Вниз", "tab.scroll.aria": "К следующему разделу", "nav.approach": "Подход", "nav.about": "Обо мне", "nav.contact": "Контакт",
+      "nav.label": "Основная навигация", "nav.menu": "Меню", "nav.terminal": "Терминал", "tab.scroll": "Вниз", "tab.scroll.aria": "К следующему разделу", "nav.approach": "Подход", "nav.about": "Обо мне", "nav.contact": "Контакт",
       "lang.label": "Язык",
       "hero.eyebrow": "Разработчик ПО · ИИ помогает, решает человек",
       "approach.cmd": "cat approach.md", "role.tag": "ИИ помогает, решает человек",
@@ -2674,7 +2581,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
       "o.yml.c": "Кто ведёт и решает",
       "cta.quote": "Вопрос по своей теме",
       "lang.comm": "Коммуникация",
-      "cta.ai1": "Заполнить форму обратной связи,",
+      "cta.ai1": "Подать пропуск A38,",
       "cta.ai2": "ответ через 3–5 рабочих дней …",
       "cta.fix1": "Начать чат.",
       "cta.fix2": "Спросить напрямую.",
@@ -2808,7 +2715,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
     },
     sr: {
       "meta.description": "Alexander Fuhr – softverski programer. AI pomaže, čovek vodi.",
-      "nav.label": "Glavna navigacija", "nav.menu": "Meni", "tab.scroll": "Nadole", "tab.scroll.aria": "Na sledeći deo",
+      "nav.label": "Glavna navigacija", "nav.menu": "Meni", "nav.terminal": "Terminal", "tab.scroll": "Nadole", "tab.scroll.aria": "Na sledeći deo",
       "nav.approach": "Pristup",
       "nav.about": "O meni",
       "nav.contact": "Kontakt",
@@ -2915,7 +2822,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
       "o.yml.c": "Ko vodi i odlučuje",
       "cta.quote": "Pitanje o sopstvenoj temi",
       "lang.comm": "Komunikacija",
-      "cta.ai1": "Popuni kontakt formular,",
+      "cta.ai1": "Predaj propusnicu A38,",
       "cta.ai2": "odgovor za 3–5 radnih dana …",
       "cta.fix1": "Pokreni čet.",
       "cta.fix2": "Pitaj direktno.",
@@ -3097,7 +3004,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
     },
     el: {
       "meta.description": "Alexander Fuhr – Προγραμματιστής λογισμικού. Η AI βοηθά, ο άνθρωπος αποφασίζει.",
-      "nav.label": "Κύρια πλοήγηση", "nav.menu": "Μενού", "tab.scroll": "Κάτω", "tab.scroll.aria": "Στην επόμενη ενότητα",
+      "nav.label": "Κύρια πλοήγηση", "nav.menu": "Μενού", "nav.terminal": "Τερματικό", "tab.scroll": "Κάτω", "tab.scroll.aria": "Στην επόμενη ενότητα",
       "nav.approach": "Προσέγγιση",
       "nav.about": "Σχετικά",
       "nav.contact": "Επικοινωνία",
@@ -3204,7 +3111,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
       "o.yml.c": "Ποιος κατευθύνει και αποφασίζει",
       "cta.quote": "Μια ερώτηση για το δικό σου θέμα",
       "lang.comm": "Επικοινωνία",
-      "cta.ai1": "Συμπλήρωσε τη φόρμα επικοινωνίας,",
+      "cta.ai1": "Υπόβαλε το έντυπο A38,",
       "cta.ai2": "απάντηση σε 3–5 εργάσιμες …",
       "cta.fix1": "Έναρξη συνομιλίας.",
       "cta.fix2": "Ρώτα απευθείας.",
@@ -3440,83 +3347,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
       try { localStorage.setItem('arfr-lang', lang); } catch (e) {}
     }
   }
-  /* Globe dropdown */
-  (function burgerMenu() {
-    var tog = document.getElementById('menu-toggle');
-    var list = document.getElementById('menu-list');
-    if (!tog || !list) return;
-    var links = Array.prototype.slice.call(list.querySelectorAll('a'));
-    function open(focusFirst) {
-      list.hidden = false;
-      tog.setAttribute('aria-expanded', 'true');
-      if (focusFirst) links[0].focus();
-    }
-    function close(returnFocus) {
-      if (list.hidden) return;
-      list.hidden = true;
-      tog.setAttribute('aria-expanded', 'false');
-      if (returnFocus) tog.focus();
-    }
-    tog.addEventListener('click', function () { if (list.hidden) open(false); else close(false); });
-    tog.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); open(true); }
-    });
-    links.forEach(function (a, k) {
-      a.addEventListener('click', function () { close(false); });
-      a.addEventListener('keydown', function (e) {
-        if (e.key === 'ArrowDown') { e.preventDefault(); links[(k + 1) % links.length].focus(); }
-        else if (e.key === 'ArrowUp') { e.preventDefault(); links[(k - 1 + links.length) % links.length].focus(); }
-      });
-    });
-    document.addEventListener('click', function (e) {
-      if (!list.hidden && !(e.target.closest && e.target.closest('.menu'))) close(false);
-    });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !list.hidden) close(true); });
-    list.addEventListener('focusout', function (e) {
-      if (e.relatedTarget && !list.contains(e.relatedTarget) && e.relatedTarget !== tog) close(false);
-    });
-  })();
 
-  (function langMenu() {
-    var tog = document.getElementById('lang-toggle');
-    var menu = document.getElementById('lang-menu');
-    if (!tog || !menu) return;
-    var opts = Array.prototype.slice.call(menu.querySelectorAll('button'));
-    function openMenu(focusCurrent) {
-      menu.hidden = false;
-      tog.setAttribute('aria-expanded', 'true');
-      if (focusCurrent) (menu.querySelector('button[aria-pressed="true"]') || opts[0]).focus();
-    }
-    function closeMenu(returnFocus) {
-      if (menu.hidden) return;
-      menu.hidden = true;
-      tog.setAttribute('aria-expanded', 'false');
-      if (returnFocus) tog.focus();
-    }
-    tog.addEventListener('click', function () { if (menu.hidden) openMenu(false); else closeMenu(false); });
-    tog.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); openMenu(true); }
-    });
-    opts.forEach(function (b, k) {
-      b.addEventListener('click', function () {
-        setLang(b.getAttribute('data-lang'), true);
-        closeMenu(true);
-      });
-      b.addEventListener('keydown', function (e) {
-        if (e.key === 'ArrowDown') { e.preventDefault(); opts[(k + 1) % opts.length].focus(); }
-        else if (e.key === 'ArrowUp') { e.preventDefault(); opts[(k - 1 + opts.length) % opts.length].focus(); }
-      });
-    });
-    document.addEventListener('click', function (e) {
-      if (!menu.hidden && !(e.target.closest && e.target.closest('.lang'))) closeMenu(false);
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !menu.hidden) closeMenu(true);
-    });
-    menu.addEventListener('focusout', function (e) {
-      if (!menu.hidden && e.relatedTarget && !e.relatedTarget.closest('.lang')) closeMenu(false);
-    });
-  })();
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   /* width of the black screen frame around the page (0 without it) */
   var sectionStep = null; /* set by the section paging below: sectionStep(1) one block down, -1 up */
@@ -3564,6 +3395,7 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
   }
 
   /* Frame tabs: a trapezoid hanging from the frame edge, sized to its label */
+  var tabShape = null, tabClosedWidth = null;
   (function frameTabs() {
     var tabs = Array.prototype.slice.call(document.querySelectorAll('.ftab'));
     if (!tabs.length) return;
@@ -3573,28 +3405,120 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
       var p = [c[0] + ux / ul * r, c[1] + uy / ul * r], q = [c[0] + vx / vl * r, c[1] + vy / vl * r];
       return 'L' + p[0].toFixed(2) + ' ' + p[1].toFixed(2) + 'Q' + c[0] + ' ' + c[1] + ' ' + q[0].toFixed(2) + ' ' + q[1].toFixed(2);
     }
+    /* W wide, D deep; the slant of the sides stays that of the closed tab, the corners round off as it grows */
+    function shape(t, W, D) {
+      var svg = t.querySelector('svg'), path = svg && svg.querySelector('.ftab-fill'), edge = svg && svg.querySelector('.ftab-edge');
+      if (!path) return;
+      var td = t._td || D, a = 12, sl = Math.round(td * 0.55), o = 2;
+      var rb = Math.min(20, 9 + Math.max(0, D - td) * 0.05);
+      var P0 = [0, o], P1 = [a, o], P2 = [a + sl, o + D], P3 = [W - a - sl, o + D], P4 = [W - a, o], P5 = [W, o];
+      var contour = 'M0 ' + o + corner(P0, P1, P2, a) + corner(P1, P2, P3, rb) + corner(P2, P3, P4, rb) + corner(P3, P4, P5, a) + 'L' + W + ' ' + o;
+      path.setAttribute('d', contour + 'L' + W + ' 0L0 0Z');
+      if (edge) edge.setAttribute('d', contour);
+      svg.setAttribute('width', W); svg.setAttribute('height', D + o);
+      svg.setAttribute('viewBox', '0 0 ' + W.toFixed(2) + ' ' + (D + o).toFixed(2));
+      t.style.width = W + 'px';
+      t.classList.add('drawn');
+    }
+    function closedWidth(t) {
+      var label = t.querySelector('.ftab-swap') || t.querySelector('.ftab-label');
+      var td = t._td, a = 12, sl = Math.round(td * 0.55), pad = 18;
+      return Math.ceil(label.getBoundingClientRect().width) + 2 * (a + sl + pad);
+    }
     function draw() {
       tabs.forEach(function (t) {
-        var label = t.querySelector('.ftab-swap') || t.querySelector('.ftab-label'), svg = t.querySelector('svg'), path = svg && svg.querySelector('.ftab-fill'), edge = svg && svg.querySelector('.ftab-edge');
-        if (!label || !path) return;
-        var d = t.getBoundingClientRect().height;
-        var lw = Math.ceil(label.getBoundingClientRect().width);
-        var a = 12, sl = Math.round(d * 0.55), pad = 18, o = 2;
-        var W = lw + 2 * (a + sl + pad);
-        var P0 = [0, o], P1 = [a, o], P2 = [a + sl, o + d], P3 = [W - a - sl, o + d], P4 = [W - a, o], P5 = [W, o];
-        var contour = 'M0 ' + o + corner(P0, P1, P2, a) + corner(P1, P2, P3, 9) + corner(P2, P3, P4, 9) + corner(P3, P4, P5, a) + 'L' + W + ' ' + o;
-        path.setAttribute('d', contour + 'L' + W + ' 0L0 0Z');
-        if (edge) edge.setAttribute('d', contour);
-        svg.setAttribute('width', W); svg.setAttribute('height', d + o);
-        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + (d + o));
-        t.style.width = W + 'px';
-        t.classList.add('drawn');
+        if (!t.querySelector('.ftab-label')) return;
+        if (t.classList.contains('is-open')) { t.dispatchEvent(new CustomEvent('ftab:redraw')); return; }
+        t.style.height = '';
+        t._td = t.getBoundingClientRect().height;
+        shape(t, closedWidth(t), t._td);
       });
     }
+    tabShape = shape;
+    tabClosedWidth = closedWidth;
     draw();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
     window.addEventListener('resize', draw);
     document.addEventListener('arfr:lang', draw);
+  })();
+
+  /* Menu: the name tab slides down into a drawer that reaches about half the screen */
+  (function tabMenu() {
+    var tab = document.getElementById('menu-tab'), btn = document.getElementById('menu-toggle'), panel = document.getElementById('menu-panel');
+    if (!tab || !btn || !panel || !tabShape) return;
+    var isOpen = false, raf = 0, cur = null, timer = 0;
+    function closedSize() { return { w: tabClosedWidth(tab), d: tab._td }; }
+    function openSize() {
+      var f = frameInset(), vw = document.documentElement.clientWidth, vh = window.innerHeight;
+      var w = Math.min(460, vw - 2 * f - 24);
+      var need = tab._td + panel.scrollHeight + 8;
+      var d = Math.max(Math.round(vh / 2) - f, need);
+      return { w: w, d: Math.min(d, vh - 2 * f - 24) };
+    }
+    function set(sz) { cur = sz; tab.style.height = sz.d + 'px'; tabShape(tab, sz.w, sz.d); }
+    function glide(to, done) {
+      cancelAnimationFrame(raf);
+      var from = cur || closedSize();
+      if (reduceMotion) { set(to); if (done) done(); return; }
+      var t0 = performance.now(), dur = 460;
+      (function frame(now) {
+        var k = Math.min(1, (now - t0) / dur), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        set({ w: from.w + (to.w - from.w) * e, d: from.d + (to.d - from.d) * e });
+        if (k < 1) raf = requestAnimationFrame(frame); else if (done) done();
+      })(t0);
+    }
+    function open(viaKey) {
+      if (isOpen) return;
+      isOpen = true;
+      clearTimeout(timer);
+      if (!cur) cur = closedSize();
+      tab.classList.add('is-open');
+      btn.setAttribute('aria-expanded', 'true');
+      panel.hidden = false;
+      glide(openSize(), function () {
+        if (!isOpen) return;
+        tab.classList.add('shown');
+        if (viaKey) { var first = panel.querySelector('a, button'); if (first) first.focus(); }
+      });
+    }
+    function close(returnFocus) {
+      if (!isOpen) return;
+      isOpen = false;
+      tab.classList.remove('shown');
+      btn.setAttribute('aria-expanded', 'false');
+      if (returnFocus) btn.focus();
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        glide(closedSize(), function () {
+          if (isOpen) return;
+          tab.classList.remove('is-open');
+          panel.hidden = true;
+          tab.style.height = '';
+          cur = null;
+        });
+      }, reduceMotion ? 0 : 140);
+    }
+    var keyOpen = false;
+    btn.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') keyOpen = true; });
+    btn.addEventListener('click', function () {
+      if (isOpen) close(false); else open(keyOpen);
+      keyOpen = false;
+    });
+    panel.querySelectorAll('.menu-nav a, .menu-acts a').forEach(function (a) { a.addEventListener('click', function () { close(false); }); });
+    panel.querySelectorAll('.lang-menu button').forEach(function (b) {
+      b.addEventListener('click', function () { setLang(b.getAttribute('data-lang'), true); });
+    });
+    var chatBtn = panel.querySelector('.menu-chat');
+    if (chatBtn) chatBtn.addEventListener('click', function () { close(false); startChat(); });
+    document.addEventListener('click', function (e) { if (isOpen && !tab.contains(e.target)) close(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen) close(true); });
+    /* a resize or another language while open: settle at the new size without a glide */
+    tab.addEventListener('ftab:redraw', function () {
+      if (!isOpen) return;
+      tab.style.height = '';
+      tab._td = btn.getBoundingClientRect().height;
+      set(openSize());
+    });
   })();
 
   /* Bottom tab: a click goes one section down; at the very end the copyright takes its place */
@@ -3859,10 +3783,6 @@ html:has(#chat-dialog[open]) .corner-chat { opacity: 0; pointer-events: none; }
     if (open && !open.hidden) open.click();
     else location.href = 'mailto:hello@arfr.de?subject=' + encodeURIComponent(t('next.subject') + ' (Chat)');
   }
-  (function cornerChat() {
-    var b = document.getElementById('corner-chat');
-    if (b) b.addEventListener('click', startChat);
-  })();
   if (quizFig) {
     quizFig.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.chat-link')) startChat(); });
     quizRoot.classList.add('quiz-on');
