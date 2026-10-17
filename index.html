@@ -1364,29 +1364,34 @@ section { scroll-margin-top: calc(72px + var(--frame)); }
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: clamp(18px, 3.4vh, 32px);
-  padding: 8px 36px 26px;
+  justify-content: space-evenly;
+  gap: 0;
+  padding: 0 36px 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.16s ease, visibility 0s linear 0.16s;
 }
 .menu-panel[hidden] { display: none; }
 .ftab-top.shown .menu-panel { opacity: 1; visibility: visible; transition: opacity 0.28s ease; }
-.menu-nav { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.menu-nav { flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; }
 /* back to the top, between the name and the sections */
 .menu-top {
+  flex: none;
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--menu-line);
+  border-radius: 50%;
   color: var(--muted);
-  transition: color 0.15s ease, transform 0.2s ease;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
-.menu-top svg { width: 20px; height: 20px; }
-.menu-top:hover, .menu-top:focus-visible { color: var(--fg); outline: none; transform: translateY(-2px); }
-.menu-top:focus-visible svg { filter: drop-shadow(0 0 4px rgba(242, 240, 241, 0.6)); }
-@media (prefers-reduced-motion: reduce) { .menu-top { transition: none; } .menu-top:hover { transform: none; } }
+.menu-top svg { width: 17px; height: 17px; transition: transform 0.2s ease; }
+.menu-top:hover, .menu-top:focus-visible { color: var(--fg); border-color: rgba(255, 255, 255, 0.45); outline: none; }
+.menu-top:hover svg, .menu-top:focus-visible svg { transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) { .menu-top, .menu-top svg { transition: none; } .menu-top:hover svg { transform: none; } }
 .menu-nav a, .menu-row a, .menu-row button {
   appearance: none;
   margin: 0;
@@ -1402,7 +1407,7 @@ section { scroll-margin-top: calc(72px + var(--frame)); }
   transition: color 0.15s ease;
 }
 .menu-nav a { padding: 9px 14px; font-size: var(--fs-m); letter-spacing: 0.16em; }
-.menu-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; }
+.menu-row { flex: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; }
 .menu-row a, .menu-row button { padding: 6px 4px; font-size: var(--fs-s); letter-spacing: 0.14em; }
 .menu-nav a:hover, .menu-row a:hover, .menu-row button:hover,
 .menu-nav a:focus-visible, .menu-row a:focus-visible, .menu-row button:focus-visible { color: var(--fg); outline: none; }
@@ -3465,9 +3470,18 @@ html.smart .ftab-bottom { display: none; }
     function openSize() {
       var f = frameInset(), vw = document.documentElement.clientWidth, vh = window.innerHeight;
       var w = Math.min(460, vw - 2 * f - 24);
-      var need = tab._td + panel.scrollHeight + 8;
+      var need = tab._td + contentHeight(w) + 5 * 18;
       var d = Math.max(Math.round(vh / 2) - f, need);
       return { w: w, d: Math.min(d, vh - 2 * f - 24) };
+    }
+    /* the panel's own height when nothing stretches it: rows plus padding */
+    function contentHeight(w) {
+      var st = panel.style, b = st.bottom, j = st.justifyContent, tw = tab.style.width;
+      tab.style.width = w + 'px'; /* measure at the open width, or the rows would wrap */
+      st.bottom = 'auto'; st.justifyContent = 'flex-start';
+      var h = panel.offsetHeight;
+      st.bottom = b; st.justifyContent = j; tab.style.width = tw;
+      return h;
     }
     function set(sz) { cur = sz; tab.style.height = sz.d + 'px'; tabShape(tab, sz.w, sz.d); }
     function glide(to, done) {
@@ -5726,8 +5740,9 @@ html.smart .ftab-bottom { display: none; }
     document.addEventListener('arfr:lang', dockLabel);
   })();
 
-  /* Arrow keys page through the sections like slides: right = next, left = back.
-     Each section is centred vertically in the space below the header (tall ones start at the top).
+  /* Arrow keys (and the bottom tab) page through the content like slides: right = next, left = back.
+     The stops come from what is in each section, not from its box: content that fits sits centred between
+     the two tabs; taller content gets a stop at its start, more stops on the way, and one where it ends.
      Not while typing in a field, inside the chat window or while the game is open. */
   (function sectionKeys() {
     var blocks = Array.prototype.slice.call(document.querySelectorAll('main > section'));
@@ -5736,14 +5751,33 @@ html.smart .ftab-bottom { display: none; }
     var pending = null, pendingAt = 0;
     function typing(el) { return !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)); }
     function maxScroll() { return document.documentElement.scrollHeight - window.innerHeight; }
-    function target(b) {
-      var f = frameInset();
-      var head = f + (bar ? bar.getBoundingClientRect().height : 0);
-      var room = window.innerHeight - head - f;
-      var r = b.getBoundingClientRect();
-      var top = r.top + window.scrollY - head;
-      if (r.height < room) top -= (room - r.height) / 2;
-      return Math.round(Math.max(0, Math.min(maxScroll(), top)));
+    function stops() {
+      var f = frameInset(), td = bar ? bar.getBoundingClientRect().height : 0, sy = window.scrollY;
+      var rt = f + td + 14, rb = window.innerHeight - f - td - 14, room = rb - rt, max = maxScroll();
+      var out = [0, max];
+      blocks.forEach(function (b) {
+        var w = b.querySelector('.wrap') || b, kids = w.children.length ? w.children : [w];
+        var top = Infinity, bot = -Infinity;
+        for (var i = 0; i < kids.length; i++) {
+          var r = kids[i].getBoundingClientRect();
+          if (!r.height) continue;
+          top = Math.min(top, r.top + sy); bot = Math.max(bot, r.bottom + sy);
+        }
+        if (top === Infinity) return;
+        var h = bot - top;
+        if (h <= room) { out.push(top - rt - (room - h) / 2); return; }
+        var last = bot - rb;
+        for (var at = top - rt; at < last - 40; at += room * 0.85) out.push(at);
+        out.push(last);
+      });
+      out = out.map(function (v) { return Math.round(Math.max(0, Math.min(max, v))); }).sort(function (a, b) { return a - b; });
+      /* stops closer than a short glide are merged; the very end always stays */
+      var keep = [out[0]];
+      for (var k = 1; k < out.length; k++) {
+        if (out[k] - keep[keep.length - 1] > 60) keep.push(out[k]);
+        else if (k === out.length - 1) keep[keep.length - 1] = out[k];
+      }
+      return keep;
     }
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
@@ -5760,7 +5794,7 @@ html.smart .ftab-bottom { display: none; }
     function step(dir) {
       /* while a glide is still running, count from where it is heading */
       var from = (pending !== null && Date.now() - pendingAt < 900) ? pending : window.scrollY;
-      var tops = blocks.map(target), to = null;
+      var tops = stops(), to = null;
       if (dir > 0) {
         for (var i = 0; i < tops.length; i++) if (tops[i] > from + 8) { to = tops[i]; break; }
         if (to === null) to = maxScroll();
