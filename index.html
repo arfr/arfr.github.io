@@ -54,19 +54,54 @@ if (window.matchMedia && matchMedia('(min-width: 900px) and (min-height: 600px)'
 <style>
 /* Layout: one calm column of statements, each opened by a headline + dark bar (the LinkedIn banner motif); the hero pairs it with a code review that shows "AI-assisted, human-led" at work. */
 :root {
-  /* one dark page in both schemes: the sections differ by tone, not by light/dark bands */
-  --bg: #0F0E10;
+  /* one dark page in both schemes: the sections differ by tone, not by light/dark bands.
+     Every colour of the page is named here once; the rest of the CSS and the canvas drawings only use the names */
+  --page-rgb: 15, 14, 16;
+  --page: rgb(var(--page-rgb));
+  --bg: var(--page);
   --fg: #F2F0F1;
   --text: #DEDCDD; /* running text, about 87 % white: long paragraphs do not glare on the dark ground (14 : 1) */
   --muted: #BAB5B8;
   --line: #2A272A;
   --surface: #18171A;
-  --bar: #F2F0F1;
+  --bar: var(--fg);
   --bar-fg: #121113;
-  --accent: #3FE0F5;
+  /* the two voices: cyan is the human, amber the AI; as r, g, b too, so any shade can take an alpha */
+  --human-rgb: 63, 224, 245;
+  --human: rgb(var(--human-rgb));
+  --ai-rgb: 255, 180, 84;
+  --ai: rgb(var(--ai-rgb));
+  --ai-light: #FFE2B8;
+  --ai-dark: #C77B1E;
+  --accent: var(--human);
   --grid-ink: rgba(242, 240, 241, 0.12);
-  --grid-glow: rgba(63, 224, 245, 0.3);
-  --page: #0F0E10;
+  --grid-glow: rgba(var(--human-rgb), 0.3);
+  /* the neon stage of the hero and the game: bluer blacks and whites; its neon is the human cyan, --neon-light a paler tint */
+  --neon-light: #7FF0FF;
+  --stage-bg: #05070B;
+  --stage-glow: #0A2131;
+  --stage-surface: #0A1219;
+  --stage-line: #1B2A34;
+  --stage-dim: #8FA6B0;
+  --stage-muted: #A9BDC6;
+  --stage-fg: #EAF6FA;
+  --struck: rgba(240, 248, 255, 0.5); /* the word that is not quite right, faded back */
+  /* plain black and white: the frame, light on dark, shadows, the snow */
+  --black-rgb: 0, 0, 0;
+  --frame-bg: rgb(var(--black-rgb));
+  --white-rgb: 255, 255, 255;
+  --white: rgb(var(--white-rgb));
+  --slate-rgb: 110, 120, 140;
+  /* buttons, status lights and the terminal window */
+  --ghost: #232125;
+  --ghost-hover: #2E2B30;
+  --ok: #5EE6A8;
+  --status-wait: #F2B24C;
+  --status-online: #3DD68C;
+  --status-offline: #9A9599;
+  --win-close: #FF5F57;
+  --win-min: #FEBC2E;
+  --win-max: #28C840;
   color-scheme: dark;
   /* type scale: five sizes */
   --fs-s: 0.875rem;
@@ -86,29 +121,18 @@ if (window.matchMedia && matchMedia('(min-width: 900px) and (min-height: 600px)'
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   --wrap: 1280px;
   /* "About" is a terminal band: one dark look in both themes, on purpose */
-  --term-bg: #0B0B0C;
+  --term-bg-rgb: 11, 11, 12;
+  --term-bg: rgb(var(--term-bg-rgb));
   --term-surface: #141315;
   --term-fg: #EDEBEC;
   --term-muted: #ADA8AB;
   --term-line: #262326;
-  --term-accent: #3FE0F5;
+  --term-accent: var(--human);
 }
 html[lang="en"] { --fs-xxl: clamp(2.3rem, 1rem + 4.2vw, 4.75rem); }
 html[lang="ru"], html[lang="el"] { --fs-xxl: clamp(1.9rem, 0.9rem + 3.4vw, 4rem); --fs-xl: clamp(1.8rem, 1.1rem + 2.2vw, 3.25rem); }
 html[lang="sr"] { --fs-xxl: clamp(2.2rem, 1rem + 4.4vw, 5rem); }
 @media (max-width: 480px) { html[lang="ru"] { --fs-xl: 1.65rem; } }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0F0E10; --fg: #F2F0F1; --muted: #BAB5B8; --line: #2A272A; --surface: #18171A;
-    --bar: #F2F0F1; --bar-fg: #121113; --accent: #3FE0F5; color-scheme: dark;
-    --grid-ink: rgba(242, 240, 241, 0.12); --grid-glow: rgba(63, 224, 245, 0.3);
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0F0E10; --fg: #F2F0F1; --muted: #BAB5B8; --line: #2A272A; --surface: #18171A;
-  --bar: #F2F0F1; --bar-fg: #121113; --accent: #3FE0F5; color-scheme: dark;
-    --grid-ink: rgba(242, 240, 241, 0.12); --grid-glow: rgba(63, 224, 245, 0.3);
-}
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -182,19 +206,19 @@ a { color: inherit; }
 .hero {
   position: relative;
   overflow: hidden;
-  --bg: #05070B;
-  --fg: #EAF6FA;
-  --muted: #A9BDC6;
-  --line: #1B2A34;
-  --surface: #0A1219;
-  --bar: #EAF6FA;
-  --bar-fg: #05070B;
-  --accent: #3FE0F5;
+  --bg: var(--stage-bg);
+  --fg: var(--stage-fg);
+  --muted: var(--stage-muted);
+  --line: var(--stage-line);
+  --surface: var(--stage-surface);
+  --bar: var(--stage-fg);
+  --bar-fg: var(--stage-bg);
+  --accent: var(--human);
   color-scheme: dark;
   color: var(--fg);
-  background: radial-gradient(120% 75% at 50% 60%, #0A2131 0%, #05070B 62%);
+  background: radial-gradient(120% 75% at 50% 60%, var(--stage-glow) 0%, var(--stage-bg) 62%);
 }
-.hero .review-card { background: #0A1219; border-color: rgba(32, 227, 255, 0.22); }
+.hero .review-card { background: var(--stage-surface); border-color: rgba(var(--human-rgb), 0.22); }
 .retro-grid {
   position: absolute;
   inset: 0;
@@ -209,7 +233,7 @@ a { color: inherit; }
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(15, 14, 16, 0) calc(100% - clamp(64px, 10vw, 140px)), var(--page));
+  background: linear-gradient(to bottom, rgba(var(--page-rgb), 0) calc(100% - clamp(64px, 10vw, 140px)), var(--page));
   pointer-events: none;
   z-index: 0;
 }
@@ -241,8 +265,8 @@ a { color: inherit; }
    the two visible halves are hidden from them */
 /* the word that is not quite right: read first, then it fades back */
 .hero h1 .squiggle { animation: struck-fade 0.8s ease 1.2s both; }
-@keyframes struck-fade { from { color: inherit; } to { color: rgba(240, 248, 255, 0.5); } }
-@media (prefers-reduced-motion: reduce) { .hero h1 .squiggle { animation: none; color: rgba(240, 248, 255, 0.5); } }
+@keyframes struck-fade { from { color: inherit; } to { color: var(--struck); } }
+@media (prefers-reduced-motion: reduce) { .hero h1 .squiggle { animation: none; color: var(--struck); } }
 .hero .lede {
   margin: 0;
   font-family: var(--font-display);
@@ -276,9 +300,9 @@ a { color: inherit; }
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 .btn-primary { background: var(--bar); color: var(--bar-fg); }
-.btn-primary:hover { background: #FFFFFF; }
-.btn-ghost { background: #232125; color: var(--fg); }
-.btn-ghost:hover { background: #2E2B30; }
+.btn-primary:hover { background: var(--white); }
+.btn-ghost { background: var(--ghost); color: var(--fg); }
+.btn-ghost:hover { background: var(--ghost-hover); }
 .btn:hover { transform: translateY(-1px); }
 .btn:active { transform: translateY(0) scale(0.98); }
 @media (prefers-reduced-motion: reduce) { .btn { transition: none; } .btn:hover { transform: none; } }
@@ -495,7 +519,7 @@ a { color: inherit; }
   animation: score-in 0.35s ease both;
 }
 .quiz-score::-webkit-scrollbar { width: 6px; }
-.quiz-score::-webkit-scrollbar-thumb { background: rgba(32, 227, 255, 0.35); border-radius: 3px; }
+.quiz-score::-webkit-scrollbar-thumb { background: rgba(var(--human-rgb), 0.35); border-radius: 3px; }
 @keyframes score-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 .quiz-score .comment { margin: 2px 0; }
 /* the two ways on sit side by side, like a final pair of answers; the bonus is the highlighted one */
@@ -508,7 +532,7 @@ a { color: inherit; }
    box (the AI suggestion turns into the revised one in place), the answers, and one reserved line at the bottom:
    a hint first, then the AI praise, Alex's verdict and the way on. Everything that can appear is laid out from
    the start and only shown, so the card never changes height. Wrong is amber, right is cyan, and each also gets a word. */
-.review-card.stage { --amber: #FFB454; display: flex; flex-direction: column; gap: 10px; padding: 12px 18px 16px; }
+.review-card.stage { --amber: var(--ai); display: flex; flex-direction: column; gap: 10px; padding: 12px 18px 16px; }
 .stage-body { position: relative; }
 /* every question fills the card; the footer with the way on sits at the bottom, in the same place each time */
 .stage .track { display: grid; align-items: stretch; }
@@ -597,7 +621,7 @@ a { color: inherit; }
 
 /* Hero: only the first question, as a way in. An answer opens the quiz on a slide of its own.
    One framed card, so the case, the question and the answers read as one object over the grid. */
-.quiz-teaser { margin: 0; display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: #0A1219; border: 1px solid rgba(32, 227, 255, 0.22); border-radius: 8px; }
+.quiz-teaser { margin: 0; display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: var(--stage-surface); border: 1px solid rgba(var(--human-rgb), 0.22); border-radius: 8px; }
 .quiz-teaser .case { border-bottom: 1px solid var(--line); }
 .quiz-teaser .hunk { padding: 0 0 16px; gap: 4px; }
 .quiz-teaser .code { line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; }
@@ -605,7 +629,7 @@ a { color: inherit; }
 .quiz-teaser .code .ln { display: block; padding-left: 2ch; text-indent: -2ch; }
 .quiz-teaser .quiz-q { margin: 4px 0 0; }
 /* after the first answer the card shows it, like the quiz does, and offers the way back in */
-.quiz-teaser { --amber: #FFB454; }
+.quiz-teaser { --amber: var(--ai); }
 .quiz-teaser.is-joined .opt-tag { display: grid; justify-items: end; flex: none; margin-left: auto; padding-left: 8px; font-size: var(--fs-s); color: var(--muted); white-space: nowrap; }
 .quiz-teaser .opt-tag > span { grid-area: 1 / 1; visibility: hidden; }
 .quiz-teaser .opt.is-correct [data-i18n="quiz.right"], .quiz-teaser .opt.is-picked:not(.is-correct) [data-i18n="quiz.pick"] { visibility: visible; }
@@ -653,7 +677,7 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: linear-gradient(rgba(63, 224, 245, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(63, 224, 245, 0.07) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(var(--human-rgb), 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--human-rgb), 0.07) 1px, transparent 1px);
   background-size: 48px 48px;
   background-position: center;
   -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 30%, transparent 100%);
@@ -666,8 +690,8 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
 .stage-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: clamp(4px, 1.6vh, 24px); font-family: var(--font-body); font-size: var(--fs-m); font-weight: 400; line-height: var(--lh-snug); color: var(--muted); }
 .stage .dots { flex: 0 1 440px; min-width: 0; gap: 6px; }
 .stage .dot { flex: 1 1 0; min-width: 10px; width: auto; height: 24px; }
-.stage .dot::before { width: 100%; height: 6px; border-radius: 3px; background: rgba(32, 227, 255, 0.2); transform: none; transition: background-color 0.2s ease, height 0.2s ease; }
-.stage .dot:hover::before { background: rgba(32, 227, 255, 0.55); }
+.stage .dot::before { width: 100%; height: 6px; border-radius: 3px; background: rgba(var(--human-rgb), 0.2); transform: none; transition: background-color 0.2s ease, height 0.2s ease; }
+.stage .dot:hover::before { background: rgba(var(--human-rgb), 0.55); }
 .stage .dot.is-right::before { background: var(--accent); }
 .stage .dot.is-wrong::before { background: var(--amber); }
 .stage .dot[aria-current="true"]::before { height: 10px; transform: none; }
@@ -810,7 +834,7 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
   cursor: text;
   transition: border-color 0.15s ease;
 }
-.cli:focus-within { border-color: rgba(63, 224, 245, 0.45); }
+.cli:focus-within { border-color: rgba(var(--human-rgb), 0.45); }
 .cli-head {
   position: relative;
   display: flex;
@@ -819,13 +843,13 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
   min-height: 34px;
   padding: 0 14px;
   border-bottom: 1px solid var(--term-line);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(var(--white-rgb), 0.02);
 }
 .cli-dots { position: absolute; left: 14px; display: flex; gap: 7px; }
 /* the three window buttons in the colours of a Mac */
-.cli-dots i { display: block; width: 10px; height: 10px; border-radius: 50%; background: #FF5F57; }
-.cli-dots i:nth-child(2) { background: #FEBC2E; }
-.cli-dots i:nth-child(3) { background: #28C840; }
+.cli-dots i { display: block; width: 10px; height: 10px; border-radius: 50%; background: var(--win-close); }
+.cli-dots i:nth-child(2) { background: var(--win-min); }
+.cli-dots i:nth-child(3) { background: var(--win-max); }
 .cli-title { font-family: var(--font-body); font-size: var(--fs-s); color: var(--term-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 40px; }
 .cli-screen {
   height: 300px;
@@ -840,12 +864,12 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
 .cli-line .p { color: var(--term-accent); }
 .cli-line.muted, .cli-line .muted { color: var(--term-muted); }
 .cli-line.accent, .cli-line.err { color: var(--term-accent); }
-.cli-line .ok { color: #5EE6A8; }
+.cli-line .ok { color: var(--ok); }
 .cli-line.chat-in .who { color: var(--term-accent); }
 /* the greeting offers three commands to click, for those who would not know what to type */
 .cli-try { margin-bottom: 8px; }
-.cli-chip { min-height: 28px; margin: 2px 2px 2px 4px; padding: 0 10px; border: 0; border-radius: 4px; background: rgba(255, 255, 255, 0.07); color: var(--term-fg); font: inherit; cursor: pointer; transition: background-color 0.15s ease; }
-.cli-chip:hover { background: rgba(255, 255, 255, 0.14); }
+.cli-chip { min-height: 28px; margin: 2px 2px 2px 4px; padding: 0 10px; border: 0; border-radius: 4px; background: rgba(var(--white-rgb), 0.07); color: var(--term-fg); font: inherit; cursor: pointer; transition: background-color 0.15s ease; }
+.cli-chip:hover { background: rgba(var(--white-rgb), 0.14); }
 /* Live chat: a movable chat window; the header is the drag handle */
 .chat-open svg { width: 18px; height: 18px; }
 .chatw {
@@ -872,7 +896,7 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
   border: 1px solid var(--line);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3), 0 2px 10px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 24px 64px rgba(var(--black-rgb), 0.3), 0 2px 10px rgba(var(--black-rgb), 0.12);
   font-family: var(--font-body);
 }
 .chatw-head {
@@ -888,9 +912,9 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
 }
 .chatw-head.dragging { cursor: grabbing; }
 .chatw-status { flex: 1; min-width: 0; margin: 0; display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 600; font-size: var(--fs-m); line-height: var(--lh-snug); color: var(--fg); }
-.chatw-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: #F2B24C; }
-.chatw-status[data-state="online"] .chatw-dot { background: #3DD68C; }
-.chatw-status[data-state="offline"] .chatw-dot { background: #9A9599; }
+.chatw-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--status-wait); }
+.chatw-status[data-state="online"] .chatw-dot { background: var(--status-online); }
+.chatw-status[data-state="offline"] .chatw-dot { background: var(--status-offline); }
 .chatw-close {
   flex: none;
   width: 32px;
@@ -1033,7 +1057,7 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
   overflow: hidden;
 }
 .cli-art .r { color: var(--term-fg); }
-.cli-art .f { color: #FFB454; }
+.cli-art .f { color: var(--ai); }
 .cli-art .s, .cli-art .m { color: var(--term-muted); }
 .cli-art .g { color: var(--term-accent); }
 .cli-hm { margin: 4px 0 6px; line-height: var(--lh-snug); overflow-x: auto; }
@@ -1128,8 +1152,8 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
     max(12px, env(safe-area-inset-right, 0px))
     max(12px, env(safe-area-inset-bottom, 0px))
     max(12px, env(safe-area-inset-left, 0px));
-  background: #05070B;
-  color: #EAF6FA;
+  background: var(--stage-bg);
+  color: var(--stage-fg);
   font-family: var(--font-mono);
   color-scheme: dark;
 }
@@ -1139,32 +1163,32 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
   margin: 0;
   font-weight: 500;
   letter-spacing: var(--ls-caps-wide);
-  color: #7FF0FF;
-  text-shadow: 0 0 10px rgba(32, 227, 255, 0.8);
+  color: var(--neon-light);
+  text-shadow: 0 0 10px rgba(var(--human-rgb), 0.8);
 }
 .game-score { margin: 0; display: flex; align-items: baseline; gap: 10px; font-size: var(--fs-s); }
 .game-score b { font-weight: 500; font-size: var(--fs-l); font-variant-numeric: tabular-nums; }
-.game-score .you { color: #7FF0FF; }
-.game-score .ai { color: #FFB454; }
+.game-score .you { color: var(--neon-light); }
+.game-score .ai { color: var(--ai); }
 .game-close, .game-pad button {
   font: inherit;
-  color: #EAF6FA;
+  color: var(--stage-fg);
   background: transparent;
-  border: 1px solid rgba(32, 227, 255, 0.5);
+  border: 1px solid rgba(var(--human-rgb), 0.5);
   border-radius: 6px;
-  box-shadow: 0 0 10px rgba(32, 227, 255, 0.15);
+  box-shadow: 0 0 10px rgba(var(--human-rgb), 0.15);
   cursor: pointer;
 }
 .game-close { min-height: 40px; padding: 0 14px; }
-.game-close:hover, .game-pad button:hover { border-color: rgba(32, 227, 255, 1); background: rgba(32, 227, 255, 0.1); }
-.game-close:focus-visible, .game-pad button:focus-visible { outline: 2px solid #7FF0FF; outline-offset: 2px; }
+.game-close:hover, .game-pad button:hover { border-color: rgba(var(--human-rgb), 1); background: rgba(var(--human-rgb), 0.1); }
+.game-close:focus-visible, .game-pad button:focus-visible { outline: 2px solid var(--neon-light); outline-offset: 2px; }
 .game-stage { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; touch-action: none; }
 .game-canvas {
   display: block;
   max-width: 100%;
   max-height: 100%;
-  border: 1px solid rgba(32, 227, 255, 0.35);
-  box-shadow: 0 0 30px rgba(32, 227, 255, 0.15);
+  border: 1px solid rgba(var(--human-rgb), 0.35);
+  box-shadow: 0 0 30px rgba(var(--human-rgb), 0.15);
 }
 .game-msg {
   position: absolute;
@@ -1177,9 +1201,9 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
   pointer-events: none;
   font-size: clamp(1rem, 0.8rem + 1.2vw, 1.5rem);
   line-height: var(--lh-body);
-  text-shadow: 0 0 12px rgba(32, 227, 255, 0.7), 0 0 2px #05070B;
+  text-shadow: 0 0 12px rgba(var(--human-rgb), 0.7), 0 0 2px var(--stage-bg);
 }
-.game-help { margin: 0; text-align: center; font-size: var(--fs-s); color: #8FA6B0; }
+.game-help { margin: 0; text-align: center; font-size: var(--fs-s); color: var(--stage-dim); }
 .game-pad { display: none; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 8px; justify-content: center; }
 .game-pad button { display: grid; place-items: center; }
 .game-pad svg { width: 24px; height: 24px; }
@@ -1288,7 +1312,7 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
   left: 12px;
   bottom: calc(-1 * (var(--gap) + var(--fs-l) * 0.65));
   width: 2px;
-  background: rgba(63, 224, 245, 0.32);
+  background: rgba(var(--human-rgb), 0.32);
 }
 
 /* About */
@@ -1372,7 +1396,7 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 /* Werkstatt: three experiments running on this page, each with a way straight in */
 .ws-list { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(28px, 4vw, 48px); }
 @media (min-width: 900px) { .ws-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.ws-list li { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding-top: 18px; border-top: 1px solid var(--line); }
+.ws-list li { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding-top: 18px; }
 .ws-list h3 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: var(--fs-l); line-height: var(--lh-snug); }
 .ws-list p { margin: 0 0 8px; color: var(--text); max-width: 52ch; }
 .ws-list .btn { margin-top: auto; }
@@ -1382,10 +1406,10 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
   --frame: clamp(8px, 1.25vw, 18px);
   --frame-r: clamp(12px, 1.5vw, 22px);
   --tab-d: 30px;
-  --frame-line: transparent; /* contour on the frame and tabs; was rgba(255, 255, 255, 0.16) */
-  --menu-line: rgba(255, 255, 255, 0.16);
+  --frame-line: transparent; /* contour on the frame and tabs; was var(--menu-line) */
+  --menu-line: rgba(var(--white-rgb), 0.16);
 }
-html { background: #000; scrollbar-color: #2A272A #000; }
+html { background: var(--frame-bg); scrollbar-color: var(--line) var(--frame-bg); }
 body { padding: var(--frame); }
 /* the last band runs down to the frame; its content clears the bottom tab */
 main > .section:last-child .wrap { padding-bottom: calc(clamp(40px, 5vw, 64px) + var(--tab-d)); }
@@ -1400,7 +1424,7 @@ section { scroll-margin-top: calc(72px + var(--frame)); }
   position: absolute;
   inset: var(--frame);
   border-radius: var(--frame-r);
-  box-shadow: 0 0 0 100vmax #000, inset 0 0 0 1px var(--frame-line);
+  box-shadow: 0 0 0 100vmax var(--frame-bg), inset 0 0 0 1px var(--frame-line);
 }
 .ftab {
   position: absolute;
@@ -1414,7 +1438,7 @@ section { scroll-margin-top: calc(72px + var(--frame)); }
   transform: translateX(-50%);
   text-decoration: none;
   /* before the script has drawn the shape: a plain black tab */
-  background: #000;
+  background: var(--frame-bg);
   border-radius: 0 0 10px 10px;
   padding-inline: 26px;
 }
@@ -1493,11 +1517,11 @@ html:not(.slides) .frame::before, html:not(.slides) .frame::after {
   right: var(--frame);
   height: calc(var(--tab-d) + 18px);
 }
-html:not(.slides) .frame::before { top: var(--frame); border-radius: var(--frame-r) var(--frame-r) 0 0; background: linear-gradient(to bottom, #0B0B0C 45%, rgba(11, 11, 12, 0)); }
-html:not(.slides) .frame::after { bottom: var(--frame); border-radius: 0 0 var(--frame-r) var(--frame-r); background: linear-gradient(to top, #0B0B0C 45%, rgba(11, 11, 12, 0)); }
+html:not(.slides) .frame::before { top: var(--frame); border-radius: var(--frame-r) var(--frame-r) 0 0; background: linear-gradient(to bottom, var(--term-bg) 45%, rgba(var(--term-bg-rgb), 0)); }
+html:not(.slides) .frame::after { bottom: var(--frame); border-radius: 0 0 var(--frame-r) var(--frame-r); background: linear-gradient(to top, var(--term-bg) 45%, rgba(var(--term-bg-rgb), 0)); }
 .ftab.drawn .ftab-shape { display: block; }
 .ftab-bottom .ftab-shape { top: auto; bottom: -2px; transform: scaleY(-1); }
-.ftab-shape .ftab-fill { fill: #000; }
+.ftab-shape .ftab-fill { fill: var(--frame-bg); }
 .ftab-shape .ftab-edge { fill: none; stroke: var(--frame-line); stroke-width: 1; }
 .ftab-label {
   position: relative;
@@ -1507,10 +1531,10 @@ html:not(.slides) .frame::after { bottom: var(--frame); border-radius: 0 0 var(-
   letter-spacing: var(--ls-caps-wide);
   text-transform: uppercase;
   white-space: nowrap;
-  color: #F2F0F1;
+  color: var(--fg);
   text-decoration: none;
 }
-.ftab-bottom .ftab-label { font-weight: 600; letter-spacing: var(--ls-caps); color: #BAB5B8; }
+.ftab-bottom .ftab-label { font-weight: 600; letter-spacing: var(--ls-caps); color: var(--muted); }
 /* the tabs are slim; their buttons still take a finger: 44 px to tap, without looking bigger */
 .ftab-name::after, .ftab-scroll::after { content: ''; position: absolute; left: -12px; right: -12px; top: 50%; height: 44px; transform: translateY(-50%); }
 a.ftab:hover .ftab-label, .ftab-bottom .ftab-label:hover { color: var(--term-accent); }
@@ -1549,7 +1573,7 @@ html.smart .ftab-bottom { display: none; }
 @media (min-width: 1360px) { .side-nav { display: block; } }
 html.smart .side-nav { display: none; }
 .side-shape { position: absolute; inset: 0; overflow: visible; }
-.side-shape path { fill: #000; }
+.side-shape path { fill: var(--frame-bg); }
 /* the steps sit in the middle of the whole black, frame and tab together: the tab's face is frame + 24 px from the edge.
    Tab and steps land on whole pixels (round() where the browser has it), so the slim steps stay crisp */
 .side-steps { position: absolute; left: calc(2px - var(--frame) / 2); left: round(calc(2px - var(--frame) / 2), 1px); top: 35px; width: 24px; display: flex; flex-direction: column; }
@@ -1565,14 +1589,14 @@ html.smart .side-nav { display: none; }
   transform: translateY(-50%);
   padding: 5px 10px;
   border-radius: 6px;
-  background: #000;
+  background: var(--frame-bg);
   font-family: var(--font-display);
   font-size: var(--fs-s);
   font-weight: 600;
   letter-spacing: var(--ls-caps-wide);
   text-transform: uppercase;
   white-space: nowrap;
-  color: #F2F0F1;
+  color: var(--fg);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease;
@@ -3498,6 +3522,9 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
   }
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* the palette lives in the CSS (:root); canvas drawings and the sprite take their colours from there */
+  var palette = getComputedStyle(document.documentElement);
+  function tone(name) { return palette.getPropertyValue(name).trim(); }
   /* width of the black screen frame around the page (0 without it) */
   var sectionStep = null; /* set by the section paging below: sectionStep(1) one block down, -1 up */
   function frameInset() { var h = document.querySelector('.frame-hole'); return h ? Math.round(h.getBoundingClientRect().top) : 0; }
@@ -4076,7 +4103,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     var msg = document.getElementById('game-msg');
     var elYou = document.getElementById('score-you');
     var elAi = document.getElementById('score-ai');
-    var CYAN = '32, 227, 255', VIOLET = '255, 180, 84';
+    var CYAN = tone('--human-rgb'), AMBER = tone('--ai-rgb');
     var DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
     var COLS = 64, ROWS = 40, cell = 12;
     var board, you, bot, state = 'idle', loop = 0, countTimer = 0;
@@ -4192,7 +4219,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       });
       ctx.stroke();
       ctx.shadowBlur = cell * 1.6;
-      ctx.fillStyle = '#FFFFFF';
+      ctx.fillStyle = tone('--white');
       var hx = (p.x + 0.5) * cell, hy = (p.y + 0.5) * cell;
       ctx.fillRect(hx - cell * 0.35, hy - cell * 0.35, cell * 0.7, cell * 0.7);
       ctx.restore();
@@ -4200,7 +4227,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     function burst(p, rgb) {
       var x = (p.x + 0.5 + DIRS[p.dir][0] * 0.5) * cell, y = (p.y + 0.5 + DIRS[p.dir][1] * 0.5) * cell;
       var g = ctx.createRadialGradient(x, y, 0, x, y, cell * 5);
-      g.addColorStop(0, 'rgba(255,255,255,0.95)');
+      g.addColorStop(0, 'rgba(' + tone('--white-rgb') + ',0.95)');
       g.addColorStop(0.3, 'rgba(' + rgb + ',0.7)');
       g.addColorStop(1, 'rgba(' + rgb + ',0)');
       ctx.fillStyle = g;
@@ -4208,7 +4235,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     }
     function draw(youCrash, botCrash) {
       var W = COLS * cell, H = ROWS * cell;
-      ctx.fillStyle = '#05070B';
+      ctx.fillStyle = tone('--stage-bg');
       ctx.fillRect(0, 0, W, H);
       ctx.strokeStyle = 'rgba(' + CYAN + ',0.09)';
       ctx.lineWidth = 1;
@@ -4217,9 +4244,9 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       for (var y = 0; y <= ROWS; y += 2) { ctx.moveTo(0, y * cell + 0.5); ctx.lineTo(W, y * cell + 0.5); }
       ctx.stroke();
       drawTrail(you, CYAN);
-      drawTrail(bot, VIOLET);
+      drawTrail(bot, AMBER);
       if (youCrash) burst(youCrash, CYAN);
-      if (botCrash) burst(botCrash, VIOLET);
+      if (botCrash) burst(botCrash, AMBER);
     }
 
     function countdown() {
@@ -4383,7 +4410,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       '...bbbbb.hh.'
     ];
     var LEGS = [['..l..l..l...', '.l..l..l....'], ['.l..l..l....', '..l..l..l...']];
-    var COLORS = { a: '#FFB454', b: '#FFB454', s: '#FFE2B8', h: '#C77B1E', e: '#FFFFFF', l: '#C77B1E' };
+    var COLORS = { a: tone('--ai'), b: tone('--ai'), s: tone('--ai-light'), h: tone('--ai-dark'), e: tone('--white'), l: tone('--ai-dark') };
     var active = false, sprite = null, timer = 0, queue = [], qi = 0, cur = null, ci = 0, wrapped = [], eaten = 0, lastX = null, lastY = null, onDone = null;
     function svgFrame(rows, cls) {
       var r = '';
@@ -4592,14 +4619,14 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
           ctx.lineTo(Math.cos(an + 0.5) * len * 0.8, Math.sin(an + 0.5) * len * 0.8);
         }
         /* soft grey edge first, so flakes stay visible on white sections too */
-        ctx.strokeStyle = 'rgba(110, 120, 140, 0.35)'; ctx.lineWidth = 2.6; ctx.stroke();
-        ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.strokeStyle = 'rgba(' + tone('--slate-rgb') + ', 0.35)'; ctx.lineWidth = 2.6; ctx.stroke();
+        ctx.strokeStyle = tone('--white'); ctx.lineWidth = 1.2; ctx.stroke();
         ctx.restore();
       } else {
         ctx.beginPath(); ctx.arc(f.x, f.y, f.r + 0.8, 0, 6.283);
-        ctx.fillStyle = 'rgba(110, 120, 140, 0.3)'; ctx.fill();
+        ctx.fillStyle = 'rgba(' + tone('--slate-rgb') + ', 0.3)'; ctx.fill();
         ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.283);
-        ctx.fillStyle = '#FFFFFF'; ctx.fill();
+        ctx.fillStyle = tone('--white'); ctx.fill();
       }
     }
     function drawRun(sf, base, a, b) {
@@ -4614,9 +4641,9 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       top.lineTo(pts[pts.length - 1][0], pts[pts.length - 1][1]);
       var body = new Path2D(top);
       body.closePath();
-      ctx.fillStyle = '#FFFFFF';
+      ctx.fillStyle = tone('--white');
       ctx.fill(body);
-      ctx.strokeStyle = 'rgba(110, 120, 140, 0.45)';
+      ctx.strokeStyle = 'rgba(' + tone('--slate-rgb') + ', 0.45)';
       ctx.lineWidth = 1;
       ctx.stroke(top);
     }
@@ -5283,14 +5310,14 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     if (!hero || !cv || !cv.getContext || typeof Path2D === 'undefined') return;
     var ctx = cv.getContext('2d');
     var w = 0, h = 0, raf = 0, running = false, onScreen = true, horizonY = 0, last = 0;
-    var CYAN = '32, 227, 255', VIOLET = '255, 180, 84';
+    var CYAN = tone('--human-rgb'), AMBER = tone('--ai-rgb');
     var FAR = 26;
     var trails = [];
 
     function rand(a, b) { return a + Math.random() * (b - a); }
     function spawn(tr) {
       tr.lateral = Math.random() < 0.35;
-      tr.color = Math.random() < 0.5 ? CYAN : VIOLET;
+      tr.color = Math.random() < 0.5 ? CYAN : AMBER;
       tr.len = rand(3, 7);
       if (tr.lateral) {
         tr.z = Math.round(rand(3, 9));
@@ -5403,8 +5430,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       ctx.save();
       ctx.globalCompositeOperation = 'destination-out';
       var fade = ctx.createLinearGradient(0, hz, 0, hz + floor * 0.4);
-      fade.addColorStop(0, 'rgba(0,0,0,0.75)');
-      fade.addColorStop(1, 'rgba(0,0,0,0)');
+      fade.addColorStop(0, 'rgba(' + tone('--black-rgb') + ',0.75)');
+      fade.addColorStop(1, 'rgba(' + tone('--black-rgb') + ',0)');
       ctx.fillStyle = fade;
       ctx.fillRect(0, hz + 1, w, floor);
       ctx.restore();
@@ -5435,7 +5462,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
         ctx.moveTo(tail[0], tail[1]);
         ctx.lineTo(head[0], head[1]);
         ctx.stroke();
-        ctx.fillStyle = 'rgba(255,255,255,0.95)';
+        ctx.fillStyle = 'rgba(' + tone('--white-rgb') + ',0.95)';
         ctx.beginPath();
         ctx.arc(head[0], head[1], lw * 0.6 + 0.4, 0, Math.PI * 2);
         ctx.fill();
