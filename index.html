@@ -170,10 +170,10 @@ a { color: inherit; }
    (after pepelsbey.dev/articles/skewed-highlight). One gradient at 103deg draws the whole shape, so there is no seam where
    slant and edge meet: its isolines lean like "/", 0.35em cuts the slant from the bottom-left corner of a line (the bar
    is about 1.53em tall, 1.53em * sin 13deg = 0.345em) and the same from the top-right. box-decoration-break: clone gives
-   every wrapped line its own bar with both ends; the 1 px ramps keep the slants smooth. */
+   every wrapped line its own bar with both ends; the 1 px ramps keep the slants smooth. --slope 77deg mirrors it ("\"). */
 .bar {
   --mark: var(--bar);
-  background: linear-gradient(103deg,
+  background: linear-gradient(var(--slope, 103deg),
     transparent calc(0.35em - 0.5px), var(--mark) calc(0.35em + 0.5px),
     var(--mark) calc(100% - 0.35em - 0.5px), transparent calc(100% - 0.35em + 0.5px));
   color: var(--bar-fg);
@@ -284,6 +284,10 @@ a { color: inherit; }
 }
 .role strong { color: var(--fg); font-weight: 600; }
 .role .sep { display: inline-block; width: 4px; height: 4px; margin: 0 10px; vertical-align: middle; border-radius: 50%; background: var(--muted); }
+/* the role on a black bar with white letters, slanting the other way than the white bar above it; on the phone
+   it wraps into two even lines instead of leaving one word alone */
+.role { text-wrap: balance; }
+.role .bar { --slope: 77deg; --mark: rgb(var(--black-rgb)); color: var(--bar); }
 .btn {
   display: inline-flex;
   align-items: center;
@@ -670,6 +674,11 @@ a { color: inherit; }
   /* narrow card (phone, small laptop): who speaks stands above the line, like in a play, so the AI's lines keep their breaks */
   .quiz-teaser .case { grid-template-columns: minmax(0, 1fr); row-gap: 2px; }
   .quiz-teaser .case-who:not(:first-child) { margin-top: 14px; }
+  /* after the answer the word goes under the answer instead of beside it, otherwise the longer languages break the
+     answer onto two lines; the plate grows to two lines in the same slant */
+  .quiz-teaser.is-joined .opt:is(.is-picked, .is-correct) { --plate-h: 64px; display: grid; grid-template-columns: auto minmax(0, 1fr); align-content: center; align-items: baseline; row-gap: 0; }
+  .quiz-teaser.is-joined .opt:is(.is-picked, .is-correct) .opt-tag { grid-column: 2; justify-items: start; margin-left: 0; padding-left: 0; }
+  .quiz-teaser.is-joined .opt:not(.is-picked):not(.is-correct) .opt-tag { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .quiz-teaser .opt, .quiz-teaser .opt::before, .teaser-go, .teaser-go::before { transition: none; }
@@ -1744,7 +1753,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
         <h1 id="hero-title"><span data-i18n="hero.title" data-strike aria-hidden="true">Wenn alles <span class="squiggle">einfach</span> wird …</span><span class="sr-only" data-i18n="hero.sentence">Wenn alles einfach wird, braucht es Menschen, die wissen, worauf es wirklich ankommt.</span></h1>
         <div class="hero-side">
         <p class="lede" aria-hidden="true"><span class="bar" data-i18n="hero.lede">… braucht es Menschen, die wissen, worauf es wirklich ankommt.</span></p>
-        <p class="role" data-i18n="hero.eyebrow">Softwareentwickler · KI-gestützt, menschlich geführt</p>
+        <p class="role"><span class="bar" data-i18n="hero.eyebrow">Softwareentwickler · KI-&#8288;gestützt, menschlich geführt</span></p>
         </div>
       </div>
 
@@ -2300,7 +2309,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "meta.description": "Alexander Fuhr – Software Developer. AI-assisted, human-led.",
       "nav.label": "Main", "nav.menu": "Menu", "nav.terminal": "Terminal", "nav.top": "Back to top", "nav.start": "Start", "tab.scroll": "Scroll down", "tab.scroll.aria": "To the next section", "nav.approach": "Approach", "nav.about": "About", "nav.sections": "Sections", "nav.contact": "Contact",
       "lang.label": "Language",
-      "hero.eyebrow": "Software Developer · AI-assisted, human-led",
+      "hero.eyebrow": "Software Developer · AI-\u2060assisted, human-\u2060led",
       "approach.cmd": "cat approach.md", "role.tag": "AI-assisted, human-led",
       "hero.title": "When everything gets [easy] …",
       "hero.lede": "… you need people who know what really matters.",
@@ -2516,7 +2525,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "meta.description": "Alexander Fuhr – Softwareentwickler. KI-gestützt, menschlich geführt.",
       "nav.label": "Hauptnavigation", "nav.menu": "Menü", "nav.terminal": "Terminal", "nav.top": "Nach oben", "nav.start": "Start", "tab.scroll": "Nach unten", "tab.scroll.aria": "Zum nächsten Bereich", "nav.approach": "Vorgehen", "nav.about": "Über mich", "nav.sections": "Abschnitte", "nav.contact": "Kontakt",
       "lang.label": "Sprache",
-      "hero.eyebrow": "Softwareentwickler · KI-gestützt, menschlich geführt",
+      "hero.eyebrow": "Softwareentwickler · KI-\u2060gestützt, menschlich geführt",
       "approach.cmd": "cat vorgehen.md", "role.tag": "KI-gestützt, menschlich geführt",
       "hero.title": "Wenn alles [einfach] wird …",
       "hero.lede": "… braucht es Menschen, die wissen, worauf es wirklich ankommt.",
@@ -2732,7 +2741,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "meta.description": "Alexander Fuhr – разработчик ПО. ИИ помогает, решает человек.",
       "nav.label": "Основная навигация", "nav.menu": "Меню", "nav.terminal": "Терминал", "nav.top": "Наверх", "nav.start": "Начало", "tab.scroll": "Вниз", "tab.scroll.aria": "К следующему разделу", "nav.approach": "Подход", "nav.about": "Обо мне", "nav.sections": "Разделы", "nav.contact": "Контакт",
       "lang.label": "Язык",
-      "hero.eyebrow": "Разработчик ПО · ИИ помогает, решает человек",
+      "hero.eyebrow": "Разработчик\u00a0ПО · ИИ\u00a0помогает, решает человек",
       "approach.cmd": "cat approach.md", "role.tag": "ИИ помогает, решает человек",
       "hero.title": "Когда всё становится [просто] …",
       "hero.lede": "… нужны люди, которые знают, что действительно важно.",
@@ -3230,7 +3239,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "nav.about": "Σχετικά", "nav.sections": "Ενότητες",
       "nav.contact": "Επικοινωνία",
       "lang.label": "Γλώσσα",
-      "hero.eyebrow": "Προγραμματιστής λογισμικού · Η AI βοηθά, ο άνθρωπος αποφασίζει",
+      "hero.eyebrow": "Προγραμματιστής λογισμικού · Η\u00a0AI βοηθά, ο\u00a0άνθρωπος αποφασίζει",
       "approach.cmd": "cat approach.md",
       "role.tag": "Η AI βοηθά, ο άνθρωπος αποφασίζει",
       "hero.title": "Όταν όλα γίνονται [εύκολα] …",
