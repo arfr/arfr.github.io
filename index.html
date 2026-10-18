@@ -57,6 +57,7 @@ if (window.matchMedia && matchMedia('(min-width: 900px) and (min-height: 600px)'
   /* one dark page in both schemes: the sections differ by tone, not by light/dark bands */
   --bg: #0F0E10;
   --fg: #F2F0F1;
+  --text: #DEDCDD; /* running text, about 87 % white: long paragraphs do not glare on the dark ground (14 : 1) */
   --muted: #BAB5B8;
   --line: #2A272A;
   --surface: #18171A;
@@ -358,7 +359,7 @@ a { color: inherit; }
   font-size: var(--fs-m);
   line-height: var(--lh-body);
 }
-.next-band .comment, .next-band .ai-reply { border: 0; }
+.next-chat .comment, .next-chat .ai-reply { border: 0; }
 .avatar {
   flex: none;
   width: 28px;
@@ -783,39 +784,16 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
 .next-band .bar { --mark: var(--term-fg); color: var(--term-bg); }
 .section.next-band { overflow: hidden; }
 .section.next-band:last-child .wrap { padding-bottom: clamp(40px, 5vw, 64px); }
-/* options, the coffee reply and the comment thread read as one group */
-.next-actions { display: flex; flex-direction: column; gap: 14px; max-width: 760px; }
-.next-status:empty { display: none; }
+/* the finale on the contact slide: the ways to get in touch, and next to them the AI and Alex with the punchline */
+.contact-grid { display: flex; flex-direction: column; gap: 28px; }
 @media (min-width: 900px) {
-  .next-actions { max-width: none; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 14px clamp(32px, 4vw, 64px); align-items: start; }
-  .next-actions .next-grid { grid-column: 1; grid-template-columns: minmax(0, 1fr); }
-  .next-actions .next-status { grid-column: 1; }
-  .next-actions .next-chat { grid-column: 2; grid-row: 1 / span 2; max-width: none; }
-}
-.next-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 560px) { .next-grid { grid-template-columns: minmax(0, 1fr); } }
-.next-band .opt {
-  min-height: 56px;
-  padding: 8px 14px;
-  font-size: var(--fs-m);
-  text-decoration: none;
-  background: #1B1A1D;
-  color: var(--term-fg);
-  border: 0;
-}
-.next-band .opt:hover { background: #262428; }
-.next-band .opt-key { width: 28px; height: 28px; background: var(--term-fg); color: var(--term-bg); font-family: var(--font-body); font-weight: 600; }
-.next-status {
-  margin: 0;
-  min-height: 1.5em;
-  font-size: var(--fs-m);
-  color: var(--term-accent);
+  .contact-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 14px clamp(32px, 4vw, 64px); align-items: start; }
 }
 .next-chat { display: flex; flex-direction: column; gap: 10px; max-width: 760px; }
-.next-band .ai-reply { background: transparent; padding-left: 0; }
-.next-band .avatar-ai { color: var(--term-muted); border-color: var(--term-muted); }
-.next-band .comment { background: #1B1A1D; }
-.next-band .comment .avatar { background: var(--term-fg); color: var(--term-bg); }
+.next-chat .ai-reply { background: transparent; padding-left: 0; }
+.next-chat .avatar-ai { color: var(--term-muted); border-color: var(--term-muted); }
+.next-chat .comment { background: #1B1A1D; }
+.next-chat .comment .avatar { background: var(--term-fg); color: var(--term-bg); }
 .next-band :focus-visible { outline-color: var(--term-accent); }
 
 /* Mini terminal: one font, one size, like a real console */
@@ -1294,7 +1272,7 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
   font-size: var(--fs-l);
   line-height: var(--lh-snug);
 }
-.steps p { margin: 0; color: var(--fg); max-width: 52ch; }
+.steps p { margin: 0; color: var(--text); max-width: 52ch; }
 /* one dot per step on the line, centred on the first line of the heading */
 .steps li::before {
   content: "";
@@ -1331,9 +1309,9 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
 /* the darker terminal bands fade in and out of the page ground: no hard edge between sections */
 :root { --band-fade: clamp(96px, 12vw, 180px); }
 .about-band { background: linear-gradient(to bottom, var(--page), var(--term-bg) var(--band-fade), var(--term-bg) calc(100% - var(--band-fade)), var(--page)); }
-#next.next-band { background: linear-gradient(to bottom, var(--page), var(--term-bg) var(--band-fade)); }
+#terminal.next-band { background: linear-gradient(to bottom, var(--page), var(--term-bg) var(--band-fade)); }
 .about-band .h2 { color: var(--term-fg); }
-.about-band .about-text p { color: var(--term-fg); }
+.about-band .about-text p { color: var(--text); }
 .prompt { font-family: var(--font-mono); font-size: var(--fs-s); color: var(--term-muted); margin: 0; }
 .prompt .host { color: var(--term-accent); }
 @keyframes blink { 50% { opacity: 0; } }
@@ -1352,7 +1330,7 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
 }
 .about-text { display: flex; flex-direction: column; gap: 24px; min-width: 0; max-width: 64ch; }
 
-.about-text p { margin: 0; text-wrap: pretty; }
+.about-text p { margin: 0; max-width: 52ch; text-wrap: pretty; } /* the same measure as the steps, about 50 to 60 characters a line */
 .placeholder { color: var(--muted); font-style: italic; }
 @media (max-width: 640px) { .about { grid-template-columns: minmax(0, 1fr); } .about > .portrait { justify-self: center; } }
 
@@ -1580,6 +1558,43 @@ html.smart .ftab-bottom { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .ftab-swap > * { transition: none; }
 }
+/* The ladder at the right edge: a tab like the two in the frame, standing on its side (the same outline, turned),
+   with one step per section, as in the menu. The section in view is the wide white step, like the question in the
+   quiz ladder; the other steps are a brighter cyan than there, so they hold 3 : 1 on the black tab. Hover or focus
+   names a step, a click goes there. Not on phones: the frame is too thin there, and the
+   menu does the same */
+.side-nav { position: absolute; top: 50%; right: calc(var(--frame) - 2px); width: 26px; height: 210px; transform: translateY(-50%); display: none; }
+@media (min-width: 700px) { .side-nav { display: block; } }
+html.smart .side-nav { display: none; }
+.side-shape { position: absolute; inset: 0; overflow: visible; }
+.side-shape path { fill: #000; }
+.side-steps { position: absolute; left: 0; top: 35px; width: 24px; display: flex; flex-direction: column; }
+.side-steps a { position: relative; display: flex; align-items: center; justify-content: center; width: 24px; height: 28px; pointer-events: auto; text-decoration: none; }
+.side-steps a::before { content: ''; width: 6px; height: 22px; border-radius: 3px; background: rgba(32, 227, 255, 0.45); transition: background-color 0.2s ease, width 0.2s ease; }
+.side-steps a:hover::before { background: rgba(32, 227, 255, 0.8); }
+.side-steps a[aria-current]::before { width: 10px; background: var(--fg); }
+.side-steps a:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; border-radius: 4px; }
+.side-label {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: #000;
+  font-family: var(--font-display);
+  font-size: var(--fs-s);
+  font-weight: 600;
+  letter-spacing: var(--ls-caps-wide);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #F2F0F1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+.side-steps a:hover .side-label, .side-steps a:focus-visible .side-label { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .side-steps a::before, .side-label { transition: none; } }
 
 /* Footer + legal */
 .site-foot .wrap {
@@ -2130,37 +2145,23 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
         <h2 id="contact-title" data-i18n="contact.title">Etwas, worauf es ankommt?</h2>
         <p class="lede"><span class="bar" data-i18n="contact.lede">Sprechen wir darüber.</span></p>
       </div>
-      <div class="contact-block">
-        <div class="contact-row">
-          <a class="btn btn-primary" href="mailto:hello@arfr.de?subject=Sprechen%20wir%20dar%C3%BCber."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5 12 13l8.5-6.5"/></svg><span data-i18n="contact.write">E-Mail</span></a>
-          <button class="btn btn-ghost chat-open" type="button" id="chat-open" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span data-i18n="contact.chat">Chat starten</span></button>
-          <span class="mail-pair">
-            <button type="button" class="mail-text" id="mail" aria-describedby="copy-hint">hello@arfr.de</button>
-            <span class="sr-only" id="copy-hint" data-i18n="contact.copy">E-Mail-Adresse kopieren</span>
-          </span>
+      <!-- the finale: the ways to get in touch on the left, the AI and Alex with the punchline on the right -->
+      <div class="contact-grid">
+        <div class="contact-block">
+          <div class="contact-row">
+            <a class="btn btn-primary" href="mailto:hello@arfr.de?subject=Sprechen%20wir%20dar%C3%BCber."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5 12 13l8.5-6.5"/></svg><span data-i18n="contact.write">E-Mail</span></a>
+            <button class="btn btn-ghost chat-open" type="button" id="chat-open" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span data-i18n="contact.chat">Chat starten</span></button>
+            <span class="mail-pair">
+              <button type="button" class="mail-text" id="mail" aria-describedby="copy-hint">hello@arfr.de</button>
+              <span class="sr-only" id="copy-hint" data-i18n="contact.copy">E-Mail-Adresse kopieren</span>
+            </span>
+          </div>
+          <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
         </div>
-        <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section next-band" id="next" aria-labelledby="next-title">
-    <div class="wrap">
-      <div class="statement">
-        <h2 id="next-title" data-i18n="next.title">Du entscheidest darüber,</h2>
-        <p class="lede"><span class="bar" data-i18n="next.lede">wie es weitergeht!</span></p>
-      </div>
-      <div class="next-actions">
-        <div class="next-grid">
-          <a class="opt" id="next-contact" href="#contact"><span class="opt-key" aria-hidden="true">A</span><span data-i18n="next.a">Kontakt aufnehmen</span></a>
-          <button class="opt" type="button" id="next-replay"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="next.c">Quiz nochmal spielen</span></button>
-          <button class="opt" type="button" id="next-coffee"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="next.d">Erstmal Kaffee</span></button>
-        </div>
-        <p class="next-status" id="next-status" role="status" aria-live="polite"></p>
         <div class="next-chat" data-ui>
           <div class="ai-reply">
             <span class="avatar avatar-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
-            <p><b data-i18n="ai.name">KI-Assistent</b> · <span data-i18n="next.ai">Ich empfehle alle drei. Gleichzeitig.</span></p>
+            <p><b data-i18n="ai.name">KI-Assistent</b> · <span data-i18n="next.ai">Ich empfehle beides. Gleichzeitig.</span></p>
           </div>
           <div class="comment">
             <span class="avatar" aria-hidden="true">AF</span>
@@ -2200,6 +2201,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
 </main>
 
 <div class="chrome">
+<nav class="side-nav" aria-label="Abschnitte" data-i18n-aria="nav.sections"><svg class="side-shape" width="26" height="210" viewBox="0 0 26 210" aria-hidden="true" focusable="false"><path transform="matrix(0 1 -1 0 26 0)" d="M0 2L0 2Q12 2 17.72 12.55L20.71 18.09Q25 26 34 26L176 26Q185 26 189.29 18.09L192.28 12.55Q198 2 210 2L210 2L210 0L0 0Z"/></svg><div class="side-steps"><a href="#top" tabindex="0"><span class="side-label" data-i18n="nav.start">Start</span></a><a href="#approach" tabindex="-1"><span class="side-label" data-i18n="nav.approach">Vorgehen</span></a><a href="#about" tabindex="-1"><span class="side-label" data-i18n="nav.about">Über mich</span></a><a href="#contact" tabindex="-1"><span class="side-label" data-i18n="nav.contact">Kontakt</span></a><a href="#terminal" tabindex="-1"><span class="side-label" data-i18n="nav.terminal">Terminal</span></a></div></nav>
 <footer class="site-foot ftab ftab-bottom"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path class="ftab-fill"/><path class="ftab-edge" transform="translate(0 0.5)"/></svg><span class="ftab-swap"><button type="button" class="ftab-label ftab-scroll" aria-label="Zum nächsten Bereich" data-i18n-aria="tab.scroll.aria"><span data-i18n="tab.scroll">Nach unten</span></button><a class="ftab-label ftab-copy" href="https://arfr.de/" tabindex="-1" aria-hidden="true">© 2026 arfr.de</a></span></footer>
 </div>
 
@@ -2250,7 +2252,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
   var I18N = {
     en: {
       "meta.description": "Alexander Fuhr – Software Developer. AI-assisted, human-led.",
-      "nav.label": "Main", "nav.menu": "Menu", "nav.terminal": "Terminal", "nav.top": "Back to top", "nav.start": "Start", "tab.scroll": "Scroll down", "tab.scroll.aria": "To the next section", "nav.approach": "Approach", "nav.about": "About", "nav.contact": "Contact",
+      "nav.label": "Main", "nav.menu": "Menu", "nav.terminal": "Terminal", "nav.top": "Back to top", "nav.start": "Start", "tab.scroll": "Scroll down", "tab.scroll.aria": "To the next section", "nav.approach": "Approach", "nav.about": "About", "nav.sections": "Sections", "nav.contact": "Contact",
       "lang.label": "Language",
       "hero.eyebrow": "Software Developer · AI-assisted, human-led",
       "approach.cmd": "cat approach.md", "role.tag": "AI-assisted, human-led",
@@ -2362,11 +2364,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "v.right": "Correct.", "v.wrong": "Wrong.",
       "score.text": "{n} of {total} correct. The AI loved every single answer. That’s why a human makes the final call.",
       "quiz.name": "Quiz", "score.again": "Play again", "score.label": "Result", "score.k1": "correct:", "score.k2": "AI praise:", "score.bonus": "Bonus question",
-      "next.title": "You decide", "next.lede": "what happens next!",
-      "next.a": "Get in touch", "next.b": "Connect on LinkedIn", "next.c": "Play the quiz again", "next.d": "Coffee first",
-      "next.ai": "I recommend all three. At the same time.",
+      "next.ai": "I recommend both. At the same time.",
       "next.alex": "See? That’s exactly why you decide.",
-      "next.coffee": "Good call. The page will be right here when you’re back.",
       "next.subject": "Let’s talk about it.",
       "term.title": "Still curious?", "term.lede": "The terminal is yours.",
       "cli.label": "Enter a command", "cli.try": "Try:", "cli.title": "Terminal",
@@ -2468,7 +2467,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     },
     de: {
       "meta.description": "Alexander Fuhr – Softwareentwickler. KI-gestützt, menschlich geführt.",
-      "nav.label": "Hauptnavigation", "nav.menu": "Menü", "nav.terminal": "Terminal", "nav.top": "Nach oben", "nav.start": "Start", "tab.scroll": "Nach unten", "tab.scroll.aria": "Zum nächsten Bereich", "nav.approach": "Vorgehen", "nav.about": "Über mich", "nav.contact": "Kontakt",
+      "nav.label": "Hauptnavigation", "nav.menu": "Menü", "nav.terminal": "Terminal", "nav.top": "Nach oben", "nav.start": "Start", "tab.scroll": "Nach unten", "tab.scroll.aria": "Zum nächsten Bereich", "nav.approach": "Vorgehen", "nav.about": "Über mich", "nav.sections": "Abschnitte", "nav.contact": "Kontakt",
       "lang.label": "Sprache",
       "hero.eyebrow": "Softwareentwickler · KI-gestützt, menschlich geführt",
       "approach.cmd": "cat vorgehen.md", "role.tag": "KI-gestützt, menschlich geführt",
@@ -2580,11 +2579,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "v.right": "Richtig.", "v.wrong": "Daneben.",
       "score.text": "{n} von {total} richtig. Die KI fand jede einzelne Antwort großartig. Deshalb entscheidet am Ende ein Mensch.",
       "quiz.name": "Quiz", "score.again": "Nochmal", "score.label": "Ergebnis", "score.k1": "richtig:", "score.k2": "KI-Lob:", "score.bonus": "Bonusfrage",
-      "next.title": "Du entscheidest darüber,", "next.lede": "wie es weitergeht!",
-      "next.a": "Kontakt aufnehmen", "next.b": "Auf LinkedIn vernetzen", "next.c": "Quiz nochmal spielen", "next.d": "Erstmal Kaffee",
-      "next.ai": "Ich empfehle alle drei. Gleichzeitig.",
+      "next.ai": "Ich empfehle beides. Gleichzeitig.",
       "next.alex": "Siehst du? Genau deshalb entscheidest du.",
-      "next.coffee": "Gute Entscheidung. Die Seite wartet, bis du zurück bist.",
       "next.subject": "Sprechen wir darüber.",
       "term.title": "Noch neugierig?", "term.lede": "Das Terminal gehört dir.",
       "cli.label": "Befehl eingeben", "cli.try": "Probier mal:", "cli.title": "Terminal",
@@ -2686,7 +2682,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     },
     ru: {
       "meta.description": "Alexander Fuhr – разработчик ПО. ИИ помогает, решает человек.",
-      "nav.label": "Основная навигация", "nav.menu": "Меню", "nav.terminal": "Терминал", "nav.top": "Наверх", "nav.start": "Начало", "tab.scroll": "Вниз", "tab.scroll.aria": "К следующему разделу", "nav.approach": "Подход", "nav.about": "Обо мне", "nav.contact": "Контакт",
+      "nav.label": "Основная навигация", "nav.menu": "Меню", "nav.terminal": "Терминал", "nav.top": "Наверх", "nav.start": "Начало", "tab.scroll": "Вниз", "tab.scroll.aria": "К следующему разделу", "nav.approach": "Подход", "nav.about": "Обо мне", "nav.sections": "Разделы", "nav.contact": "Контакт",
       "lang.label": "Язык",
       "hero.eyebrow": "Разработчик ПО · ИИ помогает, решает человек",
       "approach.cmd": "cat approach.md", "role.tag": "ИИ помогает, решает человек",
@@ -2798,11 +2794,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "v.right": "Верно.", "v.wrong": "Мимо.",
       "score.text": "{n} из {total} верно. ИИ понравился каждый ответ. Поэтому последнее слово за человеком.",
       "quiz.name": "Квиз", "score.again": "Ещё раз", "score.label": "Итог", "score.k1": "верно:", "score.k2": "похвала ИИ:", "score.bonus": "Бонусный вопрос",
-      "next.title": "Ты решаешь,", "next.lede": "что будет дальше!",
-      "next.a": "Связаться", "next.b": "Связаться в LinkedIn", "next.c": "Пройти квиз ещё раз", "next.d": "Сначала кофе",
-      "next.ai": "Рекомендую все три. Одновременно.",
+      "next.ai": "Рекомендую и то, и другое. Одновременно.",
       "next.alex": "Видишь? Именно поэтому решаешь ты.",
-      "next.coffee": "Хорошее решение. Страница никуда не денется, пока тебя нет.",
       "next.subject": "Давайте обсудим.",
       "term.title": "Всё ещё любопытно?", "term.lede": "Терминал в твоём распоряжении.",
       "cli.label": "Введите команду", "cli.try": "Попробуй:", "cli.title": "Терминал",
@@ -2906,7 +2899,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "meta.description": "Alexander Fuhr – softverski programer. AI pomaže, čovek vodi.",
       "nav.label": "Glavna navigacija", "nav.menu": "Meni", "nav.terminal": "Terminal", "nav.top": "Na vrh", "nav.start": "Početak", "tab.scroll": "Nadole", "tab.scroll.aria": "Na sledeći deo",
       "nav.approach": "Pristup",
-      "nav.about": "O meni",
+      "nav.about": "O meni", "nav.sections": "Odeljci",
       "nav.contact": "Kontakt",
       "lang.label": "Jezik",
       "hero.eyebrow": "Softverski programer · AI pomaže, čovek vodi",
@@ -3058,15 +3051,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "v.wrong": "Promašaj.",
       "score.text": "{n} od {total} tačno. AI je bio oduševljen svakim odgovorom. Zato na kraju odlučuje čovek.",
       "quiz.name": "Kviz", "score.again": "Ponovo", "score.label": "Rezultat", "score.k1": "tačno:", "score.k2": "pohvala AI-ja:", "score.bonus": "Bonus pitanje",
-      "next.title": "Ti odlučuješ",
-      "next.lede": "šta će biti dalje!",
-      "next.a": "Stupi u kontakt",
-      "next.b": "Poveži se na LinkedInu",
-      "next.c": "Igraj kviz ponovo",
-      "next.d": "Prvo kafa",
-      "next.ai": "Preporučujem sve tri. Istovremeno.",
+      "next.ai": "Preporučujem oba. Istovremeno.",
       "next.alex": "Vidiš? Upravo zato ti odlučuješ.",
-      "next.coffee": "Dobra odluka. Stranica će te čekati kad se vratiš.",
       "next.subject": "Hajde da razgovaramo.",
       "term.title": "Još si radoznao?",
       "term.lede": "Terminal je tvoj.",
@@ -3193,7 +3179,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "meta.description": "Alexander Fuhr – Προγραμματιστής λογισμικού. Η AI βοηθά, ο άνθρωπος αποφασίζει.",
       "nav.label": "Κύρια πλοήγηση", "nav.menu": "Μενού", "nav.terminal": "Τερματικό", "nav.top": "Στην κορυφή", "nav.start": "Αρχή", "tab.scroll": "Κάτω", "tab.scroll.aria": "Στην επόμενη ενότητα",
       "nav.approach": "Προσέγγιση",
-      "nav.about": "Σχετικά",
+      "nav.about": "Σχετικά", "nav.sections": "Ενότητες",
       "nav.contact": "Επικοινωνία",
       "lang.label": "Γλώσσα",
       "hero.eyebrow": "Προγραμματιστής λογισμικού · Η AI βοηθά, ο άνθρωπος αποφασίζει",
@@ -3345,15 +3331,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "v.wrong": "Λάθος.",
       "score.text": "{n} από {total} σωστές. Η AI ενθουσιάστηκε με κάθε απάντηση. Γι' αυτό στο τέλος αποφασίζει ένας άνθρωπος.",
       "quiz.name": "Κουίζ", "score.again": "Ξανά", "score.label": "Αποτέλεσμα", "score.k1": "σωστά:", "score.k2": "έπαινος AI:", "score.bonus": "Ερώτηση μπόνους",
-      "next.title": "Εσύ αποφασίζεις",
-      "next.lede": "τι θα γίνει μετά!",
-      "next.a": "Επικοινώνησε",
-      "next.b": "Σύνδεση στο LinkedIn",
-      "next.c": "Παίξε ξανά το κουίζ",
-      "next.d": "Πρώτα καφές",
-      "next.ai": "Προτείνω και τα τρία. Ταυτόχρονα.",
+      "next.ai": "Προτείνω και τα δύο. Ταυτόχρονα.",
       "next.alex": "Βλέπεις; Γι' αυτό ακριβώς αποφασίζεις εσύ.",
-      "next.coffee": "Καλή απόφαση. Η σελίδα θα είναι εδώ όταν γυρίσεις.",
       "next.subject": "Ας το συζητήσουμε.",
       "term.title": "Ακόμα περίεργος;",
       "term.lede": "Το τερματικό είναι δικό σου.",
@@ -4065,30 +4044,11 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     if (go) go.addEventListener('click', function () { if (quizComplete()) showResult(); show(); });
     return { open: show, close: close, page: page, isOpen: function () { return open; } };
   })();
-  /* Finale: the visitor decides what happens next */
-  var nextStatus = document.getElementById('next-status');
+  /* every mail link carries the subject, so mails from the site are easy to spot */
   function refreshNext() {
-    /* every mail link carries the subject, so mails from the site are easy to spot */
     var href = 'mailto:hello@arfr.de?subject=' + encodeURIComponent(t('next.subject'));
     document.querySelectorAll('a[href^="mailto:hello@arfr.de"]:not(.chat-mail)').forEach(function (a) { a.setAttribute('href', href); });
-    if (nextStatus && nextStatus.textContent) nextStatus.textContent = t('next.coffee');
   }
-  (function nextBlock() {
-    var replay = document.getElementById('next-replay');
-    var coffee = document.getElementById('next-coffee');
-    if (replay) replay.addEventListener('click', function () {
-      var again = document.querySelector('.quiz-again');
-      if (again) again.click();
-      var top = document.getElementById('top');
-      if (top) top.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
-    });
-    /* "Erstmal Kaffee": off to the terminal, which types `coffee` by itself */
-    if (coffee) coffee.addEventListener('click', function () {
-      var d = { cmd: 'coffee', ok: false };
-      document.dispatchEvent(new CustomEvent('arfr:type', { detail: d }));
-      if (!d.ok) nextStatus.textContent = t('next.coffee');
-    });
-  })();
 
   /* Secret game LIGHTRACE: a light-trail duel, human vs AI. Unlocked with `play` in the terminal. */
   var game = (function lightrace() {
@@ -4528,8 +4488,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
   var snow = (function () {
     var cv = null, ctx = null, flakes = [], raf = 0, stopping = false, w = 0, h = 0, safety = 0, refreshTimer = 0;
     var surfaces = [], topClip = 0, BUCKET = 3, CAP = 12;
-    var SURFACES = '#approach, #about, #contact, #next, .site-foot, .review-card, .hero .btn, .bar, ' +
-      '.steps li, .term, .contact-row .btn, .mail-copy, .next-grid .opt, .next-chat .ai-reply, .next-chat .comment, .cli';
+    var SURFACES = '#approach, #about, #contact, .site-foot, .review-card, .hero .btn, .bar, ' +
+      '.steps li, .term, .contact-row .btn, .mail-copy, .next-chat .ai-reply, .next-chat .comment, .cli';
     function resize() {
       if (!cv) return;
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -6051,18 +6011,37 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       active = cur; cur.classList.add('is-active');
       markNav(cur);
     }
-    /* the menu shows where the visitor is: the entry of the section in view, or of the last one before it
-       (the quiz is part of the hero, so it is Start) */
-    var navLinks = Array.prototype.slice.call(document.querySelectorAll('.menu-nav a'));
+    /* the menu and the ladder at the right edge show where the visitor is: the entry of the section in view, or of
+       the last one before it (the quiz is part of the hero, so it is Start) */
+    var navLinks = Array.prototype.slice.call(document.querySelectorAll('.menu-nav a, .side-steps a'));
     function markNav(cur) {
-      var link = null;
+      var hash = null;
       for (var i = 0; i < blocks.length; i++) {
-        var id = blocks[i].classList.contains('hero') ? 'top' : blocks[i].id;
-        link = navLinks.filter(function (a) { return a.getAttribute('href') === '#' + id; })[0] || link;
+        var h = '#' + (blocks[i].classList.contains('hero') ? 'top' : blocks[i].id);
+        if (navLinks.some(function (a) { return a.getAttribute('href') === h; })) hash = h;
         if (blocks[i] === cur) break;
       }
-      navLinks.forEach(function (a) { if (a === link) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+      navLinks.forEach(function (a) {
+        var on = a.getAttribute('href') === hash;
+        if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+        /* the ladder is one stop for the keyboard: the step of the section in view */
+        if (a.parentNode.classList.contains('side-steps')) a.tabIndex = on ? 0 : -1;
+      });
     }
+    /* along the ladder: up and down, Home and End, like the quiz ladder sideways */
+    var ladder = document.querySelector('.side-steps');
+    if (ladder) ladder.addEventListener('keydown', function (e) {
+      var steps = Array.prototype.slice.call(ladder.querySelectorAll('a')), i = steps.indexOf(document.activeElement), to = -1;
+      if (i < 0 || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      if (e.key === 'ArrowDown') to = Math.min(steps.length - 1, i + 1);
+      else if (e.key === 'ArrowUp') to = Math.max(0, i - 1);
+      else if (e.key === 'Home') to = 0;
+      else if (e.key === 'End') to = steps.length - 1;
+      if (to < 0) return;
+      e.preventDefault();
+      steps.forEach(function (a, k) { a.tabIndex = k === to ? 0 : -1; });
+      steps[to].focus();
+    });
     /* measured with the slide layout on (the terminal is shorter there); if it does not fit, the old position stays */
     function apply() {
       var was = root.classList.contains('slides'), y = window.scrollY, keep = active;
@@ -6115,7 +6094,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     if (reduceMotion || !('IntersectionObserver' in window)) return;
     if (document.documentElement.classList.contains('slides')) return; /* slides fade in as a whole */
     var sel = '.quiz-teaser, main > .section .statement > *, .steps > li, .about > .portrait, .about-text > *, ' +
-      '.contact-row, .next-grid > .opt, .next-chat > *, .cli-wrap';
+      '.contact-row, .next-chat > *, .cli-wrap';
     var items = Array.prototype.slice.call(document.querySelectorAll(sel));
     if (!items.length) return;
     document.documentElement.classList.add('reveal-on');
