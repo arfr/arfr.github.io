@@ -141,12 +141,18 @@ a { color: inherit; }
   }
 }
 
-/* The brand device: text set on a dark bar, one bar per line */
+/* The brand device: text on a light bar, one bar per line, its ends skewed like a parallelogram
+   (after pepelsbey.dev/articles/skewed-highlight). One gradient at 103deg draws the whole shape, so there is no seam where
+   slant and edge meet: its isolines lean like "/", 0.35em cuts the slant from the bottom-left corner of a line (the bar
+   is about 1.53em tall, 1.53em * sin 13deg = 0.345em) and the same from the top-right. box-decoration-break: clone gives
+   every wrapped line its own bar with both ends; the 1 px ramps keep the slants smooth. */
 .bar {
-  background: var(--bar);
+  --mark: var(--bar);
+  background: linear-gradient(103deg,
+    transparent calc(0.35em - 0.5px), var(--mark) calc(0.35em + 0.5px),
+    var(--mark) calc(100% - 0.35em - 0.5px), transparent calc(100% - 0.35em + 0.5px));
   color: var(--bar-fg);
-  padding: 0.12em 0.5em 0.18em;
-  border-radius: 4px;
+  padding: 0.12em 0.55em 0.18em;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
   line-height: 1.85; /* room for the bar padding between wrapped lines */
@@ -774,7 +780,7 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
 /* Finale: "you decide what happens next" as a dark terminal band */
 .next-band { background: var(--term-bg); color: var(--term-fg); }
 .next-band .statement h2 { color: var(--term-fg); }
-.next-band .bar { background: var(--term-fg); color: var(--term-bg); }
+.next-band .bar { --mark: var(--term-fg); color: var(--term-bg); }
 .section.next-band { overflow: hidden; }
 .section.next-band:last-child .wrap { padding-bottom: clamp(40px, 5vw, 64px); }
 /* options, the coffee reply and the comment thread read as one group */
@@ -867,6 +873,10 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
 .cli-line.accent, .cli-line.err { color: var(--term-accent); }
 .cli-line .ok { color: #5EE6A8; }
 .cli-line.chat-in .who { color: var(--term-accent); }
+/* the greeting offers three commands to click, for those who would not know what to type */
+.cli-try { margin-bottom: 8px; }
+.cli-chip { min-height: 28px; margin: 2px 2px 2px 4px; padding: 0 10px; border: 0; border-radius: 4px; background: rgba(255, 255, 255, 0.07); color: var(--term-fg); font: inherit; cursor: pointer; transition: background-color 0.15s ease; }
+.cli-chip:hover { background: rgba(255, 255, 255, 0.14); }
 /* Live chat: a movable chat window; the header is the drag handle */
 .chat-open svg { width: 18px; height: 18px; }
 .chatw {
@@ -1089,7 +1099,7 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
 @media (max-width: 480px) {
   .cli-screen { height: 280px; }
 }
-@media (prefers-reduced-motion: reduce) { .cli { transition: none; } .cli-block { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .cli, .cli-chip { transition: none; } .cli-block { animation: none; } }
 
 /* Hidden command `smart`: the page compressed to its minimum */
 html.smart main, html.smart .site-foot, html.smart .nav { display: none !important; }
@@ -1514,6 +1524,16 @@ section { scroll-margin-top: calc(72px + var(--frame)); }
 @media (prefers-reduced-motion: reduce) { .menu-panel, .ftab-top.shown .menu-panel { transition: none; } }
 .ftab-bottom { bottom: var(--frame); border-radius: 10px 10px 0 0; }
 .ftab-shape { position: absolute; left: 0; top: -2px; overflow: visible; display: none; }
+/* while the page scrolls freely, text fades out before a tab instead of running under it */
+html:not(.slides) .frame::before, html:not(.slides) .frame::after {
+  content: '';
+  position: absolute;
+  left: var(--frame);
+  right: var(--frame);
+  height: calc(var(--tab-d) + 18px);
+}
+html:not(.slides) .frame::before { top: var(--frame); border-radius: var(--frame-r) var(--frame-r) 0 0; background: linear-gradient(to bottom, #0B0B0C 45%, rgba(11, 11, 12, 0)); }
+html:not(.slides) .frame::after { bottom: var(--frame); border-radius: 0 0 var(--frame-r) var(--frame-r); background: linear-gradient(to top, #0B0B0C 45%, rgba(11, 11, 12, 0)); }
 .ftab.drawn .ftab-shape { display: block; }
 .ftab-bottom .ftab-shape { top: auto; bottom: -2px; transform: scaleY(-1); }
 .ftab-shape .ftab-fill { fill: #000; }
@@ -1530,6 +1550,8 @@ section { scroll-margin-top: calc(72px + var(--frame)); }
   text-decoration: none;
 }
 .ftab-bottom .ftab-label { font-weight: 600; letter-spacing: var(--ls-caps); color: #BAB5B8; }
+/* the tabs are slim; their buttons still take a finger: 44 px to tap, without looking bigger */
+.ftab-name::after, .ftab-scroll::after { content: ''; position: absolute; left: -12px; right: -12px; top: 50%; height: 44px; transform: translateY(-50%); }
 a.ftab:hover .ftab-label, .ftab-bottom .ftab-label:hover { color: var(--term-accent); }
 a.ftab:focus-visible, .ftab-bottom .ftab-label:focus-visible { outline: none; }
 a.ftab:focus-visible .ftab-label, .ftab-bottom .ftab-label:focus-visible { color: var(--term-accent); text-decoration: underline; text-underline-offset: 4px; }
@@ -1591,6 +1613,8 @@ html.smart .ftab-bottom { display: none; }
    The script keeps html.slides only while every section fits between the two tabs; otherwise the page scrolls
    as usual. The section in view is .is-active; the others wait faded and a little lower, so content never overlaps. */
 html.slides { scroll-snap-type: y mandatory; }
+/* with reduced motion the page only settles on a section that is already close; it never pulls */
+@media (prefers-reduced-motion: reduce) { html.slides { scroll-snap-type: y proximity; } }
 html.slides main > section {
   min-height: calc(100vh - 2 * var(--frame));
   min-height: calc(100dvh - 2 * var(--frame));
@@ -1642,11 +1666,11 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       <a href="#terminal" data-i18n="nav.terminal">Terminal</a>
     </nav>
     <div class="menu-row lang-menu" id="lang-menu" role="group" aria-label="Sprache" data-i18n-aria="lang.label">
-      <button type="button" data-lang="de" lang="de" aria-pressed="true" aria-label="Deutsch">DE</button>
-      <button type="button" data-lang="en" lang="en" aria-pressed="false" aria-label="English">EN</button>
-      <button type="button" data-lang="ru" lang="ru" aria-pressed="false" aria-label="Русский">RU</button>
-      <button type="button" data-lang="sr" lang="sr-Latn" aria-pressed="false" aria-label="Srpski">SR</button>
-      <button type="button" data-lang="el" lang="el" aria-pressed="false" aria-label="Ελληνικά">EL</button>
+      <button type="button" data-lang="de" lang="de" aria-pressed="true" aria-label="DE, Deutsch">DE</button>
+      <button type="button" data-lang="en" lang="en" aria-pressed="false" aria-label="EN, English">EN</button>
+      <button type="button" data-lang="ru" lang="ru" aria-pressed="false" aria-label="RU, Русский">RU</button>
+      <button type="button" data-lang="sr" lang="sr-Latn" aria-pressed="false" aria-label="SR, Srpski">SR</button>
+      <button type="button" data-lang="el" lang="el" aria-pressed="false" aria-label="EL, Ελληνικά">EL</button>
     </div>
     <div class="menu-row menu-acts">
       <a href="mailto:hello@arfr.de?subject=Sprechen%20wir%20dar%C3%BCber." data-i18n="contact.write">E-Mail</a>
@@ -2161,6 +2185,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
           </div>
           <div class="cli-screen" id="cli-screen">
             <samp class="cli-out" id="cli-out" role="log" aria-live="polite">
+              <div class="cli-line muted" data-i18n="cli.welcome">Willkommen auf arfr.de. Tippe help für alle Befehle.</div>
+              <div class="cli-line cli-try"><span class="muted" data-i18n="cli.try">Probier mal:</span> <button type="button" class="cli-chip" data-cmd="help">help</button> <button type="button" class="cli-chip" data-cmd="whoami">whoami</button> <button type="button" class="cli-chip" data-cmd="quiz">quiz</button></div>
             </samp>
             <form class="cli-in" id="cli-form" autocomplete="off">
               <label for="cli-input" class="cli-prompt"><samp><span class="host">guest@arfr</span><span id="cli-path">:~$</span></samp><span class="sr-only" data-i18n="cli.label">Befehl eingeben</span></label>
@@ -2186,7 +2212,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       <button type="button" class="chatw-close" id="chat-close" aria-label="Chat schließen" data-i18n-aria="chat.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
     <div class="chatw-log" id="chat-log" role="log" aria-live="polite">
-      <p class="cnote" data-i18n="chat.intro">Fragen lassen sich direkt hier stellen. Die Antwort erscheint in diesem Fenster.</p>
+      <p class="cnote" data-i18n="chat.intro">Fragen lassen sich direkt hier stellen. Alex antwortet persönlich, hier in diesem Fenster.</p>
     </div>
     <form class="chatw-in" id="chat-form" autocomplete="off">
       <label for="chat-input" class="sr-only" data-i18n="chat.label">Nachricht</label>
@@ -2389,7 +2415,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "chat.status.connecting": "Connecting …",
       "chat.status.online": "Live chat",
       "chat.status.offline": "Unavailable right now",
-      "chat.intro": "Questions can be asked right here. The reply appears in this window.",
+      "chat.intro": "Questions can be asked right here. Alex replies in person, right in this window.",
       "chat.me": "Sent",
       "chat.them": "Reply",
       "cli.notFound": "command not found: {cmd}. Hint: help",
@@ -2607,7 +2633,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "chat.status.connecting": "Verbinde …",
       "chat.status.online": "Live-Chat",
       "chat.status.offline": "Gerade nicht erreichbar",
-      "chat.intro": "Fragen lassen sich direkt hier stellen. Die Antwort erscheint in diesem Fenster.",
+      "chat.intro": "Fragen lassen sich direkt hier stellen. Alex antwortet persönlich, hier in diesem Fenster.",
       "chat.me": "Gesendet",
       "chat.them": "Antwort",
       "cli.notFound": "Befehl nicht gefunden: {cmd}. Tipp: help",
@@ -2825,7 +2851,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "chat.status.connecting": "Подключение …",
       "chat.status.online": "Живой чат",
       "chat.status.offline": "Сейчас недоступен",
-      "chat.intro": "Вопросы можно задать прямо здесь. Ответ появится в этом окне.",
+      "chat.intro": "Вопросы можно задать прямо здесь. Алекс ответит лично, в этом окне.",
       "chat.me": "Отправлено",
       "chat.them": "Ответ",
       "cli.notFound": "команда не найдена: {cmd}. Подсказка: help",
@@ -3100,7 +3126,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "chat.status.connecting": "Povezivanje …",
       "chat.status.online": "Čet uživo",
       "chat.status.offline": "Trenutno nedostupno",
-      "chat.intro": "Pitanja se mogu postaviti ovde. Odgovor stiže u ovaj prozor.",
+      "chat.intro": "Pitanja se mogu postaviti ovde. Alex odgovara lično, u ovom prozoru.",
       "chat.me": "Poslato",
       "chat.them": "Odgovor",
       "cli.notFound": "komanda nije pronađena: {cmd}. Savet: help",
@@ -3387,7 +3413,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "chat.status.connecting": "Σύνδεση …",
       "chat.status.online": "Live συνομιλία",
       "chat.status.offline": "Μη διαθέσιμο τώρα",
-      "chat.intro": "Οι ερωτήσεις γίνονται απευθείας εδώ. Η απάντηση εμφανίζεται σε αυτό το παράθυρο.",
+      "chat.intro": "Οι ερωτήσεις γίνονται απευθείας εδώ. Ο Alex απαντά προσωπικά, σε αυτό το παράθυρο.",
       "chat.me": "Στάλθηκε",
       "chat.them": "Απάντηση",
       "cli.notFound": "η εντολή δεν βρέθηκε: {cmd}. Συμβουλή: help",
@@ -5440,8 +5466,9 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
         ctx.restore();
       });
     }
-    /* the grid runs for 30 s of visible time, then glides to a halt and stays as a still image */
-    var RUN = 30000, GLIDE = 2500, ran = 0, clock = 0, prev = 0, frozen = false;
+    /* the grid runs for 5 s of visible time, gliding to a halt in the last two, and stays as a still image
+       (WCAG 2.2.2: motion that starts by itself stops within 5 s) */
+    var RUN = 5000, GLIDE = 2000, ran = 0, clock = 0, prev = 0, frozen = false;
     function loop(now) {
       var step = prev ? Math.min(now - prev, 50) : 0;
       prev = now;
@@ -5992,70 +6019,6 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       window.scrollTo({ top: to, behavior: reduceMotion ? 'auto' : 'smooth' });
     }
     sectionStep = step;
-  })();
-
-  /* Smooth mouse wheel: a notch glides instead of jumping. Only for a real mouse wheel; trackpads,
-     touch, keyboard and the scrollbar keep the browser's own scrolling, and so does anything that
-     scrolls by itself (chat history, quiz slides, terminal output). */
-  (function smoothWheel() {
-    if (reduceMotion || !window.matchMedia || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-    var root = document.documentElement;
-    var target = 0, current = 0, raf = 0, active = false, lastT = 0, expected = -1, padUntil = 0;
-    function maxY() { return Math.max(0, root.scrollHeight - window.innerHeight); }
-    function clamp(v) { return Math.max(0, Math.min(maxY(), v)); }
-    function innerScroller(el, dy) {
-      for (; el && el !== document.body && el !== root; el = el.parentElement) {
-        if (el.scrollHeight <= el.clientHeight + 1) continue;
-        var oy = getComputedStyle(el).overflowY;
-        if (oy !== 'auto' && oy !== 'scroll') continue;
-        if (dy < 0 ? el.scrollTop > 0 : el.scrollTop + el.clientHeight < el.scrollHeight - 1) return el;
-      }
-      return null;
-    }
-    function stop() {
-      if (!active) return;
-      active = false; cancelAnimationFrame(raf); expected = -1;
-      root.style.scrollBehavior = '';
-    }
-    function step(t) {
-      var dt = lastT ? Math.min((t - lastT) / 1000, 0.05) : 1 / 60;
-      lastT = t;
-      target = clamp(target);
-      current += (target - current) * (1 - Math.exp(-dt * 11));
-      if (Math.abs(target - current) < 0.5) current = target;
-      expected = Math.round(current);
-      window.scrollTo(0, current);
-      if (current === target) { stop(); return; }
-      raf = requestAnimationFrame(step);
-    }
-    window.addEventListener('wheel', function (e) {
-      if (root.classList.contains('slides')) return; /* slides snap by themselves */
-      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey) return;
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || !e.deltaY) return;
-      var now = Date.now();
-      /* a trackpad sends many small pixel steps: leave it alone for a moment */
-      if (e.deltaMode === 0 && (Math.abs(e.deltaY) < 40 || e.deltaX)) { padUntil = now + 600; stop(); return; }
-      if (now < padUntil) return;
-      var game = document.getElementById('game');
-      if (game && !game.hidden) return;
-      if (innerScroller(e.target, e.deltaY)) { stop(); return; }
-      var d = e.deltaY * (e.deltaMode === 1 ? 40 : e.deltaMode === 2 ? window.innerHeight : 1);
-      if (!active) {
-        current = target = window.scrollY;
-        active = true; lastT = 0;
-        root.style.scrollBehavior = 'auto';
-        raf = requestAnimationFrame(step);
-      }
-      var next = clamp(target + d);
-      if (next === target && (next === 0 || next === maxY())) return;
-      e.preventDefault();
-      target = next;
-    }, { passive: false });
-    /* anything else that moves the page takes over: keys, scrollbar, links, touch */
-    ['keydown', 'mousedown', 'touchstart'].forEach(function (ev) { window.addEventListener(ev, stop, { passive: true }); });
-    window.addEventListener('scroll', function () {
-      if (active && expected >= 0 && Math.abs(window.scrollY - expected) > 3) stop();
-    }, { passive: true });
   })();
 
   /* Slides: each section fills the frame and the page snaps from one to the next (CSS scroll snap, no wheel tricks).
