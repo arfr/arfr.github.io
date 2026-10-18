@@ -3442,6 +3442,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     document.dispatchEvent(new CustomEvent('arfr:lang'));
     if (save) {
       try { localStorage.setItem('arfr-lang', lang); } catch (e) {}
+      try { sessionStorage.removeItem('arfr-lang-link'); } catch (e) {}
     }
   }
 
@@ -5951,18 +5952,18 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       });
     }
     var active = null;
-    function mark() {
+    function mark(scrolled) {
       var mid = window.innerHeight / 2, cur = blocks[0];
       blocks.forEach(function (b) { if (b.getBoundingClientRect().top <= mid) cur = b; });
       if (cur === active) return;
       blocks.forEach(function (b) { if (b !== cur) b.classList.remove('is-active'); });
       active = cur; cur.classList.add('is-active');
-      markNav(cur);
+      markNav(cur, scrolled);
     }
     /* the menu and the ladder at the left edge show where the visitor is: the entry of the section in view, or of
        the last one before it (the quiz is part of the hero, so it is Start) */
     var navLinks = Array.prototype.slice.call(document.querySelectorAll('.menu-nav a, .side-steps a'));
-    function markNav(cur) {
+    function markNav(cur, scrolled) {
       var hash = null;
       for (var i = 0; i < blocks.length; i++) {
         var h = '#' + (blocks[i].classList.contains('hero') ? 'top' : blocks[i].id);
@@ -5975,6 +5976,19 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
         /* the ladder is one stop for the keyboard: the step of the section in view */
         if (a.parentNode.classList.contains('side-steps')) a.tabIndex = on ? 0 : -1;
       });
+      if (scrolled) markAddress(hash);
+    }
+    /* the address follows the scrolling: the section in view (#terminal), nothing at the start. Only after the page
+       has scrolled, so a link to a section is not wiped before the browser gets there; replaced, not added, so Back
+       still leaves the page. A link's language mark (#ru) stays at the start; initLang keeps that language for the visit */
+    function markAddress(hash) {
+      if (!hash || !history.replaceState) return;
+      var want = hash === '#top' ? '' : hash;
+      if (location.hash === want) return;
+      try {
+        if (!want && !document.getElementById(decodeURIComponent(location.hash.slice(1)))) return;
+        history.replaceState(history.state, '', want || location.pathname + location.search);
+      } catch (e) {}
     }
     /* along the ladder: up and down, Home and End, like the quiz ladder sideways */
     var ladder = document.querySelector('.side-steps');
@@ -6004,7 +6018,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     apply();
     var tick = 0, wait = 0;
     window.addEventListener('scroll', function () {
-      if (!tick) tick = requestAnimationFrame(function () { tick = 0; mark(); });
+      if (!tick) tick = requestAnimationFrame(function () { tick = 0; mark(true); });
     }, { passive: true });
     window.addEventListener('resize', function () { clearTimeout(wait); wait = setTimeout(apply, 150); });
     document.addEventListener('arfr:lang', apply);
@@ -6074,11 +6088,17 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
   }
   (function initLang() {
     var fromHash = location.hash.slice(1).toLowerCase();
-    var stored = null;
+    var stored = null, linked = null;
     try { stored = localStorage.getItem('arfr-lang'); } catch (e) {}
+    /* the link's language holds for the whole visit, also once scrolling has put a section into the address */
+    try {
+      if (LANGS.indexOf(fromHash) !== -1) sessionStorage.setItem('arfr-lang-link', fromHash);
+      linked = sessionStorage.getItem('arfr-lang-link');
+    } catch (e) {}
     /* first the link (#ru), then the visitor's own pick, then the browser's language order */
     var initial = 'de';
     if (LANGS.indexOf(fromHash) !== -1) initial = fromHash;
+    else if (linked && LANGS.indexOf(linked) !== -1) initial = linked;
     else if (stored && LANGS.indexOf(stored) !== -1) initial = stored;
     else initial = browserLang();
     document.documentElement.lang = 'de';
