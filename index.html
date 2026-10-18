@@ -621,20 +621,21 @@ a { color: inherit; }
 
 /* Hero: only the first question, as a way in. An answer opens the quiz on a slide of its own.
    No card: the case reads like a script, who speaks on the left and each voice on a bar in its colour (the client
-   white, the AI orange). Below it the question, large, and three plates in the slant of the bars, like a TV quiz. */
-.quiz-teaser { --plate: #121C25; --plate-h: 58px; gap: 0; container-type: inline-size; }
+   white, the AI orange). Below it the question and three small plates in the slant of the bars, like a TV quiz,
+   only as wide as the longest answer, so the headline on the left keeps the stage. */
+.quiz-teaser { --plate: #121C25; --plate-h: 44px; gap: 0; container-type: inline-size; }
 .quiz-teaser .case { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: 14px; row-gap: 20px; align-items: baseline; }
 .case-who { font-weight: 600; color: var(--muted); }
 .case-who.is-ai { color: var(--ai); }
 .case-say { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: var(--fs-l); line-height: 1.85; }
 .case-say.is-ai { font-size: var(--fs-m); line-height: 1.9; }
 .case-say.is-ai .bar { --mark: var(--ai); }
-.quiz-teaser .quiz-q { margin: 28px 0 16px; font-family: var(--font-display); font-weight: 500; font-size: clamp(1.75rem, 1rem + 1.7vw, 2.5rem); line-height: var(--lh-tight); letter-spacing: -0.02em; }
-.quiz-teaser .quiz-opts { gap: 10px; }
+.quiz-teaser .quiz-q { margin: 26px 0 14px; font-family: var(--font-display); font-weight: 500; font-size: clamp(1.5rem, 1rem + 1vw, 2rem); line-height: var(--lh-tight); letter-spacing: -0.02em; }
+.quiz-teaser .quiz-opts { display: grid; grid-template-columns: fit-content(100%); gap: 8px; }
 /* a plate: the button keeps its rectangle for the pointer, a clipped layer behind the text draws the slant
    (tan 13deg = 0.2309, the angle of the bars) */
 .quiz-teaser .opt, .teaser-go { --slant: calc(var(--plate-h) * 0.2309); position: relative; isolation: isolate; border: 0; border-radius: 0; background: none; }
-.quiz-teaser .opt { min-height: var(--plate-h); padding: 0 calc(var(--slant) + 18px) 0 calc(var(--slant) + 14px); gap: 16px; font-family: var(--font-display); font-weight: 500; font-size: var(--fs-l); transition: color 0.15s ease, opacity 0.15s ease, transform 0.12s ease; }
+.quiz-teaser .opt { min-height: var(--plate-h); padding: 0 calc(var(--slant) + 16px) 0 calc(var(--slant) + 12px); gap: 12px; font-family: var(--font-display); font-weight: 500; font-size: var(--fs-m); transition: color 0.15s ease, opacity 0.15s ease, transform 0.12s ease; }
 .quiz-teaser .opt::before, .teaser-go::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--plate); clip-path: polygon(var(--slant) 0, 100% 0, calc(100% - var(--slant)) 100%, 0 100%); transition: background-color 0.15s ease; }
 /* keyboard focus: a 2px ring in the same slant, 3px off the plate, instead of the rectangular outline.
    5px out on top and bottom is 6.29px out across the slant (5px * (1 / cos 13deg + tan 13deg)). */
@@ -643,7 +644,7 @@ a { color: inherit; }
   clip-path: polygon(evenodd, calc(var(--slant) + 2.31px) 0, 100% 0, calc(100% - var(--slant) - 2.31px) 100%, 0 100%, calc(var(--slant) + 2.31px) 0,
     calc(var(--slant) + 3.9px) 2px, calc(100% - 2.51px) 2px, calc(100% - var(--slant) - 3.9px) calc(100% - 2px), 2.51px calc(100% - 2px), calc(var(--slant) + 3.9px) 2px); }
 .quiz-teaser .opt:focus-visible::after, .teaser-go:focus-visible::after { visibility: visible; }
-.quiz-teaser .opt-key { width: auto; height: auto; min-width: 1em; background: none; border-radius: 0; font-size: var(--fs-m); color: var(--human); transition: color 0.15s ease; }
+.quiz-teaser .opt-key { width: auto; height: auto; min-width: 1em; background: none; border-radius: 0; font-size: var(--fs-s); color: var(--human); transition: color 0.15s ease; }
 .quiz-teaser .opt:hover:not(:disabled)::before, .quiz-teaser .opt:focus-visible::before { background: var(--bar); }
 .quiz-teaser .opt:hover:not(:disabled), .quiz-teaser .opt:focus-visible { color: var(--bar-fg); }
 /* after the first answer the plates show it, like the quiz does: your pick orange, the right one cyan */
@@ -659,7 +660,7 @@ a { color: inherit; }
 /* and offers the way back in, on a white plate */
 .teaser-resume { display: flex; margin-top: 18px; }
 .teaser-resume[hidden] { display: none; }
-.teaser-go { --plate: var(--bar); --plate-h: 48px; display: inline-grid; justify-items: center; min-height: var(--plate-h); padding: 0 calc(var(--slant) + 14px); color: var(--bar-fg); font-family: var(--font-display); font-weight: 500; font-size: var(--fs-m); white-space: nowrap; cursor: pointer; transition: transform 0.12s ease; }
+.teaser-go { --plate: var(--bar); --plate-h: 44px; display: inline-grid; justify-items: center; min-height: var(--plate-h); padding: 0 calc(var(--slant) + 14px); color: var(--bar-fg); font-family: var(--font-display); font-weight: 500; font-size: var(--fs-m); white-space: nowrap; cursor: pointer; transition: transform 0.12s ease; }
 .teaser-go > span { grid-area: 1 / 1; align-self: center; }
 .teaser-go > span + span, .teaser-go.is-done > span:first-child { visibility: hidden; }
 .teaser-go.is-done > span + span { visibility: visible; }
