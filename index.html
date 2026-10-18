@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Alexander Fuhr</title>
-<meta name="description" content="Alexander Fuhr – Softwareentwickler. KI-gestützt, menschlich geführt.">
+<meta name="description" content="Alexander Fuhr – Entwickler. KI-gestützt, menschlich geführt.">
 <meta name="color-scheme" content="light dark">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://arfr.de/">
-<meta property="og:title" content="Alexander Fuhr – Softwareentwickler">
+<meta property="og:title" content="Alexander Fuhr – Entwickler">
 <meta property="og:description" content="KI-gestützt, menschlich geführt.">
 <meta property="og:image" content="https://arfr.de/images/alexander-fuhr.jpg">
 <meta property="og:locale" content="de_DE">
@@ -1350,21 +1350,21 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
   line-height: var(--lh-snug);
 }
 .steps p { margin: 0; color: var(--text); max-width: 52ch; }
-/* one dot per step, centred on the first line of the heading, and one unbroken line from dot to dot: each step
-   draws its piece from its own dot's centre to the next one's, under the dots. Dot (14 px) and line (2 px) share
-   the same centre, 13 px in, so both stay crisp and in line */
+/* one diamond per step, centred on the first line of the heading, and one unbroken line from diamond to diamond:
+   each step draws its piece from its own diamond's centre to the next one's, under the diamonds. The diamond (a
+   12 px square turned 45°, 17 px from tip to tip) and the line (2 px) share the same centre, 13 px in */
 .steps li::before {
   content: "";
   position: absolute;
-  top: calc(var(--fs-l) * 0.65 - 7px);
-  left: 6px;
+  top: calc(var(--fs-l) * 0.65 - 6px);
+  left: 7px;
   z-index: 1;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   box-sizing: border-box;
-  border-radius: 50%;
   border: 2px solid var(--accent);
   background: var(--bg);
+  transform: rotate(45deg);
 }
 .steps li:last-child::before { background: var(--accent); }
 .steps li:not(:last-child)::after {
@@ -1728,7 +1728,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     <p class="prompt"><span class="host">alex@arfr</span>:~$ cat tldr.txt</p>
     <div class="smart-core" id="smart-core">
       <h1 id="smart-title">Alexander Fuhr</h1>
-      <p class="smart-role" data-i18n="role.title">Softwareentwickler</p>
+      <p class="smart-role" data-i18n="role.title">Entwickler</p>
       <p class="smart-line"><span class="bar" data-i18n="smart.line">KI assistiert. Der Mensch entscheidet.</span></p>
       <div class="smart-links">
         <a class="btn btn-primary" href="mailto:hello@arfr.de?subject=Sprechen%20wir%20dar%C3%BCber.">hello@arfr.de</a>
@@ -1774,7 +1774,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
         <h1 id="hero-title"><span data-i18n="hero.title" data-strike aria-hidden="true">Wenn alles <span class="squiggle">einfach</span> wird …</span><span class="sr-only" data-i18n="hero.sentence">Wenn alles einfach wird, braucht es Menschen, die wissen, worauf es wirklich ankommt.</span></h1>
         <div class="hero-side">
         <p class="lede" aria-hidden="true"><span class="bar" data-i18n="hero.lede">… braucht es Menschen, die wissen, worauf es wirklich ankommt.</span></p>
-        <p class="role"><span class="bar" data-i18n="hero.eyebrow">Softwareentwickler · KI-&#8288;gestützt, menschlich geführt</span></p>
+        <p class="role"><span class="bar" data-i18n="hero.eyebrow">Entwickler · KI-&#8288;gestützt, menschlich geführt</span></p>
         </div>
       </div>
 
@@ -2339,15 +2339,15 @@ SET newsletter = 0
 (function () {
   var I18N = {
     en: {
-      "meta.description": "Alexander Fuhr – Software Developer. AI-assisted, human-led.",
+      "meta.description": "Alexander Fuhr – Developer. AI-assisted, human-led.",
       "nav.label": "Main", "nav.menu": "Menu", "nav.terminal": "Terminal", "nav.top": "Back to top", "nav.start": "Start", "tab.scroll": "Scroll down", "tab.scroll.aria": "To the next section", "nav.approach": "Approach", "nav.about": "About", "nav.sections": "Sections", "nav.contact": "Contact",
       "lang.label": "Language",
-      "hero.eyebrow": "Software Developer · AI-\u2060assisted, human-\u2060led",
+      "hero.eyebrow": "Developer · AI-\u2060assisted, human-\u2060led",
       "approach.cmd": "cat approach.md", "role.tag": "AI-assisted, human-led",
       "hero.title": "When everything gets [easy] …",
       "hero.lede": "… you need people who know what really matters.",
       "hero.sentence": "When everything gets easy, you need people who know what really matters.",
-      "role.title": "Software Developer", "role.country": "Germany", "profile.workflow": "[understand, build, own it]",
+      "role.title": "Developer", "role.country": "Germany", "profile.workflow": "[understand, build, own it]",
       "review.aria": "Code review examples: an AI suggestion, a human correction, then approval",
       "review.chip": "Review", "review.ai": "AI suggestion",
       "review.comment": "Quantity is missing. Every order with two or more items would be wrong.",
@@ -2465,7 +2465,7 @@ SET newsletter = 0
       "cli.help.linkedin": "open LinkedIn", "cli.help.coffee": "brew coffee", "cli.help.lang": "switch language",
       "cli.help.clear": "clear the screen", "cli.help.exit": "leave (go ahead, try)",
       "cli.help.secret": "Plus a few hidden commands. One of them is a game.",
-      "cli.whoami": "alex · software developer · AI-assisted, human-led",
+      "cli.whoami": "alex · developer · AI-assisted, human-led",
       "cli.denied": "Permission denied. Nice try.",
       "cli.noFile": "{f}: No such file or directory",
       "cli.quiz": "Restarting the quiz … good luck. The AI will praise you either way.",
@@ -2555,15 +2555,15 @@ SET newsletter = 0
       "game.label": "Game board: your cyan light trail against the AI’s orange one",
     },
     de: {
-      "meta.description": "Alexander Fuhr – Softwareentwickler. KI-gestützt, menschlich geführt.",
+      "meta.description": "Alexander Fuhr – Entwickler. KI-gestützt, menschlich geführt.",
       "nav.label": "Hauptnavigation", "nav.menu": "Menü", "nav.terminal": "Terminal", "nav.top": "Nach oben", "nav.start": "Start", "tab.scroll": "Nach unten", "tab.scroll.aria": "Zum nächsten Bereich", "nav.approach": "Vorgehen", "nav.about": "Über mich", "nav.sections": "Abschnitte", "nav.contact": "Kontakt",
       "lang.label": "Sprache",
-      "hero.eyebrow": "Softwareentwickler · KI-\u2060gestützt, menschlich geführt",
+      "hero.eyebrow": "Entwickler · KI-\u2060gestützt, menschlich geführt",
       "approach.cmd": "cat vorgehen.md", "role.tag": "KI-gestützt, menschlich geführt",
       "hero.title": "Wenn alles [einfach] wird …",
       "hero.lede": "… braucht es Menschen, die wissen, worauf es wirklich ankommt.",
       "hero.sentence": "Wenn alles einfach wird, braucht es Menschen, die wissen, worauf es wirklich ankommt.",
-      "role.title": "Softwareentwickler", "role.country": "Deutschland", "profile.workflow": "[verstehen, bauen, verantworten]",
+      "role.title": "Entwickler", "role.country": "Deutschland", "profile.workflow": "[verstehen, bauen, verantworten]",
       "review.aria": "Beispiele für Code-Reviews: ein KI-Vorschlag, eine Korrektur durch einen Menschen, dann die Freigabe",
       "review.chip": "Review", "review.ai": "KI-Vorschlag",
       "review.comment": "Die Menge fehlt. Jede Bestellung mit zwei oder mehr Artikeln wäre falsch.",
@@ -2681,7 +2681,7 @@ SET newsletter = 0
       "cli.help.linkedin": "LinkedIn öffnen", "cli.help.coffee": "Kaffee kochen", "cli.help.lang": "Sprache wechseln",
       "cli.help.clear": "Bildschirm leeren", "cli.help.exit": "gehen (versuch’s ruhig)",
       "cli.help.secret": "Und ein paar versteckte Befehle. Einer davon ist ein Spiel.",
-      "cli.whoami": "alex · Softwareentwickler · KI-gestützt, menschlich geführt",
+      "cli.whoami": "alex · Entwickler · KI-gestützt, menschlich geführt",
       "cli.denied": "Zugriff verweigert. Netter Versuch.",
       "cli.noFile": "{f}: Datei oder Verzeichnis nicht gefunden",
       "cli.quiz": "Starte das Quiz neu … viel Glück. Die KI lobt dich so oder so.",
@@ -2771,15 +2771,15 @@ SET newsletter = 0
       "game.label": "Spielfeld: deine cyanfarbene Lichtspur gegen die orangefarbene der KI",
     },
     ru: {
-      "meta.description": "Alexander Fuhr – разработчик ПО. ИИ помогает, решает человек.",
+      "meta.description": "Alexander Fuhr – разработчик. ИИ помогает, решает человек.",
       "nav.label": "Основная навигация", "nav.menu": "Меню", "nav.terminal": "Терминал", "nav.top": "Наверх", "nav.start": "Начало", "tab.scroll": "Вниз", "tab.scroll.aria": "К следующему разделу", "nav.approach": "Подход", "nav.about": "Обо мне", "nav.sections": "Разделы", "nav.contact": "Контакт",
       "lang.label": "Язык",
-      "hero.eyebrow": "Разработчик\u00a0ПО · ИИ\u00a0помогает, решает человек",
+      "hero.eyebrow": "Разработчик · ИИ\u00a0помогает, решает человек",
       "approach.cmd": "cat approach.md", "role.tag": "ИИ помогает, решает человек",
       "hero.title": "Когда всё становится [просто] …",
       "hero.lede": "… нужны люди, которые знают, что действительно важно.",
       "hero.sentence": "Когда всё становится просто, нужны люди, которые знают, что действительно важно.",
-      "role.title": "Разработчик ПО", "role.country": "Германия", "profile.workflow": "[понять, сделать, отвечать]",
+      "role.title": "Разработчик", "role.country": "Германия", "profile.workflow": "[понять, сделать, отвечать]",
       "review.aria": "Примеры код-ревью: предложение ИИ, исправление человеком, затем одобрение",
       "review.chip": "Ревью", "review.ai": "Предложение ИИ",
       "review.comment": "Не учтено количество. Любой заказ из двух и более товаров будет посчитан неверно.",
@@ -2897,7 +2897,7 @@ SET newsletter = 0
       "cli.help.linkedin": "открыть LinkedIn", "cli.help.coffee": "сварить кофе", "cli.help.lang": "сменить язык",
       "cli.help.clear": "очистить экран", "cli.help.exit": "выйти (попробуй)",
       "cli.help.secret": "И пара скрытых команд. Одна из них — игра.",
-      "cli.whoami": "alex · разработчик ПО · ИИ помогает, решает человек",
+      "cli.whoami": "alex · разработчик · ИИ помогает, решает человек",
       "cli.denied": "Доступ запрещён. Хорошая попытка.",
       "cli.noFile": "{f}: Нет такого файла или каталога",
       "cli.quiz": "Перезапускаю квиз … удачи. ИИ всё равно тебя похвалит.",
@@ -2987,19 +2987,19 @@ SET newsletter = 0
       "game.label": "Игровое поле: твой голубой световой след против фиолетового следа ИИ",
     },
     sr: {
-      "meta.description": "Alexander Fuhr – softverski programer. AI pomaže, čovek vodi.",
+      "meta.description": "Alexander Fuhr – programer. AI pomaže, čovek vodi.",
       "nav.label": "Glavna navigacija", "nav.menu": "Meni", "nav.terminal": "Terminal", "nav.top": "Na vrh", "nav.start": "Početak", "tab.scroll": "Nadole", "tab.scroll.aria": "Na sledeći deo",
       "nav.approach": "Pristup",
       "nav.about": "O meni", "nav.sections": "Odeljci",
       "nav.contact": "Kontakt",
       "lang.label": "Jezik",
-      "hero.eyebrow": "Softverski programer · AI pomaže, čovek vodi",
+      "hero.eyebrow": "Programer · AI pomaže, čovek vodi",
       "approach.cmd": "cat pristup.md",
       "role.tag": "AI pomaže, čovek vodi",
       "hero.title": "Kad sve postane [lako] …",
       "hero.lede": "… potrebni su ljudi koji znaju šta je zaista važno.",
       "hero.sentence": "Kad sve postane lako, potrebni su ljudi koji znaju šta je zaista važno.",
-      "role.title": "Softverski programer",
+      "role.title": "Programer",
       "role.country": "Nemačka",
       "profile.workflow": "[razumeti, izgraditi, odgovarati]",
       "review.aria": "Primeri pregleda koda: predlog AI-ja, ispravka čoveka, zatim odobrenje",
@@ -3163,7 +3163,7 @@ SET newsletter = 0
       "cli.help.clear": "očisti ekran",
       "cli.help.exit": "izađi (slobodno probaj)",
       "cli.help.secret": "I nekoliko skrivenih komandi. Jedna od njih je igra.",
-      "cli.whoami": "alex · softverski programer · AI pomaže, čovek vodi",
+      "cli.whoami": "alex · programer · AI pomaže, čovek vodi",
       "cli.denied": "Pristup odbijen. Lep pokušaj.",
       "cli.noFile": "{f}: Nema takve datoteke ili direktorijuma",
       "cli.quiz": "Pokrećem kviz ponovo … srećno. AI će te hvaliti u svakom slučaju.",
@@ -3266,19 +3266,19 @@ SET newsletter = 0
       "game.label": "Tabla: tvoj cijan svetlosni trag protiv ljubičastog traga AI-ja",
     },
     el: {
-      "meta.description": "Alexander Fuhr – Προγραμματιστής λογισμικού. Η AI βοηθά, ο άνθρωπος αποφασίζει.",
+      "meta.description": "Alexander Fuhr – Προγραμματιστής. Η AI βοηθά, ο άνθρωπος αποφασίζει.",
       "nav.label": "Κύρια πλοήγηση", "nav.menu": "Μενού", "nav.terminal": "Τερματικό", "nav.top": "Στην κορυφή", "nav.start": "Αρχή", "tab.scroll": "Κάτω", "tab.scroll.aria": "Στην επόμενη ενότητα",
       "nav.approach": "Προσέγγιση",
       "nav.about": "Σχετικά", "nav.sections": "Ενότητες",
       "nav.contact": "Επικοινωνία",
       "lang.label": "Γλώσσα",
-      "hero.eyebrow": "Προγραμματιστής λογισμικού · Η\u00a0AI βοηθά, ο\u00a0άνθρωπος αποφασίζει",
+      "hero.eyebrow": "Προγραμματιστής · Η\u00a0AI βοηθά, ο\u00a0άνθρωπος αποφασίζει",
       "approach.cmd": "cat approach.md",
       "role.tag": "Η AI βοηθά, ο άνθρωπος αποφασίζει",
       "hero.title": "Όταν όλα γίνονται [εύκολα] …",
       "hero.lede": "… χρειάζονται άνθρωποι που ξέρουν τι πραγματικά μετράει.",
       "hero.sentence": "Όταν όλα γίνονται εύκολα, χρειάζονται άνθρωποι που ξέρουν τι πραγματικά μετράει.",
-      "role.title": "Προγραμματιστής λογισμικού",
+      "role.title": "Προγραμματιστής",
       "role.country": "Γερμανία",
       "profile.workflow": "[κατανόηση, υλοποίηση, ευθύνη]",
       "review.aria": "Παραδείγματα code review: μια πρόταση της AI, μια διόρθωση από άνθρωπο και μετά έγκριση",
@@ -3442,7 +3442,7 @@ SET newsletter = 0
       "cli.help.clear": "καθαρισμός οθόνης",
       "cli.help.exit": "έξοδος (δοκίμασε άνετα)",
       "cli.help.secret": "Και μερικές κρυφές εντολές. Μία από αυτές είναι παιχνίδι.",
-      "cli.whoami": "alex · προγραμματιστής λογισμικού · η AI βοηθά, ο άνθρωπος αποφασίζει",
+      "cli.whoami": "alex · προγραμματιστής · η AI βοηθά, ο άνθρωπος αποφασίζει",
       "cli.denied": "Δεν επιτρέπεται η πρόσβαση. Καλή προσπάθεια.",
       "cli.noFile": "{f}: Δεν υπάρχει τέτοιο αρχείο ή κατάλογος",
       "cli.quiz": "Επανεκκίνηση του κουίζ … καλή επιτυχία. Η AI θα σε επαινέσει έτσι κι αλλιώς.",
