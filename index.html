@@ -3608,6 +3608,10 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       e.preventDefault();
       if (quizShow) quizShow.close(true);
       window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+      /* back at the start, the address loses its section mark (#terminal and the like); a new history step,
+         as a link would make, so Back still returns to the section */
+      var id = decodeURIComponent(location.hash.slice(1));
+      if (id && document.getElementById(id) && history.pushState) history.pushState(null, '', location.pathname + location.search);
     }
     if (topLink) topLink.addEventListener('click', function (e) { close(false); goTop(e); });
     /* the ladder's first step is Start too: from inside the quiz it goes back to the headline, like the menu */
