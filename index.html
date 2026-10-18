@@ -562,7 +562,6 @@ a { color: inherit; }
   justify-items: center;
 }
 .stage-next > span { grid-area: 1 / 1; }
-.stage-next > span::after { content: " \2192"; }
 /* "Next" until every question has an answer, then "Result" */
 .stage-next > span + span, .quiz-done .stage-next > span:first-child { visibility: hidden; }
 .quiz-done .stage-next > span + span { visibility: visible; }
@@ -585,7 +584,7 @@ a { color: inherit; }
   .hero .quiz-teaser { margin-top: calc(var(--tab-d) + 16px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .stage .slide, .stage .slide.is-current, .stage .case > .hunk, .stage-next { transition: none; }
+  .stage .slide, .stage .slide.is-current, .stage .case > .hunk, .stage-next, .stage-back { transition: none; }
 }
 
 /* Hero: only the first question, as a way in. An answer opens the quiz on a slide of its own.
@@ -609,11 +608,10 @@ a { color: inherit; }
 .quiz-teaser .opt.is-picked:not(.is-correct) .opt-key { background: var(--amber); color: var(--bg); }
 .quiz-teaser .opt.is-picked:not(.is-correct) .opt-tag { color: var(--amber); }
 .quiz-teaser.is-joined .opt:not(.is-correct):not(.is-picked) { opacity: 0.45; }
-.teaser-resume { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 4px; color: var(--muted); font-size: var(--fs-s); }
+.teaser-resume { display: flex; justify-content: flex-end; margin-top: 4px; }
 .teaser-resume[hidden] { display: none; }
 .teaser-go { display: inline-grid; justify-items: end; min-height: 44px; margin-right: -8px; padding: 0 8px; border: 0; border-radius: 6px; background: none; color: var(--fg); font-family: var(--font-body); font-size: var(--fs-m); font-weight: 600; white-space: nowrap; cursor: pointer; }
 .teaser-go > span { grid-area: 1 / 1; align-self: center; }
-.teaser-go > span::after { content: " \2192"; }
 .teaser-go > span + span, .teaser-go.is-done > span:first-child { visibility: hidden; }
 .teaser-go.is-done > span + span { visibility: visible; }
 .teaser-go:hover { color: var(--accent); }
@@ -709,9 +707,9 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
 .quiz-show .who { color: var(--fg); border: 1px solid var(--fg); }
 .quiz-show .stage-row { align-items: center; gap: 24px; }
 .quiz-show .stage-next { min-height: 48px; padding: 0 24px; font-size: var(--fs-m); border-radius: 6px; align-items: center; }
-/* the way back to the headline: a ghost button in the head, only a frame, the same type as "Weiter" */
-.stage-back { flex: none; min-height: 44px; padding: 0 18px; border: 1px solid rgba(234, 246, 250, 0.4); border-radius: 6px; background: transparent; color: var(--fg); font-family: var(--font-body); font-size: var(--fs-m); font-weight: 600; line-height: var(--lh-snug); white-space: nowrap; cursor: pointer; transition: border-color 0.15s ease; }
-.stage-back:hover { border-color: var(--fg); }
+/* the way back to the headline: a button in the head, filled like "Weiter" */
+.stage-back { flex: none; min-height: 48px; padding: 0 24px; border: 0; border-radius: 6px; background: var(--fg); color: var(--bg); font-family: var(--font-body); font-size: var(--fs-m); font-weight: 600; line-height: var(--lh-snug); white-space: nowrap; cursor: pointer; transition: transform 0.12s ease; }
+.stage-back:active { transform: scale(0.96); }
 /* the result takes the questions' place: two big numbers, Alex's line, three ways on */
 .stage .quiz-score { inset: 0; display: flex; flex-direction: column; justify-content: center; gap: clamp(20px, 4vh, 40px); overflow: visible; background: transparent; }
 .score-label { margin: 0; color: var(--muted); font-size: var(--fs-m); }
@@ -1683,7 +1681,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
           <button type="button" class="opt" data-pick="1"><span class="opt-key" aria-hidden="true">B</span><span data-i18n="o.real.b">Anrufen und zuhören</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
           <button type="button" class="opt" data-pick="2"><span class="opt-key" aria-hidden="true">C</span><span data-i18n="o.real.c">Ticket mit Prio 3</span><span class="opt-tag"><span data-i18n="quiz.pick">deine Wahl</span><span data-i18n="quiz.right">richtig</span></span></button>
         </div>
-        <div class="teaser-resume" hidden><span class="teaser-progress"></span><button type="button" class="teaser-go"><span data-i18n="quiz.resume">Weiter im Quiz</span><span data-i18n="quiz.toResult">Zum Ergebnis</span></button></div>
+        <div class="teaser-resume" hidden><button type="button" class="teaser-go"><span data-i18n="quiz.resume">Weiter im Quiz</span><span data-i18n="quiz.toResult">Zum Ergebnis</span></button></div>
       </figure>
     </div>
     <div class="quiz-show" id="quiz-show" role="group" aria-label="Quiz" data-i18n-aria="quiz.name" tabindex="-1" inert aria-hidden="true">
@@ -2078,11 +2076,11 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
           <p data-i18n="step1.text">Bevor man loslegt, stellt man sicher, dass man das richtige Problem löst. Eine gute Frage spart mehr Zeit als eine schnelle Antwort.</p>
         </li>
         <li>
-          <h3 data-i18n="step2.title">Schneller arbeiten mit KI</h3>
+          <h3 data-i18n="step2.title">Effizienter werden mit KI</h3>
           <p data-i18n="step2.text">KI übernimmt die Routine. So bleibt mehr Zeit für das, was Erfahrung und Urteilsvermögen braucht.</p>
         </li>
         <li>
-          <h3 data-i18n="step3.title">Für jedes Ergebnis geradestehen</h3>
+          <h3 data-i18n="step3.title">Jedes Ergebnis verifizieren</h3>
           <p data-i18n="step3.text">Nichts geht raus, was man nicht erklären kann. Jedes Ergebnis wird geprüft, hinterfragt und verantwortet.</p>
         </li>
       </ol>
@@ -2243,9 +2241,9 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "approach.lede": "Good decisions still need a clear head.",
       "step1.title": "Understand the problem",
       "step1.text": "Before getting started, make sure it’s the right problem being solved. A good question saves more time than a fast answer.",
-      "step2.title": "Work faster with AI",
+      "step2.title": "Become more efficient with AI",
       "step2.text": "AI takes over the routine, leaving more time for what needs experience and judgment.",
-      "step3.title": "Own every result",
+      "step3.title": "Verify every result",
       "step3.text": "Nothing goes out that can’t be explained. Every result is checked, questioned and owned.",
       "about.eyebrow": "About", "about.title": "A developer by trade and by passion.",
       "about.text": "I’ve been building for the web for more than 20 years. My goal is to break complexity down instead of making systems even more complex.", "about.text2": "For almost as long, this site has been my personal test bed. I keep rebuilding it to find out what works on the web and what doesn’t.",
@@ -2319,7 +2317,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "o.cta.c": "Wait three business days",
       "c.cta": "Faster: just ask. A human replies, right here in the [chat].",
       "cta.foot": "Answered by a human",
-      "q.code": "What’s the problem?", "q.real": "What do you do?", "quiz.pick": "your pick", "quiz.right": "correct", "quiz.next": "Next", "quiz.ladder": "Questions", "quiz.back": "Back", "quiz.wrong": "wrong", "quiz.progress": "{n} of {total} answered", "quiz.resume": "Continue the quiz", "quiz.toResult": "See the result", "q.final": "Who decides?",
+      "q.code": "What’s the problem?", "q.real": "What do you do?", "quiz.pick": "your pick", "quiz.right": "correct", "quiz.next": "Next", "quiz.ladder": "Questions", "quiz.back": "Back", "quiz.wrong": "wrong", "quiz.resume": "Continue the quiz", "quiz.toResult": "See the result", "q.final": "Who decides?",
       "o.php.a": "A missing semicolon", "o.php.b": "SQL injection", "o.php.c": "Nothing, it runs",
       "o.sql.a": "The WHERE is missing", "o.sql.b": "0 should be FALSE", "o.sql.c": "All good",
       "o.sh.a": "Not enough sudo", "o.sh.b": "No problem", "o.sh.c": "Empty variable means /*",
@@ -2461,9 +2459,9 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "approach.lede": "Gute Entscheidungen brauchen trotzdem einen klaren Kopf.",
       "step1.title": "Das Problem verstehen",
       "step1.text": "Bevor man loslegt, stellt man sicher, dass man das richtige Problem löst. Eine gute Frage spart mehr Zeit als eine schnelle Antwort.",
-      "step2.title": "Schneller arbeiten mit KI",
+      "step2.title": "Effizienter werden mit KI",
       "step2.text": "KI übernimmt die Routine. So bleibt mehr Zeit für das, was Erfahrung und Urteilsvermögen braucht.",
-      "step3.title": "Für jedes Ergebnis geradestehen",
+      "step3.title": "Jedes Ergebnis verifizieren",
       "step3.text": "Nichts geht raus, was man nicht erklären kann. Jedes Ergebnis wird geprüft, hinterfragt und verantwortet.",
       "about.eyebrow": "Über mich", "about.title": "Entwickler von Beruf und aus Leidenschaft.",
       "about.text": "Seit über 20 Jahren entwickle ich für das Web. Mein Ziel ist, Komplexität aufzubrechen, statt Systeme noch komplexer zu machen.", "about.text2": "Fast genauso lange ist diese Seite mein persönliches Experimentierfeld. Ich baue sie immer wieder neu und probiere aus, was sich im Web bewährt und was nicht.",
@@ -2537,7 +2535,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "o.cta.c": "Drei Werktage warten",
       "c.cta": "Geht schneller: einfach fragen. Die Antwort kommt von einem Menschen, direkt hier im [Chat].",
       "cta.foot": "Antwort von einem Menschen",
-      "q.code": "Was ist das Problem?", "q.real": "Was tust du?", "quiz.pick": "deine Wahl", "quiz.right": "richtig", "quiz.next": "Weiter", "quiz.ladder": "Fragen", "quiz.back": "Zurück", "quiz.wrong": "falsch", "quiz.progress": "{n} von {total} beantwortet", "quiz.resume": "Weiter im Quiz", "quiz.toResult": "Zum Ergebnis", "q.final": "Wer entscheidet?",
+      "q.code": "Was ist das Problem?", "q.real": "Was tust du?", "quiz.pick": "deine Wahl", "quiz.right": "richtig", "quiz.next": "Weiter", "quiz.ladder": "Fragen", "quiz.back": "Zurück", "quiz.wrong": "falsch", "quiz.resume": "Weiter im Quiz", "quiz.toResult": "Zum Ergebnis", "q.final": "Wer entscheidet?",
       "o.php.a": "Fehlt ein Semikolon", "o.php.b": "SQL-Injection", "o.php.c": "Nichts, läuft doch",
       "o.sql.a": "Das WHERE fehlt", "o.sql.b": "0 sollte FALSE sein", "o.sql.c": "Alles okay",
       "o.sh.a": "Zu wenig sudo", "o.sh.b": "Kein Problem", "o.sh.c": "Leere Variable heißt /*",
@@ -2679,9 +2677,9 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "approach.lede": "Но для хороших решений всё ещё нужна ясная голова.",
       "step1.title": "Понять задачу",
       "step1.text": "Прежде чем браться за дело, важно убедиться, что решается правильная задача. Хороший вопрос экономит больше времени, чем быстрый ответ.",
-      "step2.title": "Быстрее с помощью ИИ",
+      "step2.title": "Эффективнее с помощью ИИ",
       "step2.text": "ИИ берёт на себя рутину, и остаётся больше времени на то, что требует опыта и здравого суждения.",
-      "step3.title": "Отвечать за каждый результат",
+      "step3.title": "Проверять каждый результат",
       "step3.text": "Дальше не уходит ничего, что нельзя объяснить. Каждый результат проверяют, ставят под сомнение и отвечают за него.",
       "about.eyebrow": "Обо мне", "about.title": "Пишу код на работе и для души.",
       "about.text": "Больше 20 лет я занимаюсь веб-разработкой. Моя цель — упрощать сложное, а не делать системы ещё сложнее.", "about.text2": "Почти столько же времени этот сайт — моя личная площадка для экспериментов. Я раз за разом перестраиваю его и проверяю, что в вебе работает, а что нет.",
@@ -2755,7 +2753,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "o.cta.c": "Ждать три рабочих дня",
       "c.cta": "Быстрее — просто спросить. Ответит человек, прямо здесь в [чате].",
       "cta.foot": "Отвечает человек",
-      "q.code": "В чём проблема?", "q.real": "Что сделаешь?", "quiz.pick": "твой выбор", "quiz.right": "верно", "quiz.next": "Дальше", "quiz.ladder": "Вопросы", "quiz.back": "Назад", "quiz.wrong": "неверно", "quiz.progress": "Отвечено {n} из {total}", "quiz.resume": "Продолжить квиз", "quiz.toResult": "К результату", "q.final": "Кто решает?",
+      "q.code": "В чём проблема?", "q.real": "Что сделаешь?", "quiz.pick": "твой выбор", "quiz.right": "верно", "quiz.next": "Дальше", "quiz.ladder": "Вопросы", "quiz.back": "Назад", "quiz.wrong": "неверно", "quiz.resume": "Продолжить квиз", "quiz.toResult": "К результату", "q.final": "Кто решает?",
       "o.php.a": "Не хватает точки с запятой", "o.php.b": "SQL-инъекция", "o.php.c": "Ничего, работает же",
       "o.sql.a": "Нет WHERE", "o.sql.b": "0 должен быть FALSE", "o.sql.c": "Всё в порядке",
       "o.sh.a": "Мало sudo", "o.sh.b": "Никаких проблем", "o.sh.c": "Пустая переменная — это /*",
@@ -2906,9 +2904,9 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "approach.lede": "Dobre odluke i dalje traže bistru glavu.",
       "step1.title": "Razumeti problem",
       "step1.text": "Pre nego što se krene, proverava se da li se rešava pravi problem. Dobro pitanje štedi više vremena od brzog odgovora.",
-      "step2.title": "Brže raditi uz AI",
+      "step2.title": "Veća efikasnost uz AI",
       "step2.text": "AI preuzima rutinu, pa ostaje više vremena za ono što traži iskustvo i rasuđivanje.",
-      "step3.title": "Stati iza svakog rezultata",
+      "step3.title": "Proveriti svaki rezultat",
       "step3.text": "Ništa ne izlazi što se ne može objasniti. Svaki rezultat se proverava, preispituje i za njega se odgovara.",
       "about.eyebrow": "O meni",
       "about.title": "Programer, na poslu i iz ljubavi.",
@@ -2994,7 +2992,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "c.cta": "Brže je da samo pitaš. Odgovara čovek, ovde u [četu].",
       "cta.foot": "Odgovara čovek",
       "q.code": "U čemu je problem?",
-      "q.real": "Šta radiš?", "quiz.pick": "tvoj izbor", "quiz.right": "tačno", "quiz.next": "Dalje", "quiz.ladder": "Pitanja", "quiz.back": "Nazad", "quiz.wrong": "netačno", "quiz.progress": "Odgovoreno {n} od {total}", "quiz.resume": "Nastavi kviz", "quiz.toResult": "Na rezultat",
+      "q.real": "Šta radiš?", "quiz.pick": "tvoj izbor", "quiz.right": "tačno", "quiz.next": "Dalje", "quiz.ladder": "Pitanja", "quiz.back": "Nazad", "quiz.wrong": "netačno", "quiz.resume": "Nastavi kviz", "quiz.toResult": "Na rezultat",
       "q.final": "Ko odlučuje?",
       "o.php.a": "Fali tačka-zarez",
       "o.php.b": "SQL injekcija",
@@ -3193,9 +3191,9 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "approach.lede": "Οι καλές αποφάσεις θέλουν ακόμα καθαρό μυαλό.",
       "step1.title": "Κατανόηση του προβλήματος",
       "step1.text": "Πριν ξεκινήσει κανείς, βεβαιώνεται ότι λύνει το σωστό πρόβλημα. Μια καλή ερώτηση γλιτώνει περισσότερο χρόνο από μια γρήγορη απάντηση.",
-      "step2.title": "Πιο γρήγορη δουλειά με AI",
+      "step2.title": "Μεγαλύτερη αποδοτικότητα με AI",
       "step2.text": "Η AI αναλαμβάνει τη ρουτίνα, ώστε να μένει περισσότερος χρόνος για ό,τι θέλει εμπειρία και κρίση.",
-      "step3.title": "Ευθύνη για κάθε αποτέλεσμα",
+      "step3.title": "Επαλήθευση κάθε αποτελέσματος",
       "step3.text": "Τίποτα δεν βγαίνει προς τα έξω αν δεν μπορεί να εξηγηθεί. Κάθε αποτέλεσμα ελέγχεται, αμφισβητείται και έχει κάποιον υπεύθυνο.",
       "about.eyebrow": "Σχετικά",
       "about.title": "Προγραμματιστής, από επάγγελμα και πάθος.",
@@ -3281,7 +3279,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "c.cta": "Πιο γρήγορα: απλώς ρώτα. Απαντά άνθρωπος, εδώ στη [συνομιλία].",
       "cta.foot": "Απαντά άνθρωπος",
       "q.code": "Ποιο είναι το πρόβλημα;",
-      "q.real": "Τι κάνεις;", "quiz.pick": "η επιλογή σου", "quiz.right": "σωστό", "quiz.next": "Επόμενο", "quiz.ladder": "Ερωτήσεις", "quiz.back": "Πίσω", "quiz.wrong": "λάθος", "quiz.progress": "Απαντήθηκαν {n} από {total}", "quiz.resume": "Συνέχισε το κουίζ", "quiz.toResult": "Δες το αποτέλεσμα",
+      "q.real": "Τι κάνεις;", "quiz.pick": "η επιλογή σου", "quiz.right": "σωστό", "quiz.next": "Επόμενο", "quiz.ladder": "Ερωτήσεις", "quiz.back": "Πίσω", "quiz.wrong": "λάθος", "quiz.resume": "Συνέχισε το κουίζ", "quiz.toResult": "Δες το αποτέλεσμα",
       "q.final": "Ποιος αποφασίζει;",
       "o.php.a": "Λείπει ένα ερωτηματικό",
       "o.php.b": "SQL injection",
@@ -3763,8 +3761,8 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     el.textContent = t(st.right ? 'v.right' : 'v.wrong');
     el.className = 'verdict ' + (st.right ? 'is-right' : 'is-wrong');
   }
-  /* the card in the hero mirrors the first question: once it is answered there, the card shows the answer,
-     how far the visitor got, and the way back into the quiz */
+  /* the card in the hero mirrors the first question: once it is answered there, the card shows the answer
+     and the way back into the quiz */
   var teaser = document.querySelector('.quiz-teaser');
   function syncTeaser() {
     if (!teaser || !quizSlides.length) return;
@@ -3781,7 +3779,6 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     var graded = quizState.filter(function (s, k) { return !quizSlides[k].hasAttribute('data-cta'); });
     var done = graded.filter(function (s) { return s && s.revealed; }).length;
     row.hidden = !on;
-    row.querySelector('.teaser-progress').textContent = t('quiz.progress').replace('{n}', done).replace('{total}', graded.length);
     row.querySelector('.teaser-go').classList.toggle('is-done', done === graded.length);
     if (had && a && a.disabled) (on ? row.querySelector('.teaser-go') : teaser.querySelector('.opt')).focus({ preventScroll: true });
   }
