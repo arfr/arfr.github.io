@@ -3604,12 +3604,15 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     });
     panel.querySelectorAll('.menu-nav a, .menu-acts a').forEach(function (a) { a.addEventListener('click', function () { close(false); }); });
     var topLink = panel.querySelector('.menu-start');
-    if (topLink) topLink.addEventListener('click', function (e) {
+    function goTop(e) {
       e.preventDefault();
-      close(false);
       if (quizShow) quizShow.close(true);
       window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
-    });
+    }
+    if (topLink) topLink.addEventListener('click', function (e) { close(false); goTop(e); });
+    /* the ladder's first step is Start too: from inside the quiz it goes back to the headline, like the menu */
+    var ladderTop = document.querySelector('.side-steps a[href="#top"]');
+    if (ladderTop) ladderTop.addEventListener('click', goTop);
     panel.querySelectorAll('.lang-menu button').forEach(function (b) {
       b.addEventListener('click', function () { setLang(b.getAttribute('data-lang'), true); });
     });
