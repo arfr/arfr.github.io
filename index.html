@@ -214,6 +214,7 @@ a { color: inherit; }
   --bar: var(--stage-fg);
   --bar-fg: var(--stage-bg);
   --accent: var(--human);
+  --plate: #121C25; /* the dark plates of the quiz */
   color-scheme: dark;
   color: var(--fg);
   background: radial-gradient(120% 75% at 50% 60%, var(--stage-glow) 0%, var(--stage-bg) 62%);
@@ -374,7 +375,6 @@ a { color: inherit; }
   color: var(--fg);
   font-family: var(--font-mono);
 }
-.code .add { color: var(--muted); user-select: none; }
 .code mark { background: transparent; color: var(--accent); font-weight: 500; }
 .comment {
   display: flex;
@@ -433,7 +433,6 @@ a { color: inherit; }
 @media (max-width: 420px) {
   .dot { width: 18px; }
 }
-.code .quote { color: var(--muted); }
 [hidden] { display: none !important; }
 
 /* Quiz: the visitor decides first, the "AI" applauds, then the verdict */
@@ -532,42 +531,33 @@ a { color: inherit; }
 .quiz-score .quiz-bonus .opt-key { background: var(--bar); color: var(--bar-fg); }
 @media (prefers-reduced-motion: reduce) { .quiz-score { animation: none; } }
 
-/* Quiz stage: like a quiz show, every part keeps its place. Question number and ladder on top, the case in one
-   box (the AI suggestion turns into the revised one in place), the answers, and one reserved line at the bottom:
-   a hint first, then the AI praise, Alex's verdict and the way on. Everything that can appear is laid out from
-   the start and only shown, so the card never changes height. Wrong is amber, right is cyan, and each also gets a word. */
+/* Quiz stage: like a quiz show, every part keeps its place. The ladder on top, the case as a script (the AI's
+   suggestion turns into Alex's revision in place), the question with its answers, and the two voices below them:
+   the AI's praise, Alex's verdict and the way on. Everything that can appear is laid out from the start and only
+   shown, so the slide never changes height. Wrong is amber, right is cyan, and each also gets a word. */
 .review-card.stage { --amber: var(--ai); display: flex; flex-direction: column; gap: 10px; padding: 12px 18px 16px; }
 .stage-body { position: relative; }
 /* every question fills the card; the footer with the way on sits at the bottom, in the same place each time */
 .stage .track { display: grid; align-items: stretch; }
 .stage .slide { grid-area: 1 / 1; height: auto; overflow: visible; gap: 12px; visibility: hidden; opacity: 0; transition: opacity 0.3s ease, visibility 0s linear 0.3s; }
 .stage .slide.is-current { visibility: visible; opacity: 1; transition: opacity 0.3s ease, visibility 0s; }
-.stage .case { display: grid; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
-.stage .case > .hunk { grid-area: 1 / 1; min-width: 0; padding: 10px 14px; gap: 4px; transition: opacity 0.3s ease, visibility 0s; }
-/* long lines wrap inside the box instead of running past its edge */
-.stage .case .code { line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; }
-.stage.quiz-on .slide .hunk-fix { display: flex; border: 0; visibility: hidden; opacity: 0; }
+.stage .case { display: grid; }
+.stage .case > .hunk { grid-area: 1 / 1; min-width: 0; transition: opacity 0.3s ease, visibility 0s; }
+/* long lines wrap instead of running past the edge */
+.stage .case .code { white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; }
+.stage.quiz-on .slide .hunk-fix { display: grid; border: 0; visibility: hidden; opacity: 0; }
 .stage.quiz-on .slide.answered .hunk-ai { visibility: hidden; opacity: 0; }
 .stage.quiz-on .slide.answered .hunk-fix { visibility: visible; opacity: 1; }
 .stage .quiz-q { margin: 0; }
 .opt-tag { display: none; }
-.stage .opt-tag { display: grid; justify-items: end; flex: none; margin-left: auto; padding-left: 8px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); white-space: nowrap; visibility: hidden; }
+.stage .opt-tag { display: grid; justify-items: end; flex: none; margin-left: auto; padding-left: 10px; font-family: var(--font-body); font-size: var(--fs-s); font-weight: 600; white-space: nowrap; visibility: hidden; }
 .stage .opt-tag > span { grid-area: 1 / 1; }
-.stage .opt.is-correct { border-color: var(--accent); }
-.stage .opt.is-correct .opt-key { background: var(--accent); color: var(--bg); }
-.stage .opt.is-picked:not(.is-correct) { border-color: var(--amber); }
-.stage .opt.is-picked:not(.is-correct) .opt-key { background: var(--amber); color: var(--bg); }
 .stage .answered .opt.is-correct [data-i18n="quiz.right"], .stage .answered .opt.is-picked:not(.is-correct) [data-i18n="quiz.pick"] { visibility: visible; }
-.stage .opt.is-correct .opt-tag { color: var(--accent); }
-.stage .opt.is-picked:not(.is-correct) .opt-tag { color: var(--amber); }
-.stage-foot { display: grid; margin-top: auto; padding-top: 10px; border-top: 1px dashed var(--line); font-size: var(--fs-s); line-height: 1.5; }
+.stage-foot { display: grid; margin-top: auto; }
 .stage-foot > * { grid-area: 1 / 1; }
-/* the dashed line comes with the AI's reply; before an answer the space below the options stays empty */
-.stage .slide:not(.answering):not(.answered) .stage-foot { border-top-color: transparent; }
 .stage-result { display: flex; flex-direction: column; gap: 6px; visibility: hidden; }
 .stage .answering .stage-result, .stage .answered .stage-result { visibility: visible; }
-.stage .ai-reply { padding: 0; border: 0; gap: 8px; align-items: baseline; font-size: inherit; line-height: inherit; color: var(--muted); }
-.stage .avatar-ai { width: auto; height: auto; padding: 0 4px; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500; line-height: 1.5; }
+.stage .ai-reply { padding: 0; border: 0; font-size: inherit; line-height: inherit; }
 .ai-say { display: grid; }
 .ai-say > .ai-sizer, .ai-say > .ai-text { grid-area: 1 / 1; }
 .ai-sizer { display: grid; visibility: hidden; }
@@ -579,29 +569,11 @@ a { color: inherit; }
 .verdict-box > *, .verdict-size > span { grid-area: 1 / 1; }
 .verdict-size { display: grid; visibility: hidden; }
 .verdict-box .verdict { margin-right: 0; }
-.stage .verdict.is-right { color: var(--accent); }
-.stage .verdict.is-wrong { color: var(--amber); }
-.stage-next {
-  flex: none;
-  padding: 9px 14px;
-  border: 0;
-  border-radius: 6px;
-  background: var(--fg);
-  color: var(--bg);
-  font-family: var(--font-body);
-  font-size: var(--fs-s);
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: transform 0.12s ease;
-  display: inline-grid;
-  justify-items: center;
-}
+.stage-next { display: inline-grid; justify-items: center; align-items: center; flex: none; white-space: nowrap; cursor: pointer; }
 .stage-next > span { grid-area: 1 / 1; }
 /* "Next" until every question has an answer, then "Result" */
 .stage-next > span + span, .quiz-done .stage-next > span:first-child { visibility: hidden; }
 .quiz-done .stage-next > span + span { visibility: visible; }
-.stage-next:active { transform: scale(0.96); }
 /* narrow cards (small laptops): slightly tighter spacing, so the quiz still fits one screen */
 .review-card.stage { container-type: inline-size; }
 @container (max-width: 420px) {
@@ -622,12 +594,11 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .stage .slide, .stage .slide.is-current, .stage .case > .hunk, .stage-next, .stage-back { transition: none; }
 }
-
 /* Hero: only the first question, as a way in. An answer opens the quiz on a slide of its own.
    No card: the case reads like a script, who speaks on the left and each voice on a bar in its colour (the client
    white, the AI orange). Below it the question and three small plates in the slant of the bars, like a TV quiz,
    only as wide as the longest answer, so the headline on the left keeps the stage. */
-.quiz-teaser { --plate: #121C25; --plate-h: 44px; gap: 0; container-type: inline-size; }
+.quiz-teaser { --plate-h: 44px; gap: 0; container-type: inline-size; }
 .quiz-teaser .case { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: 14px; row-gap: 20px; align-items: baseline; }
 .case-who { font-weight: 600; color: var(--muted); }
 .case-who.is-ai { color: var(--ai); }
@@ -691,11 +662,14 @@ a { color: inherit; }
 
 /* Quiz slide: the hero's neighbour to the right, with the same grid, frame and tabs. An answer in the hero moves
    the hero's content out to the left and the quiz in from the right; further down the page goes on as usual.
-   Like a TV quiz: the case on top, the question large, three equal answer fields, and one band at the bottom
-   for the AI's praise, Alex's verdict and the way on. All ten questions share one grid cell, so the slide keeps
-   its layout from question to question; nothing scrolls. */
+   Like the hero's card, the slide reads as a script: who speaks stands in a column on the left, each voice on a bar
+   in its colour (the situation white, the AI orange, after the answer Alex's revision cyan). Then the question
+   large, three plates in the slant of the bars, and the AI's praise and Alex's verdict, again with the speaker on
+   the left. All ten questions share one grid cell, so the slide keeps its layout from question to question; nothing
+   scrolls. */
 .hero > .wrap, .quiz-show { transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.45s ease; }
 .quiz-show {
+  --who: 4.25rem; --who-gap: 18px;
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;
   height: min(100%, calc(100dvh - 2 * var(--frame)));
   display: flex; flex-direction: column;
@@ -725,124 +699,167 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
   mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 30%, transparent 100%);
 }
 .quiz-show .review { flex: 1; min-height: 0; width: 100%; max-width: 1180px; margin: 0 auto; padding: clamp(8px, 2vh, 24px) clamp(16px, 3vw, 40px) clamp(12px, 2.5vh, 28px); display: flex; flex-direction: column; }
-.quiz-show .review-card.stage { flex: 1; min-height: 0; padding: 0; gap: 0; background: transparent; border: 0; }
-/* the head of the slide: "Zurück" on the left, the ladder of all ten on the right. A step turns cyan when the
-   answer was right and amber when it was wrong; the current one is taller (and white while open). */
+/* the slanted plates reach a few pixels past the card, so it does not clip */
+.quiz-show .review-card.stage { flex: 1; min-height: 0; padding: 0; gap: 0; background: transparent; border: 0; overflow: visible; }
+/* the head of the slide: "Zurück" on a plate on the left, the ladder of all ten on the right, ten small plates in
+   the slant. A step turns cyan when the answer was right and amber when it was wrong; the current one is taller
+   (and white while open). */
 .stage-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: clamp(4px, 1.6vh, 24px); font-family: var(--font-body); font-size: var(--fs-m); font-weight: 400; line-height: var(--lh-snug); color: var(--muted); }
-.stage .dots { flex: 0 1 440px; min-width: 0; gap: 6px; }
-.stage .dot { flex: 1 1 0; min-width: 10px; width: auto; height: 24px; }
-.stage .dot::before { width: 100%; height: 6px; border-radius: 3px; background: rgba(var(--human-rgb), 0.2); transform: none; transition: background-color 0.2s ease, height 0.2s ease; }
-.stage .dot:hover::before { background: rgba(var(--human-rgb), 0.55); }
+.stage .dots { flex: 0 1 440px; min-width: 0; gap: 8px; }
+.stage .dot { flex: 1 1 0; min-width: 14px; width: auto; height: 28px; }
+.stage .dot::before { width: 100%; height: 10px; border-radius: 0; background: rgba(var(--human-rgb), 0.22); transform: skewX(-13deg); transition: background-color 0.2s ease, height 0.2s ease; }
+.stage .dot:hover::before { background: rgba(var(--human-rgb), 0.5); }
 .stage .dot.is-right::before { background: var(--accent); }
 .stage .dot.is-wrong::before { background: var(--amber); }
-.stage .dot[aria-current="true"]::before { height: 10px; transform: none; }
+.stage .dot[aria-current="true"]::before { height: 16px; transform: skewX(-13deg); }
 .stage .dot[aria-current="true"]:not(.is-right):not(.is-wrong)::before { background: var(--fg); }
 .stage .dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
 .quiz-show .stage-body { flex: 1; min-height: 0; display: grid; overflow-y: auto; }
 /* all questions share three rows (case, question with answers, the two voices), each as high as its tallest
-   occupant: the box, the answers and the voices keep their places from question to question, and the block
+   occupant: the case, the answers and the voices keep their places from question to question, and the block
    sits in the middle of the slide */
 .quiz-show .track { min-height: 100%; grid-template-rows: auto auto auto; align-content: center; row-gap: clamp(12px, 2.8vh, 32px); }
 .quiz-show .stage .slide { grid-area: auto; grid-row: 1 / span 3; grid-column: 1; display: grid; grid-template-rows: subgrid; }
 .quiz-show .quiz { justify-content: flex-end; }
-/* room for the focus ring, which the scroll box would otherwise cut off */
-.quiz-show .stage-body { padding: 4px; margin: -4px; }
-.quiz-show .stage .quiz-score { inset: 4px; }
+/* room for the focus ring and the slanted plates, which the scroll box would otherwise cut off; the box never
+   scrolls sideways (the hidden focus ring still counts as content and showed a scrollbar) */
+.quiz-show .stage-body { --edge: 20px; padding: 6px var(--edge); margin: -6px calc(-1 * var(--edge)); overflow-x: hidden; }
+.quiz-show .stage .quiz-score { inset: 6px var(--edge); }
 .quiz-show .slide { gap: clamp(12px, 2.8vh, 32px); }
-.quiz-show .case > .hunk { padding: 14px 20px; gap: 6px; }
-.quiz-show .case .code { font-size: var(--fs-m); }
-.quiz-show .quiz { gap: clamp(14px, 2.6vh, 24px); }
+/* the case: who speaks on the left, the lines on bars beside it */
+.quiz-show .case > .hunk { display: grid; grid-template-columns: var(--who) minmax(0, 1fr); column-gap: var(--who-gap); row-gap: 6px; padding: 0; align-items: baseline; align-content: start; }
+.quiz-show .case-who { grid-column: 1; font-size: var(--fs-m); }
+.quiz-show .case-who.is-you { color: var(--accent); }
+.quiz-show .case-say { grid-column: 2; font-size: var(--fs-l); line-height: 1.85; }
+.quiz-show .case-say.is-you .bar { --mark: var(--accent); }
+.quiz-show .case-say mark { background: none; color: inherit; font-weight: 600; }
+/* real code: mono on a dark plate in the slant of the bars, what Alex changed on small cyan bars */
+.quiz-show .case .code { grid-column: 2; justify-self: start; max-width: 100%; position: relative; isolation: isolate; padding: 14px 34px; font-size: var(--fs-m); line-height: 1.6; }
+.quiz-show .case .code::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--plate); transform: skewX(-13deg); }
+.quiz-show .code mark { padding: 0.04em 0.32em 0.08em; color: var(--bar-fg);
+  background: linear-gradient(103deg, transparent calc(0.2em - 0.5px), var(--accent) calc(0.2em + 0.5px), var(--accent) calc(100% - 0.2em - 0.5px), transparent calc(100% - 0.2em + 0.5px)); }
+/* the question and its answers on the line of the bars */
+.quiz-show .quiz { gap: clamp(14px, 2.6vh, 24px); padding-left: calc(var(--who) + var(--who-gap)); }
 .quiz-show .quiz-q {
   font-family: var(--font-display); font-weight: 500; font-size: min(var(--fs-xl), 6.2vh);
   line-height: var(--lh-tight); letter-spacing: var(--ls-display); text-wrap: balance;
 }
-.quiz-show .quiz-opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.quiz-show .opt {
-  display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; align-content: center;
-  column-gap: 14px; row-gap: 2px; min-height: clamp(72px, 12vh, 112px); padding: 14px 18px;
-  font-size: var(--fs-l); line-height: var(--lh-snug); border-radius: 8px;
-}
-.quiz-show .opt-key { grid-row: 1 / span 2; align-self: start; width: 32px; height: 32px; font-size: var(--fs-m); }
-.quiz-show .opt-tag { grid-column: 2; justify-self: start; justify-items: start; margin: 0; padding: 0; font-family: var(--font-body); font-size: var(--fs-s); }
-.quiz-show .slide:not(.answered) .opt.is-picked { border-color: var(--fg); }
-.quiz-show .slide:not(.answered) .opt.is-picked .opt-key { background: var(--fg); color: var(--bg); }
-/* the AI and Alex speak right below the answers, like two voices in a transcript: the names in one column
-   (dashed for the AI, solid for the human), the text beside them, at the size of the answers */
-.quiz-show .stage-foot { margin-top: 0; padding-top: 0; border-top: 0; font-size: var(--fs-l); line-height: var(--lh-snug); --who: 4.5rem; }
+.quiz-show .quiz-opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 24px; }
+/* plates like the hero's: the button keeps its rectangle for the pointer, a layer behind it draws the plate.
+   Skewed by 13 degrees (the slant of the bars) instead of clipped, so the angle holds at any height and an
+   answer may wrap onto a second line */
+.quiz-show .opt, .stage-back, .stage-next { --plate-c: var(--plate); position: relative; isolation: isolate; border: 0; border-radius: 0; background: none; }
+.quiz-show .opt::before, .stage-back::before, .stage-next::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--plate-c); transform: skewX(-13deg); transition: background-color 0.15s ease; }
+/* keyboard focus: a 2px frame in the same slant, 3px off the plate */
+.quiz-show .opt::after, .stage-back::after, .stage-next::after { content: ""; position: absolute; inset: -5px; z-index: -1; border: 2px solid var(--accent); transform: skewX(-13deg); visibility: hidden; pointer-events: none; }
+.quiz-show .opt:focus-visible, .stage-back:focus-visible, .stage-next:focus-visible { outline: none; }
+.quiz-show .opt:focus-visible::after, .stage-back:focus-visible::after, .stage-next:focus-visible::after { visibility: visible; }
+.quiz-show .opt { gap: 14px; min-height: 60px; padding: 10px 22px 10px 24px; font-family: var(--font-display); font-weight: 500; font-size: clamp(1.05rem, 0.9rem + 0.45vw, 1.375rem); text-wrap: balance; transition: color 0.15s ease, opacity 0.15s ease, transform 0.12s ease; }
+.quiz-show .opt-key { width: auto; height: auto; min-width: 1em; background: none; border-radius: 0; font-family: var(--font-display); font-size: var(--fs-s); font-weight: 600; color: var(--human); }
+/* hover and focus white, your pick amber, the right one cyan */
+.quiz-show .slide:not(.answered) .opt:hover:not(:disabled), .quiz-show .opt:focus-visible, .quiz-show .slide:not(.answered) .opt.is-picked { --plate-c: var(--bar); color: var(--bar-fg); }
+.quiz-show .answered .opt.is-correct { --plate-c: var(--accent); color: var(--bar-fg); }
+.quiz-show .answered .opt.is-picked:not(.is-correct) { --plate-c: var(--amber); color: var(--bar-fg); }
+.quiz-show .slide:not(.answered) .opt:hover:not(:disabled) .opt-key, .quiz-show .opt:focus-visible .opt-key,
+.quiz-show .opt.is-picked .opt-key, .quiz-show .opt.is-correct .opt-key { background: none; color: inherit; }
+/* the word for your pick and for the right one stands under the plate, in its colour */
+.quiz-show .opt-tag { position: absolute; left: 24px; top: calc(100% + 8px); margin: 0; padding: 0; justify-items: start; }
+.quiz-show .opt.is-correct .opt-tag { color: var(--accent); }
+.quiz-show .opt.is-picked:not(.is-correct) .opt-tag { color: var(--amber); }
+/* the AI and Alex speak below the answers, like the case: the names in the column on the left, the AI in orange,
+   Alex's verdict on a bar in the colour of the answer */
+.quiz-show .stage-foot { margin-top: 0; padding-top: 0; font-size: var(--fs-l); line-height: var(--lh-snug); }
 .quiz-show .stage-result { gap: clamp(8px, 1.4vh, 14px); }
-.quiz-show .ai-reply { display: grid; grid-template-columns: var(--who) minmax(0, 1fr); column-gap: 16px; align-items: baseline; }
-.quiz-show .stage.quiz-on .slide .comment p { display: grid; grid-template-columns: var(--who) minmax(0, 1fr); column-gap: 16px; align-items: baseline; margin: 0; }
-.quiz-show .avatar-ai, .quiz-show .who {
-  box-sizing: border-box; width: var(--who); height: auto; padding: 2px 0; text-align: center;
-  font-family: var(--font-display); font-size: var(--fs-s); font-weight: 600; line-height: 1.5;
-  letter-spacing: var(--ls-caps-wide); text-transform: uppercase; border-radius: 4px;
-}
-.quiz-show .who { color: var(--fg); border: 1px solid var(--fg); }
-.quiz-show .stage-row { align-items: center; gap: 24px; }
-.quiz-show .stage-next { min-height: 48px; padding: 0 24px; font-size: var(--fs-m); border-radius: 6px; align-items: center; }
-/* the way back to the headline: a button in the head, filled like "Weiter" */
-.stage-back { flex: none; min-height: 48px; padding: 0 24px; border: 0; border-radius: 6px; background: var(--fg); color: var(--bg); font-family: var(--font-body); font-size: var(--fs-m); font-weight: 600; line-height: var(--lh-snug); white-space: nowrap; cursor: pointer; transition: transform 0.12s ease; }
-.stage-back:active { transform: scale(0.96); }
-/* the result takes the questions' place: two big numbers, Alex's line, three ways on */
+.quiz-show .ai-reply, .quiz-show .stage.quiz-on .slide .comment p { display: grid; grid-template-columns: var(--who) minmax(0, 1fr); column-gap: var(--who-gap); align-items: baseline; margin: 0; }
+.quiz-show .ai-reply { color: var(--ai); }
+.quiz-show .avatar-ai, .quiz-show .who { display: block; width: auto; height: auto; padding: 0; border: 0; border-radius: 0; background: none; font-family: var(--font-body); font-size: var(--fs-m); font-weight: 600; line-height: inherit; }
+.quiz-show .avatar-ai { color: var(--ai); }
+.quiz-show .who { color: var(--accent); }
+.quiz-show .ai-say, .quiz-show .say { font-family: var(--font-display); font-weight: 500; }
+.quiz-show .verdict-box { --mark: var(--accent); justify-items: center; margin-right: 0.45em; padding: 0.1em 0.6em 0.14em; color: var(--bar-fg);
+  background: linear-gradient(103deg, transparent calc(0.35em - 0.5px), var(--mark) calc(0.35em + 0.5px), var(--mark) calc(100% - 0.35em - 0.5px), transparent calc(100% - 0.35em + 0.5px)); }
+.quiz-show .verdict-box:has(.verdict.is-wrong) { --mark: var(--amber); }
+.quiz-show .verdict-box .verdict { color: inherit; }
+.quiz-show .stage-row { align-items: center; gap: 28px; }
+/* "Zurück" on a dark plate, the way on on a white one */
+.stage-back, .stage-next { min-height: 48px; padding: 0 28px; font-family: var(--font-display); font-size: var(--fs-m); font-weight: 500; line-height: var(--lh-snug); white-space: nowrap; cursor: pointer; transition: transform 0.12s ease; }
+.stage-back { flex: none; color: var(--fg); }
+.stage-back:hover { --plate-c: var(--bar); color: var(--bar-fg); }
+.stage-next { --plate-c: var(--bar); color: var(--bar-fg); }
+.stage-next:hover { --plate-c: var(--white); }
+.stage-back:active, .stage-next:active { transform: scale(0.985); }
+/* the result takes the questions' place: "Ergebnis" on a bar, two big numbers, Alex's line, two ways on as plates
+   (the bonus white) */
 .stage .quiz-score { inset: 0; display: flex; flex-direction: column; justify-content: center; gap: clamp(20px, 4vh, 40px); overflow: visible; background: transparent; }
-.score-label { margin: 0; color: var(--muted); font-size: var(--fs-m); }
+.score-label { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: var(--fs-l); }
 .score-nums { display: flex; flex-wrap: wrap; gap: 12px clamp(40px, 7vw, 120px); }
 .score-num { margin: 0; display: flex; flex-direction: column; gap: 6px; }
 .score-n { font-family: var(--font-display); font-weight: 500; font-size: var(--fs-xxl); line-height: var(--lh-tight); letter-spacing: var(--ls-display); font-variant-numeric: tabular-nums; }
 .score-you .score-n { color: var(--accent); }
 .score-ai .score-n { color: var(--amber); }
 .score-k { color: var(--muted); font-size: var(--fs-m); }
-.score-text { margin: 0; max-width: 46ch; font-size: var(--fs-l); line-height: var(--lh-snug); }
-.score-text b { font-weight: 600; }
-.stage .quiz-score .quiz-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 760px; gap: 12px; margin-top: 0; }
-.quiz-score .quiz-bonus { border-color: var(--fg); }
-.quiz-score .quiz-bonus .opt-key { background: var(--bar); color: var(--bar-fg); }
-.quiz-show .quiz-score .opt { grid-template-rows: auto; min-height: 64px; }
-.quiz-show .quiz-score .opt-key { grid-row: auto; align-self: center; }
-/* phones: answers one below the other, the way on gets a row of its own */
+.score-text { margin: 0; max-width: 46ch; font-family: var(--font-display); font-weight: 500; font-size: var(--fs-l); line-height: var(--lh-snug); }
+.score-text b { font-weight: 600; color: var(--accent); }
+.stage .quiz-score .quiz-opts { display: flex; flex-direction: row; flex-wrap: wrap; gap: 14px 22px; margin-top: 0; }
+.quiz-show .quiz-score .opt { width: auto; min-height: 56px; padding: 0 30px 0 28px; }
+.quiz-show .quiz-score .quiz-bonus { --plate-c: var(--bar); color: var(--bar-fg); }
+.quiz-show .quiz-score .quiz-bonus:hover { --plate-c: var(--white); }
+.quiz-show .quiz-score .quiz-bonus .opt-key { background: none; color: inherit; }
+/* phones: answers one below the other with their word inside the plate, the names in a narrower column, the
+   way on gets a row of its own */
 @media (max-width: 700px) {
-  .quiz-show .quiz-opts, .stage .quiz-score .quiz-opts { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .quiz-show { --who: 2.75rem; --who-gap: 12px; }
+  .quiz-show .stage-body { --edge: 15px; }
+  .quiz-show .track, .quiz-show .slide { row-gap: 14px; }
+  .quiz-show .quiz { padding-left: 0; }
+  .quiz-show .quiz-opts { grid-template-columns: minmax(0, 1fr); gap: 8px; margin-bottom: 0; }
   .quiz-show .quiz-q { font-size: 1.625rem; }
-  .quiz-show .case .code { font-size: var(--fs-s); }
-  .quiz-show .case > .hunk { padding: 10px 14px; }
-  .quiz-show .opt { min-height: 56px; padding: 10px 14px; font-size: var(--fs-m); }
-  .quiz-show .opt-key { width: 28px; height: 28px; font-size: var(--fs-s); }
-  .quiz-show .stage-foot { font-size: var(--fs-m); line-height: var(--lh-snug); --who: 3.25rem; }
-  .quiz-show .ai-reply, .quiz-show .stage.quiz-on .slide .comment p { column-gap: 10px; }
-  .quiz-show .avatar-ai, .quiz-show .who { font-size: 0.75rem; letter-spacing: var(--ls-caps); }
-  .stage-head { flex-wrap: wrap; gap: 10px 16px; }
-  .stage .dots { flex: 1 1 100%; }
-  .stage .dot { min-width: 18px; }
+  .quiz-show .case-who { font-size: var(--fs-s); }
+  .quiz-show .case-say { font-size: var(--fs-m); line-height: 1.7; }
+  .quiz-show .case .code { font-size: var(--fs-s); padding: 10px 24px; }
+  .quiz-show .opt { min-height: 46px; padding: 6px 22px 6px 20px; font-size: var(--fs-m); }
+  .quiz-show .opt-tag { position: static; margin-left: auto; padding-left: 10px; justify-items: end; }
+  .quiz-show .opt.is-correct .opt-tag, .quiz-show .opt.is-picked:not(.is-correct) .opt-tag { color: inherit; }
+  .quiz-show .stage-foot { font-size: var(--fs-m); }
+  .quiz-show .avatar-ai, .quiz-show .who { font-size: var(--fs-s); }
+  /* "Zurück" and the ladder share one row */
+  .stage-head { gap: 16px; }
+  .stage .dots { flex: 1 1 auto; gap: 5px; }
+  .stage .dot { min-width: 10px; }
   .quiz-show .stage-row { flex-wrap: wrap; gap: 10px; }
   .quiz-show .stage.quiz-on .slide .stage-row > .comment { flex-basis: 100%; }
   .quiz-show .stage-next { flex: 1 1 auto; }
-  .quiz-show .quiz-score .opt { min-height: 52px; }
+  .stage-back, .stage-next { min-height: 44px; padding: 0 20px; }
+  .quiz-show .quiz-score .opt { min-height: 50px; }
 }
 /* small laptops and phones: a lower head, so the question still fits one screen */
 @media (max-height: 700px) {
   .quiz-show .review { padding-top: 8px; }
   .stage-head { margin-bottom: 4px; }
-  .stage-back { min-height: 36px; padding: 0 14px; }
+  .stage-back { min-height: 38px; padding: 0 20px; }
 }
 /* low windows (phones held sideways): everything a size smaller; what still does not fit scrolls inside */
 @media (max-height: 520px) {
   .quiz-show .review { padding-top: 4px; padding-bottom: 12px; }
   .quiz-show .slide, .quiz-show .track { gap: 8px; }
   .quiz-show .stage-result { gap: 2px; }
-  .quiz-show .avatar-ai, .quiz-show .who { padding: 0; font-size: 0.75rem; }
   .quiz-show .quiz { gap: 8px; }
   .quiz-show .quiz-q { font-size: 1.5rem; }
-  .quiz-show .case .code { font-size: var(--fs-s); }
-  .quiz-show .case > .hunk { padding: 8px 14px; gap: 2px; }
-  .quiz-show .opt { min-height: 48px; padding: 8px 12px; font-size: var(--fs-m); }
-  .quiz-show .opt-key { width: 26px; height: 26px; font-size: var(--fs-s); }
+  .quiz-show .case-say { font-size: var(--fs-m); line-height: 1.7; }
+  .quiz-show .case .code { font-size: var(--fs-s); padding-block: 8px; }
+  .quiz-show .opt { min-height: 44px; padding-block: 6px; font-size: var(--fs-m); }
   .quiz-show .stage-foot { font-size: var(--fs-s); line-height: 1.4; }
   .stage-head { margin-bottom: 2px; }
   .stage .dot { height: 20px; }
-  .quiz-show .stage-next { min-height: 40px; }
+  .stage-next { min-height: 40px; }
   .score-n { font-size: 3rem; }
 }
-@media (prefers-reduced-motion: reduce) { .hero > .wrap, .quiz-show, .retro-grid, .stage .dot::before { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .hero > .wrap, .quiz-show, .retro-grid, .stage .dot::before, .quiz-show .opt::before, .stage-back::before, .stage-next::before { transition: none; } }
+@media (forced-colors: active) {
+  /* high contrast drops the plates: the buttons get a border and the usual outline */
+  .quiz-show .opt, .stage-back, .stage-next { border: 1px solid ButtonText; }
+  .quiz-show .opt:focus-visible, .stage-back:focus-visible, .stage-next:focus-visible { outline: 2px solid Highlight; outline-offset: 3px; }
+}
 
 /* Finale: "you decide what happens next" as a dark terminal band */
 .next-band { background: var(--term-bg); color: var(--term-fg); }
@@ -1785,16 +1802,16 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
             <div class="slide" role="group" aria-roledescription="slide" aria-label="1 / 10: Leben · Kunde" data-name="Leben · Kunde">
               <div class="case">
                 <div class="hunk hunk-ai">
-                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="rl.quote">Kunde: "NICHTS GEHT MEHR!!!"</span></span>
-<span class="add">+ </span><span data-i18n="rl.ai1">Sehr geehrte Damen und Herren,</span>
-<span class="add">+ </span><span data-i18n="rl.ai2">anbei 12 Punkte zur Fehleranalyse&nbsp;…</span></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.ai">KI-Vorschlag</span>
+                  <p class="case-say"><span class="bar"><span data-i18n="rl.quote">Kunde: "NICHTS GEHT MEHR!!!"</span></span></p>
+                  <span class="case-who is-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                  <p class="case-say is-ai"><span class="bar"><span data-i18n="rl.ai1">Sehr geehrte Damen und Herren,</span><br><span data-i18n="rl.ai2">anbei 12 Punkte zur Fehleranalyse&nbsp;…</span></span></p>
                 </div>
                 <div class="hunk hunk-fix">
-                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="rl.quote">Kunde: "NICHTS GEHT MEHR!!!"</span></span>
-<span class="add">+ </span><mark data-i18n="rl.fix1">Hörer in die Hand. Zuhören.</mark>
-<span class="add">+ </span><span data-i18n="rl.fix2">Dann fixen.</span></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.revised">Überarbeitet</span>
+                  <p class="case-say"><span class="bar"><span data-i18n="rl.quote">Kunde: "NICHTS GEHT MEHR!!!"</span></span></p>
+                  <span class="case-who is-you" aria-hidden="true">Alex</span>
+                  <p class="case-say is-you"><span class="bar"><mark data-i18n="rl.fix1">Hörer in die Hand. Zuhören.</mark><br><span data-i18n="rl.fix2">Dann fixen.</span></span></p>
                 </div>
               </div>
               <div class="quiz">
@@ -1818,16 +1835,18 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
             <div class="slide" role="group" aria-roledescription="slide" aria-label="2 / 10: PHP" data-name="PHP">
               <div class="case">
                 <div class="hunk hunk-ai">
-                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="add">+ </span>$sql = "SELECT * FROM users
-<span class="add">+ </span>        WHERE email = '$email'";</pre>
+                  <span class="hunk-label sr-only" data-i18n="review.ai">KI-Vorschlag</span>
+                  <span class="case-who is-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+<pre class="code">$sql = "SELECT * FROM users
+        WHERE email = '$email'";</pre>
                 </div>
                 <div class="hunk hunk-fix">
-                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span>$stmt = $pdo-&gt;prepare(
-<span class="add">+ </span>  'SELECT * FROM users
-<span class="add">+ </span>   WHERE email = <mark>?</mark>');
-<span class="add">+ </span>$stmt-&gt;execute(<mark>[$email]</mark>);</pre>
+                  <span class="hunk-label sr-only" data-i18n="review.revised">Überarbeitet</span>
+                  <span class="case-who is-you" aria-hidden="true">Alex</span>
+<pre class="code">$stmt = $pdo-&gt;prepare(
+  'SELECT * FROM users
+   WHERE email = <mark>?</mark>');
+$stmt-&gt;execute(<mark>[$email]</mark>);</pre>
                 </div>
               </div>
               <div class="quiz">
@@ -1851,15 +1870,16 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
             <div class="slide" role="group" aria-roledescription="slide" aria-label="3 / 10: Leben · Navi" data-name="Leben · Navi">
               <div class="case">
                 <div class="hunk hunk-ai">
-                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="nv.quote">Vor dir: ein See.</span></span>
-<span class="add">+ </span><span data-i18n="nv.ai1">Navi: „Weiter geradeaus.“</span></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.ai">KI-Vorschlag</span>
+                  <p class="case-say"><span class="bar"><span data-i18n="nv.quote">Vor dir: ein See.</span></span></p>
+                  <span class="case-who is-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                  <p class="case-say is-ai"><span class="bar"><span data-i18n="nv.ai1">Navi: „Weiter geradeaus.“</span></span></p>
                 </div>
                 <div class="hunk hunk-fix">
-                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="nv.quote">Vor dir: ein See.</span></span>
-<span class="add">+ </span><mark data-i18n="nv.fix1">Bremsen. Hinschauen.</mark>
-<span class="add">+ </span><span data-i18n="nv.fix2">Dann weiterfahren.</span></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.revised">Überarbeitet</span>
+                  <p class="case-say"><span class="bar"><span data-i18n="nv.quote">Vor dir: ein See.</span></span></p>
+                  <span class="case-who is-you" aria-hidden="true">Alex</span>
+                  <p class="case-say is-you"><span class="bar"><mark data-i18n="nv.fix1">Bremsen. Hinschauen.</mark><br><span data-i18n="nv.fix2">Dann weiterfahren.</span></span></p>
                 </div>
               </div>
               <div class="quiz">
@@ -1883,15 +1903,17 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
             <div class="slide" role="group" aria-roledescription="slide" aria-label="4 / 10: MySQL" data-name="MySQL">
               <div class="case">
                 <div class="hunk hunk-ai">
-                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="add">+ </span>UPDATE customers
-<span class="add">+ </span>SET newsletter = 0;</pre>
+                  <span class="hunk-label sr-only" data-i18n="review.ai">KI-Vorschlag</span>
+                  <span class="case-who is-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+<pre class="code">UPDATE customers
+SET newsletter = 0;</pre>
                 </div>
                 <div class="hunk hunk-fix">
-                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span>UPDATE customers
-<span class="add">+ </span>SET newsletter = 0
-<span class="add">+ </span><mark>WHERE id = 1337</mark>;</pre>
+                  <span class="hunk-label sr-only" data-i18n="review.revised">Überarbeitet</span>
+                  <span class="case-who is-you" aria-hidden="true">Alex</span>
+<pre class="code">UPDATE customers
+SET newsletter = 0
+<mark>WHERE id = 1337</mark>;</pre>
                 </div>
               </div>
               <div class="quiz">
@@ -1915,16 +1937,16 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
             <div class="slide" role="group" aria-roledescription="slide" aria-label="5 / 10: Leben · Verteiler" data-name="Leben · Verteiler">
               <div class="case">
                 <div class="hunk hunk-ai">
-                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="ra.quote">Mail an 2.347 Empfänger</span></span>
-<span class="add">+ </span><span data-i18n="ra.ai1">Allen antworten:</span>
-<span class="add">+ </span><span data-i18n="ra.ai2">„Bitte nehmt mich raus.“</span></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.ai">KI-Vorschlag</span>
+                  <p class="case-say"><span class="bar"><span data-i18n="ra.quote">Mail an 2.347 Empfänger</span></span></p>
+                  <span class="case-who is-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                  <p class="case-say is-ai"><span class="bar"><span data-i18n="ra.ai1">Allen antworten:</span><br><span data-i18n="ra.ai2">„Bitte nehmt mich raus.“</span></span></p>
                 </div>
                 <div class="hunk hunk-fix">
-                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="ra.quote">Mail an 2.347 Empfänger</span></span>
-<span class="add">+ </span><mark data-i18n="ra.fix1">Nur an den Absender.</mark>
-<span class="add">+ </span><span data-i18n="ra.fix2">Ruhe im Postfach.</span></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.revised">Überarbeitet</span>
+                  <p class="case-say"><span class="bar"><span data-i18n="ra.quote">Mail an 2.347 Empfänger</span></span></p>
+                  <span class="case-who is-you" aria-hidden="true">Alex</span>
+                  <p class="case-say is-you"><span class="bar"><mark data-i18n="ra.fix1">Nur an den Absender.</mark><br><span data-i18n="ra.fix2">Ruhe im Postfach.</span></span></p>
                 </div>
               </div>
               <div class="quiz">
@@ -1948,12 +1970,14 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
             <div class="slide" role="group" aria-roledescription="slide" aria-label="6 / 10: Linux" data-name="Linux">
               <div class="case">
                 <div class="hunk hunk-ai">
-                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="add">+ </span>rm -rf $BUILD_DIR/*</pre>
+                  <span class="hunk-label sr-only" data-i18n="review.ai">KI-Vorschlag</span>
+                  <span class="case-who is-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+<pre class="code">rm -rf $BUILD_DIR/*</pre>
                 </div>
                 <div class="hunk hunk-fix">
-                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span>rm -rf <mark>"${BUILD_DIR:?}"</mark>/*</pre>
+                  <span class="hunk-label sr-only" data-i18n="review.revised">Überarbeitet</span>
+                  <span class="case-who is-you" aria-hidden="true">Alex</span>
+<pre class="code">rm -rf <mark>"${BUILD_DIR:?}"</mark>/*</pre>
                 </div>
               </div>
               <div class="quiz">
@@ -1977,16 +2001,16 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
             <div class="slide" role="group" aria-roledescription="slide" aria-label="7 / 10: Leben · Angebot" data-name="Leben · Angebot">
               <div class="case">
                 <div class="hunk hunk-ai">
-                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="pl.quote">Angebot an einen Neukunden</span></span>
-<span class="add">+ </span><span data-i18n="pl.ai1">Sehr geehrter Herr [NAME],</span>
-<span class="add">+ </span><span data-i18n="pl.ai2">anbei unser Angebot …</span></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.ai">KI-Vorschlag</span>
+                  <p class="case-say"><span class="bar"><span data-i18n="pl.quote">Angebot an einen Neukunden</span></span></p>
+                  <span class="case-who is-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                  <p class="case-say is-ai"><span class="bar"><span data-i18n="pl.ai1">Sehr geehrter Herr [NAME],</span><br><span data-i18n="pl.ai2">anbei unser Angebot …</span></span></p>
                 </div>
                 <div class="hunk hunk-fix">
-                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="pl.quote">Angebot an einen Neukunden</span></span>
-<span class="add">+ </span><span data-i18n="pl.fix1">Sehr geehrter Herr </span><mark data-i18n="pl.name">Weber</mark>,
-<span class="add">+ </span><span data-i18n="pl.ai2">anbei unser Angebot …</span></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.revised">Überarbeitet</span>
+                  <p class="case-say"><span class="bar"><span data-i18n="pl.quote">Angebot an einen Neukunden</span></span></p>
+                  <span class="case-who is-you" aria-hidden="true">Alex</span>
+                  <p class="case-say is-you"><span class="bar"><span data-i18n="pl.fix1">Sehr geehrter Herr </span><mark data-i18n="pl.name">Weber</mark>,<br><span data-i18n="pl.ai2">anbei unser Angebot …</span></span></p>
                 </div>
               </div>
               <div class="quiz">
@@ -2010,12 +2034,14 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
             <div class="slide" role="group" aria-roledescription="slide" aria-label="8 / 10: C#" data-name="C#">
               <div class="case">
                 <div class="hunk hunk-ai">
-                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="add">+ </span>double total = price + shipping;</pre>
+                  <span class="hunk-label sr-only" data-i18n="review.ai">KI-Vorschlag</span>
+                  <span class="case-who is-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+<pre class="code">double total = price + shipping;</pre>
                 </div>
                 <div class="hunk hunk-fix">
-                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span><mark>decimal</mark> total = price + shipping;</pre>
+                  <span class="hunk-label sr-only" data-i18n="review.revised">Überarbeitet</span>
+                  <span class="case-who is-you" aria-hidden="true">Alex</span>
+<pre class="code"><mark>decimal</mark> total = price + shipping;</pre>
                 </div>
               </div>
               <div class="quiz">
@@ -2039,15 +2065,16 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
             <div class="slide" role="group" aria-roledescription="slide" aria-label="9 / 10: Leben · Schätzung" data-name="Leben · Schätzung">
               <div class="case">
                 <div class="hunk hunk-ai">
-                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="es.quote">„Wie lange dauert der Umbau?“</span></span>
-<span class="add">+ </span><span data-i18n="es.ai1">Zwei Tage. Höchstens.</span></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.ai">KI-Vorschlag</span>
+                  <p class="case-say"><span class="bar"><span data-i18n="es.quote">„Wie lange dauert der Umbau?“</span></span></p>
+                  <span class="case-who is-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                  <p class="case-say is-ai"><span class="bar"><span data-i18n="es.ai1">Zwei Tage. Höchstens.</span></span></p>
                 </div>
                 <div class="hunk hunk-fix">
-                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="es.quote">„Wie lange dauert der Umbau?“</span></span>
-<span class="add">+ </span><span data-i18n="es.fix1">Zwei Tage</span> <mark>× π</mark>
-<span class="add">+ </span><span data-i18n="es.fix2">Also gut eine Woche.</span></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.revised">Überarbeitet</span>
+                  <p class="case-say"><span class="bar"><span data-i18n="es.quote">„Wie lange dauert der Umbau?“</span></span></p>
+                  <span class="case-who is-you" aria-hidden="true">Alex</span>
+                  <p class="case-say is-you"><span class="bar"><span data-i18n="es.fix1">Zwei Tage</span> <mark>× π</mark><br><span data-i18n="es.fix2">Also gut eine Woche.</span></span></p>
                 </div>
               </div>
               <div class="quiz">
@@ -2071,16 +2098,18 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
             <div class="slide" role="group" aria-roledescription="slide" aria-label="10 / 10: YAML" data-name="YAML">
               <div class="case">
                 <div class="hunk hunk-ai">
-                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="add">+ </span><span data-i18n="fin.k1">assistiert:  </span><span data-i18n="fin.ai">KI</span>
-<span class="add">+ </span><span data-i18n="fin.k2">lenkt:       </span><span data-i18n="fin.ai">KI</span>
-<span class="add">+ </span><span data-i18n="fin.k3">entscheidet: </span><span data-i18n="fin.ai">KI</span></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.ai">KI-Vorschlag</span>
+                  <span class="case-who is-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+<pre class="code"><span data-i18n="fin.k1">assistiert:  </span><span data-i18n="fin.ai">KI</span>
+<span data-i18n="fin.k2">lenkt:       </span><span data-i18n="fin.ai">KI</span>
+<span data-i18n="fin.k3">entscheidet: </span><span data-i18n="fin.ai">KI</span></pre>
                 </div>
                 <div class="hunk hunk-fix">
-                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="add">+ </span><span data-i18n="fin.k1">assistiert:  </span><span data-i18n="fin.ai">KI</span>
-<span class="add">+ </span><span data-i18n="fin.k2">lenkt:       </span><mark data-i18n="fin.human">Mensch</mark>
-<span class="add">+ </span><span data-i18n="fin.k3">entscheidet: </span><mark data-i18n="fin.human">Mensch</mark></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.revised">Überarbeitet</span>
+                  <span class="case-who is-you" aria-hidden="true">Alex</span>
+<pre class="code"><span data-i18n="fin.k1">assistiert:  </span><span data-i18n="fin.ai">KI</span>
+<span data-i18n="fin.k2">lenkt:       </span><mark data-i18n="fin.human">Mensch</mark>
+<span data-i18n="fin.k3">entscheidet: </span><mark data-i18n="fin.human">Mensch</mark></pre>
                 </div>
               </div>
               <div class="quiz">
@@ -2104,16 +2133,16 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
             <div class="slide" role="group" aria-roledescription="slide" aria-label="Bonus: Kommunikation" data-name="Kommunikation" data-cta>
               <div class="case">
                 <div class="hunk hunk-ai">
-                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="cta.quote">Eine Frage zum eigenen Thema</span></span>
-<span class="add">+ </span><span data-i18n="cta.ai1">Passierschein A38 einreichen,</span>
-<span class="add">+ </span><span data-i18n="cta.ai2">Antwort in 3–5 Werktagen …</span></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.ai">KI-Vorschlag</span>
+                  <p class="case-say"><span class="bar"><span data-i18n="cta.quote">Eine Frage zum eigenen Thema</span></span></p>
+                  <span class="case-who is-ai" aria-hidden="true" data-i18n="ai.short">KI</span>
+                  <p class="case-say is-ai"><span class="bar"><span data-i18n="cta.ai1">Passierschein A38 einreichen,</span><br><span data-i18n="cta.ai2">Antwort in 3–5 Werktagen …</span></span></p>
                 </div>
                 <div class="hunk hunk-fix">
-                  <span class="hunk-label" data-i18n="review.revised">Überarbeitet</span>
-<pre class="code"><span class="quote"><span class="add">&gt; </span><span data-i18n="cta.quote">Eine Frage zum eigenen Thema</span></span>
-<span class="add">+ </span><mark data-i18n="cta.fix1">Chat starten.</mark>
-<span class="add">+ </span><span data-i18n="cta.fix2">Direkt fragen.</span></pre>
+                  <span class="hunk-label sr-only" data-i18n="review.revised">Überarbeitet</span>
+                  <p class="case-say"><span class="bar"><span data-i18n="cta.quote">Eine Frage zum eigenen Thema</span></span></p>
+                  <span class="case-who is-you" aria-hidden="true">Alex</span>
+                  <p class="case-say is-you"><span class="bar"><mark data-i18n="cta.fix1">Chat starten.</mark><br><span data-i18n="cta.fix2">Direkt fragen.</span></span></p>
                 </div>
               </div>
               <div class="quiz">
@@ -2136,7 +2165,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
             </div>
           </div>
           <div class="quiz-score" hidden>
-            <p class="score-label" data-i18n="score.label">Ergebnis</p>
+            <p class="score-label"><span class="bar" data-i18n="score.label">Ergebnis</span></p>
             <div class="score-nums" aria-live="polite">
               <p class="score-num score-you"><b class="score-n">0/10</b><span class="score-k">richtig</span></p>
               <p class="score-num score-ai"><b class="score-n">10/10</b><span class="score-k">KI-Lob</span></p>
@@ -3837,6 +3866,9 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
   var teaser = document.querySelector('.quiz-teaser');
   function syncTeaser() {
     if (!teaser || !quizSlides.length) return;
+    /* the open quiz hangs from the bottom of the hero, and on phones the card sits right above it: when the card
+       grows or shrinks, the page follows, so the quiz stays where it is on the screen */
+    var held = quizShow && quizShow.isOpen() ? quizShowRoot.getBoundingClientRect().top : null;
     var st = quizState[0], on = !!(st && st.revealed);
     var src = quizSlides[0].querySelectorAll('.opt');
     var a = document.activeElement, had = teaser.contains(a);
@@ -3851,6 +3883,10 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     var done = graded.filter(function (s) { return s && s.revealed; }).length;
     row.hidden = !on;
     row.querySelector('.teaser-go').classList.toggle('is-done', done === graded.length);
+    if (held !== null) {
+      var moved = quizShowRoot.getBoundingClientRect().top - held;
+      if (Math.abs(moved) > 0.5) window.scrollBy({ top: moved, behavior: 'instant' });
+    }
     if (had && a && a.disabled) (on ? row.querySelector('.teaser-go') : teaser.querySelector('.opt')).focus({ preventScroll: true });
   }
   function updateScore() {
