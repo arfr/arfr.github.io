@@ -1369,6 +1369,14 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 /* Contact: primary button, chat, then the address as plain text: a click copies it */
 .contact-row { gap: 12px 20px; }
 
+/* Werkstatt: three experiments running on this page, each with a way straight in */
+.ws-list { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(28px, 4vw, 48px); }
+@media (min-width: 900px) { .ws-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.ws-list li { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding-top: 18px; border-top: 1px solid var(--line); }
+.ws-list h3 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: var(--fs-l); line-height: var(--lh-snug); }
+.ws-list p { margin: 0 0 8px; color: var(--text); max-width: 52ch; }
+.ws-list .btn { margin-top: auto; }
+
 /* The frame: the page sits in a black screen border with rounded inner corners and two tabs */
 :root {
   --frame: clamp(8px, 1.25vw, 18px);
@@ -1537,7 +1545,7 @@ html.smart .ftab-bottom { display: none; }
    with one step per section, as in the menu. The steps are the page's grey, dimmed to half (still 3 : 1 on the black
    tab); the section in view is the same step, only bright. Hover or focus names a step, a click goes there. Only where the page leaves room for it: the text starts at the left gutter,
    and below 1360 px the tab would touch it (the menu does the same job there) */
-.side-nav { position: absolute; top: calc(50% - 105px); top: round(calc(50% - 105px), 1px); left: calc(var(--frame) - 2px); left: round(down, calc(var(--frame) - 2px), 1px); width: 26px; height: 210px; display: none; }
+.side-nav { position: absolute; top: calc(50% - 119px); top: round(calc(50% - 119px), 1px); left: calc(var(--frame) - 2px); left: round(down, calc(var(--frame) - 2px), 1px); width: 26px; height: 238px; display: none; }
 @media (min-width: 1360px) { .side-nav { display: block; } }
 html.smart .side-nav { display: none; }
 .side-shape { position: absolute; inset: 0; overflow: visible; }
@@ -1653,6 +1661,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       <a href="#top" class="menu-start" data-i18n="nav.start">Start</a>
       <a href="#approach" data-i18n="nav.approach">Vorgehen</a>
       <a href="#about" data-i18n="nav.about">Über mich</a>
+      <a href="#workshop" data-i18n="nav.workshop">Werkstatt</a>
       <a href="#contact" data-i18n="nav.contact">Kontakt</a>
       <a href="#terminal" data-i18n="nav.terminal">Terminal</a>
     </nav>
@@ -2115,6 +2124,32 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     </div>
   </section>
 
+  <section class="section" id="workshop" aria-labelledby="workshop-title">
+    <div class="wrap">
+      <div class="statement">
+        <h2 id="workshop-title" data-i18n="ws.title">Hier wird noch gebaut.</h2>
+        <p class="lede"><span class="bar" data-i18n="ws.lede">Drei Versuche, die gerade laufen.</span></p>
+      </div>
+      <ul class="ws-list">
+        <li>
+          <h3 data-i18n="ws.quiz.title">Das Quiz</h3>
+          <p data-i18n="ws.quiz.text">Zehn Vorschläge einer KI, mal Code, mal Alltag. Du entscheidest, danach sagen die KI und ich, wie wir es sehen.</p>
+          <button type="button" class="btn btn-ghost" id="ws-quiz"><span data-i18n="ws.quiz.go">Quiz starten</span></button>
+        </li>
+        <li>
+          <h3 data-i18n="ws.cli.title">Das Terminal</h3>
+          <p data-i18n="ws.cli.text">Eine Kommandozeile im Browser, mit ein paar versteckten Befehlen. Einer davon ist ein Spiel.</p>
+          <button type="button" class="btn btn-ghost" id="ws-cli"><span data-i18n="ws.cli.go">Ausprobieren</span></button>
+        </li>
+        <li>
+          <h3 data-i18n="ws.slides.title">Folien statt Scrollen</h3>
+          <p data-i18n="ws.slides.text">Am großen Bildschirm bringen Mausrad, Trackpad oder Pfeiltasten die Seite immer genau einen Abschnitt weiter.</p>
+          <button type="button" class="btn btn-ghost" id="ws-slides"><span data-i18n="ws.slides.go">Weiterblättern</span></button>
+        </li>
+      </ul>
+    </div>
+  </section>
+
   <section class="section" id="contact" aria-labelledby="contact-title">
     <div class="wrap">
       <div class="statement">
@@ -2160,7 +2195,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
 </main>
 
 <div class="chrome">
-<nav class="side-nav" aria-label="Abschnitte" data-i18n-aria="nav.sections"><svg class="side-shape" width="26" height="210" viewBox="0 0 26 210" aria-hidden="true" focusable="false"><path transform="matrix(0 1 1 0 0 0)" d="M0 2L0 2Q12 2 17.72 12.55L20.71 18.09Q25 26 34 26L176 26Q185 26 189.29 18.09L192.28 12.55Q198 2 210 2L210 2L210 0L0 0Z"/></svg><div class="side-steps"><a href="#top" tabindex="0"><span class="side-label" data-i18n="nav.start">Start</span></a><a href="#approach" tabindex="-1"><span class="side-label" data-i18n="nav.approach">Vorgehen</span></a><a href="#about" tabindex="-1"><span class="side-label" data-i18n="nav.about">Über mich</span></a><a href="#contact" tabindex="-1"><span class="side-label" data-i18n="nav.contact">Kontakt</span></a><a href="#terminal" tabindex="-1"><span class="side-label" data-i18n="nav.terminal">Terminal</span></a></div></nav>
+<nav class="side-nav" aria-label="Abschnitte" data-i18n-aria="nav.sections"><svg class="side-shape" width="26" height="238" viewBox="0 0 26 238" aria-hidden="true" focusable="false"><path transform="matrix(0 1 1 0 0 0)" d="M0 2L0 2Q12 2 17.72 12.55L20.71 18.09Q25 26 34 26L204 26Q213 26 217.29 18.09L220.28 12.55Q226 2 238 2L238 2L238 0L0 0Z"/></svg><div class="side-steps"><a href="#top" tabindex="0"><span class="side-label" data-i18n="nav.start">Start</span></a><a href="#approach" tabindex="-1"><span class="side-label" data-i18n="nav.approach">Vorgehen</span></a><a href="#about" tabindex="-1"><span class="side-label" data-i18n="nav.about">Über mich</span></a><a href="#workshop" tabindex="-1"><span class="side-label" data-i18n="nav.workshop">Werkstatt</span></a><a href="#contact" tabindex="-1"><span class="side-label" data-i18n="nav.contact">Kontakt</span></a><a href="#terminal" tabindex="-1"><span class="side-label" data-i18n="nav.terminal">Terminal</span></a></div></nav>
 <footer class="site-foot ftab ftab-bottom"><svg class="ftab-shape" aria-hidden="true" focusable="false"><path class="ftab-fill"/><path class="ftab-edge" transform="translate(0 0.5)"/></svg><span class="ftab-swap"><button type="button" class="ftab-label ftab-scroll" aria-label="Zum nächsten Bereich" data-i18n-aria="tab.scroll.aria"><span data-i18n="tab.scroll">Nach unten</span></button><a class="ftab-label ftab-copy" href="https://arfr.de/" tabindex="-1" aria-hidden="true">© 2026 arfr.de</a></span></footer>
 </div>
 
@@ -2231,6 +2266,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "step3.text": "Nothing goes out that can’t be explained. Every result is checked, questioned and owned.",
       "about.eyebrow": "About", "about.title": "A developer by trade and by passion.",
       "about.text": "I’ve been building for the web for more than 20 years. My goal is to break complexity down instead of making systems even more complex.", "about.text2": "For almost as long, this site has been my personal test bed. I keep rebuilding it to find out what works on the web and what doesn’t.",
+      "nav.workshop": "Workshop", "ws.title": "Still being built.", "ws.lede": "Three experiments running right now.", "ws.quiz.title": "The quiz", "ws.quiz.text": "Ten suggestions from an AI, some code, some everyday work. You decide, then the AI and I say how we see it.", "ws.quiz.go": "Start the quiz", "ws.cli.title": "The terminal", "ws.cli.text": "A command line in the browser, with a few hidden commands. One of them is a game.", "ws.cli.go": "Try it", "ws.slides.title": "Slides instead of scrolling", "ws.slides.text": "On a large screen, the mouse wheel, trackpad or arrow keys always move the page exactly one section on.", "ws.slides.go": "Next slide",
       "contact.eyebrow": "Contact", "contact.title": "Got something that matters?", "contact.lede": "Let’s talk about it.",
       "contact.write": "Email", "contact.coffee": "Coffee",
       
@@ -2445,6 +2481,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "step3.text": "Nichts geht raus, was man nicht erklären kann. Jedes Ergebnis wird geprüft, hinterfragt und verantwortet.",
       "about.eyebrow": "Über mich", "about.title": "Entwickler von Beruf und aus Leidenschaft.",
       "about.text": "Seit über 20 Jahren entwickle ich für das Web. Mein Ziel ist, Komplexität aufzubrechen, statt Systeme noch komplexer zu machen.", "about.text2": "Fast genauso lange ist diese Seite mein persönliches Experimentierfeld. Ich baue sie immer wieder neu und probiere aus, was sich im Web bewährt und was nicht.",
+      "nav.workshop": "Werkstatt", "ws.title": "Hier wird noch gebaut.", "ws.lede": "Drei Versuche, die gerade laufen.", "ws.quiz.title": "Das Quiz", "ws.quiz.text": "Zehn Vorschläge einer KI, mal Code, mal Alltag. Du entscheidest, danach sagen die KI und ich, wie wir es sehen.", "ws.quiz.go": "Quiz starten", "ws.cli.title": "Das Terminal", "ws.cli.text": "Eine Kommandozeile im Browser, mit ein paar versteckten Befehlen. Einer davon ist ein Spiel.", "ws.cli.go": "Ausprobieren", "ws.slides.title": "Folien statt Scrollen", "ws.slides.text": "Am großen Bildschirm bringen Mausrad, Trackpad oder Pfeiltasten die Seite immer genau einen Abschnitt weiter.", "ws.slides.go": "Weiterblättern",
       "contact.eyebrow": "Kontakt", "contact.title": "Etwas, worauf es ankommt?", "contact.lede": "Sprechen wir darüber.",
       "contact.write": "E-Mail", "contact.coffee": "Kaffee",
       
@@ -2659,6 +2696,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "step3.text": "Дальше не уходит ничего, что нельзя объяснить. Каждый результат проверяют, ставят под сомнение и отвечают за него.",
       "about.eyebrow": "Обо мне", "about.title": "Пишу код на работе и для души.",
       "about.text": "Больше 20 лет я занимаюсь веб-разработкой. Моя цель — упрощать сложное, а не делать системы ещё сложнее.", "about.text2": "Почти столько же времени этот сайт — моя личная площадка для экспериментов. Я раз за разом перестраиваю его и проверяю, что в вебе работает, а что нет.",
+      "nav.workshop": "Мастерская", "ws.title": "Здесь всё ещё строится.", "ws.lede": "Три эксперимента, которые идут прямо сейчас.", "ws.quiz.title": "Квиз", "ws.quiz.text": "Десять предложений от ИИ: то код, то рабочие будни. Ты решаешь, а потом ИИ и я говорим, как мы это видим.", "ws.quiz.go": "Начать квиз", "ws.cli.title": "Терминал", "ws.cli.text": "Командная строка в браузере с несколькими скрытыми командами. Одна из них — игра.", "ws.cli.go": "Попробовать", "ws.slides.title": "Слайды вместо прокрутки", "ws.slides.text": "На большом экране колесо мыши, тачпад или стрелки всегда перелистывают страницу ровно на один раздел.", "ws.slides.go": "Дальше",
       "contact.eyebrow": "Контакт", "contact.title": "Есть что-то действительно важное?", "contact.lede": "Давайте обсудим.",
       "contact.write": "E-mail", "contact.coffee": "Кофе",
       
@@ -2883,6 +2921,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "about.eyebrow": "O meni",
       "about.title": "Programer, na poslu i iz ljubavi.",
       "about.text": "Više od 20 godina razvijam za veb. Cilj mi je da razbijem složenost, umesto da sisteme činim još složenijim.", "about.text2": "Skoro isto toliko dugo ovaj sajt je moje lično polje za eksperimente. Iznova ga pravim i isprobavam šta se na vebu pokazalo dobrim, a šta ne.",
+      "nav.workshop": "Radionica", "ws.title": "Ovde se još gradi.", "ws.lede": "Tri eksperimenta koja upravo traju.", "ws.quiz.title": "Kviz", "ws.quiz.text": "Deset predloga jedne AI, nekad kod, nekad svakodnevica. Ti odlučuješ, a zatim AI i ja kažemo kako to vidimo.", "ws.quiz.go": "Pokreni kviz", "ws.cli.title": "Terminal", "ws.cli.text": "Komandna linija u pregledaču, sa nekoliko skrivenih komandi. Jedna od njih je igra.", "ws.cli.go": "Isprobaj", "ws.slides.title": "Slajdovi umesto skrolovanja", "ws.slides.text": "Na velikom ekranu točkić miša, tačped ili strelice uvek pomeraju stranicu tačno za jedan odeljak.", "ws.slides.go": "Dalje",
       "contact.eyebrow": "Kontakt",
       "contact.title": "Imaš nešto što je važno?",
       "contact.lede": "Hajde da razgovaramo.",
@@ -3160,6 +3199,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "about.eyebrow": "Σχετικά",
       "about.title": "Προγραμματιστής, από επάγγελμα και πάθος.",
       "about.text": "Εδώ και πάνω από 20 χρόνια αναπτύσσω για το web. Στόχος μου είναι να σπάω την πολυπλοκότητα, αντί να κάνω τα συστήματα ακόμη πιο πολύπλοκα.", "about.text2": "Σχεδόν εξίσου καιρό, αυτός ο ιστότοπος είναι το προσωπικό μου πεδίο πειραματισμού. Τον ξαναχτίζω συνεχώς και δοκιμάζω τι δουλεύει στο web και τι όχι.",
+      "nav.workshop": "Εργαστήριο", "ws.title": "Εδώ ακόμα χτίζω.", "ws.lede": "Τρία πειράματα που τρέχουν αυτή τη στιγμή.", "ws.quiz.title": "Το κουίζ", "ws.quiz.text": "Δέκα προτάσεις μιας AI, άλλοτε κώδικας, άλλοτε καθημερινότητα. Εσύ αποφασίζεις και μετά η AI κι εγώ λέμε πώς το βλέπουμε.", "ws.quiz.go": "Ξεκίνα το κουίζ", "ws.cli.title": "Το τερματικό", "ws.cli.text": "Μια γραμμή εντολών στον browser, με μερικές κρυφές εντολές. Μία από αυτές είναι παιχνίδι.", "ws.cli.go": "Δοκίμασέ το", "ws.slides.title": "Διαφάνειες αντί για κύλιση", "ws.slides.text": "Σε μεγάλη οθόνη, η ροδέλα του ποντικιού, το touchpad ή τα βελάκια μετακινούν τη σελίδα πάντα κατά μία ενότητα.", "ws.slides.go": "Επόμενη",
       "contact.eyebrow": "Επικοινωνία",
       "contact.title": "Κάτι που έχει σημασία;",
       "contact.lede": "Ας το συζητήσουμε.",
@@ -4002,6 +4042,22 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
     var href = 'mailto:hello@arfr.de?subject=' + encodeURIComponent(t('next.subject'));
     document.querySelectorAll('a[href^="mailto:hello@arfr.de"]:not(.chat-mail)').forEach(function (a) { a.setAttribute('href', href); });
   }
+  /* Werkstatt: each experiment has a way straight in. The quiz opens once the page is back at the headline */
+  (function workshop() {
+    var quizBtn = document.getElementById('ws-quiz'), cliBtn = document.getElementById('ws-cli'), slideBtn = document.getElementById('ws-slides');
+    if (quizBtn) quizBtn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+      var t0 = Date.now();
+      (function wait() {
+        if (window.scrollY < 2 || Date.now() - t0 > 1500) { if (quizShow) quizShow.open(); }
+        else requestAnimationFrame(wait);
+      })();
+    });
+    if (cliBtn) cliBtn.addEventListener('click', function () {
+      document.dispatchEvent(new CustomEvent('arfr:type', { detail: { cmd: 'help' } }));
+    });
+    if (slideBtn) slideBtn.addEventListener('click', function () { if (sectionStep) sectionStep(1); });
+  })();
   /* "Kaffee": off to the terminal, which types `coffee` by itself */
   (function coffeeButton() {
     var go = document.getElementById('coffee-go');
