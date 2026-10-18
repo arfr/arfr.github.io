@@ -620,33 +620,64 @@ a { color: inherit; }
 }
 
 /* Hero: only the first question, as a way in. An answer opens the quiz on a slide of its own.
-   One framed card, so the case, the question and the answers read as one object over the grid. */
-.quiz-teaser { margin: 0; display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: var(--stage-surface); border: 1px solid rgba(var(--human-rgb), 0.22); border-radius: 8px; }
-.quiz-teaser .case { border-bottom: 1px solid var(--line); }
-.quiz-teaser .hunk { padding: 0 0 16px; gap: 4px; }
-.quiz-teaser .code { line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; }
-/* one block per line: a long line wraps under its own text, not under the "+" */
-.quiz-teaser .code .ln { display: block; padding-left: 2ch; text-indent: -2ch; }
-.quiz-teaser .quiz-q { margin: 4px 0 0; }
-/* after the first answer the card shows it, like the quiz does, and offers the way back in */
-.quiz-teaser { --amber: var(--ai); }
-.quiz-teaser.is-joined .opt-tag { display: grid; justify-items: end; flex: none; margin-left: auto; padding-left: 8px; font-size: var(--fs-s); color: var(--muted); white-space: nowrap; }
+   No card: the case reads like a script, who speaks on the left and each voice on a bar in its colour (the client
+   white, the AI orange). Below it the question, large, and three plates in the slant of the bars, like a TV quiz. */
+.quiz-teaser { --plate: #121C25; --plate-h: 58px; gap: 0; container-type: inline-size; }
+.quiz-teaser .case { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: 14px; row-gap: 20px; align-items: baseline; }
+.case-who { font-weight: 600; color: var(--muted); }
+.case-who.is-ai { color: var(--ai); }
+.case-say { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: var(--fs-l); line-height: 1.85; }
+.case-say.is-ai { font-size: var(--fs-m); line-height: 1.9; }
+.case-say.is-ai .bar { --mark: var(--ai); }
+.quiz-teaser .quiz-q { margin: 28px 0 16px; font-family: var(--font-display); font-weight: 500; font-size: clamp(1.75rem, 1rem + 1.7vw, 2.5rem); line-height: var(--lh-tight); letter-spacing: -0.02em; }
+.quiz-teaser .quiz-opts { gap: 10px; }
+/* a plate: the button keeps its rectangle for the pointer, a clipped layer behind the text draws the slant
+   (tan 13deg = 0.2309, the angle of the bars) */
+.quiz-teaser .opt, .teaser-go { --slant: calc(var(--plate-h) * 0.2309); position: relative; isolation: isolate; border: 0; border-radius: 0; background: none; }
+.quiz-teaser .opt { min-height: var(--plate-h); padding: 0 calc(var(--slant) + 18px) 0 calc(var(--slant) + 14px); gap: 16px; font-family: var(--font-display); font-weight: 500; font-size: var(--fs-l); transition: color 0.15s ease, opacity 0.15s ease, transform 0.12s ease; }
+.quiz-teaser .opt::before, .teaser-go::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--plate); clip-path: polygon(var(--slant) 0, 100% 0, calc(100% - var(--slant)) 100%, 0 100%); transition: background-color 0.15s ease; }
+/* keyboard focus: a 2px ring in the same slant, 3px off the plate, instead of the rectangular outline.
+   5px out on top and bottom is 6.29px out across the slant (5px * (1 / cos 13deg + tan 13deg)). */
+.quiz-teaser .opt:focus-visible, .teaser-go:focus-visible { outline: none; }
+.quiz-teaser .opt::after, .teaser-go::after { content: ""; position: absolute; inset: -5px -6.29px; z-index: -1; background: var(--accent); pointer-events: none; visibility: hidden;
+  clip-path: polygon(evenodd, calc(var(--slant) + 2.31px) 0, 100% 0, calc(100% - var(--slant) - 2.31px) 100%, 0 100%, calc(var(--slant) + 2.31px) 0,
+    calc(var(--slant) + 3.9px) 2px, calc(100% - 2.51px) 2px, calc(100% - var(--slant) - 3.9px) calc(100% - 2px), 2.51px calc(100% - 2px), calc(var(--slant) + 3.9px) 2px); }
+.quiz-teaser .opt:focus-visible::after, .teaser-go:focus-visible::after { visibility: visible; }
+.quiz-teaser .opt-key { width: auto; height: auto; min-width: 1em; background: none; border-radius: 0; font-size: var(--fs-m); color: var(--human); transition: color 0.15s ease; }
+.quiz-teaser .opt:hover:not(:disabled)::before, .quiz-teaser .opt:focus-visible::before { background: var(--bar); }
+.quiz-teaser .opt:hover:not(:disabled), .quiz-teaser .opt:focus-visible { color: var(--bar-fg); }
+/* after the first answer the plates show it, like the quiz does: your pick orange, the right one cyan */
+.quiz-teaser .opt.is-correct::before { background: var(--human); }
+.quiz-teaser .opt.is-picked:not(.is-correct)::before { background: var(--ai); }
+.quiz-teaser .opt.is-correct, .quiz-teaser .opt.is-picked { color: var(--bar-fg); }
+.quiz-teaser .opt:hover:not(:disabled) .opt-key, .quiz-teaser .opt:focus-visible .opt-key,
+.quiz-teaser .opt.is-correct .opt-key, .quiz-teaser .opt.is-picked .opt-key { background: none; color: inherit; }
+.quiz-teaser.is-joined .opt-tag { display: grid; justify-items: end; flex: none; margin-left: auto; padding-left: 8px; font-family: var(--font-body); font-weight: 600; font-size: var(--fs-s); white-space: nowrap; }
 .quiz-teaser .opt-tag > span { grid-area: 1 / 1; visibility: hidden; }
 .quiz-teaser .opt.is-correct [data-i18n="quiz.right"], .quiz-teaser .opt.is-picked:not(.is-correct) [data-i18n="quiz.pick"] { visibility: visible; }
-.quiz-teaser .opt.is-correct { border-color: var(--accent); }
-.quiz-teaser .opt.is-correct .opt-key { background: var(--accent); color: var(--bg); }
-.quiz-teaser .opt.is-correct .opt-tag { color: var(--accent); }
-.quiz-teaser .opt.is-picked:not(.is-correct) { border-color: var(--amber); }
-.quiz-teaser .opt.is-picked:not(.is-correct) .opt-key { background: var(--amber); color: var(--bg); }
-.quiz-teaser .opt.is-picked:not(.is-correct) .opt-tag { color: var(--amber); }
 .quiz-teaser.is-joined .opt:not(.is-correct):not(.is-picked) { opacity: 0.45; }
-.teaser-resume { display: flex; justify-content: flex-end; margin-top: 4px; }
+/* and offers the way back in, on a white plate */
+.teaser-resume { display: flex; margin-top: 18px; }
 .teaser-resume[hidden] { display: none; }
-.teaser-go { display: inline-grid; justify-items: end; min-height: 44px; margin-right: -8px; padding: 0 8px; border: 0; border-radius: 6px; background: none; color: var(--fg); font-family: var(--font-body); font-size: var(--fs-m); font-weight: 600; white-space: nowrap; cursor: pointer; }
+.teaser-go { --plate: var(--bar); --plate-h: 48px; display: inline-grid; justify-items: center; min-height: var(--plate-h); padding: 0 calc(var(--slant) + 14px); color: var(--bar-fg); font-family: var(--font-display); font-weight: 500; font-size: var(--fs-m); white-space: nowrap; cursor: pointer; transition: transform 0.12s ease; }
 .teaser-go > span { grid-area: 1 / 1; align-self: center; }
 .teaser-go > span + span, .teaser-go.is-done > span:first-child { visibility: hidden; }
 .teaser-go.is-done > span + span { visibility: visible; }
-.teaser-go:hover { color: var(--accent); }
+.teaser-go:hover { --plate: var(--white); }
+.teaser-go:active { transform: scale(0.985); }
+@container (width < 430px) {
+  /* narrow card (phone, small laptop): who speaks stands above the line, like in a play, so the AI's lines keep their breaks */
+  .quiz-teaser .case { grid-template-columns: minmax(0, 1fr); row-gap: 2px; }
+  .quiz-teaser .case-who:not(:first-child) { margin-top: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .quiz-teaser .opt, .quiz-teaser .opt::before, .teaser-go, .teaser-go::before { transition: none; }
+}
+@media (forced-colors: active) {
+  /* high contrast drops the plate colours: the buttons get a border and the usual outline */
+  .quiz-teaser .opt, .teaser-go { border: 1px solid ButtonText; }
+  .quiz-teaser .opt:focus-visible, .teaser-go:focus-visible { outline: 2px solid Highlight; outline-offset: 3px; }
+}
 
 /* Quiz slide: the hero's neighbour to the right, with the same grid, frame and tabs. An answer in the hero moves
    the hero's content out to the left and the quiz in from the right; further down the page goes on as usual.
@@ -1718,10 +1749,10 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
 
       <figure class="review quiz-teaser" aria-labelledby="teaser-q">
         <div class="case">
-                <div class="hunk hunk-ai">
-                  <span class="hunk-label" data-i18n="review.ai">KI-Vorschlag</span>
-<pre class="code"><span class="ln quote"><span class="add">&gt; </span><span data-i18n="rl.quote">Kunde: "NICHTS GEHT MEHR!!!"</span></span><span class="ln"><span class="add">+ </span><span data-i18n="rl.ai1">Sehr geehrte Damen und Herren,</span></span><span class="ln"><span class="add">+ </span><span data-i18n="rl.ai2">anbei 12 Punkte zur Fehleranalyse&nbsp;…</span></span></pre>
-                </div>
+          <span class="case-who"><span data-i18n="case.who">Kunde</span><span class="sr-only">:</span></span>
+          <p class="case-say"><span class="bar" data-i18n="case.shout">NICHTS GEHT MEHR!!!</span></p>
+          <span class="case-who is-ai"><span aria-hidden="true" data-i18n="ai.short">KI</span><span class="sr-only"><span data-i18n="ai.name">KI-Assistent</span>:</span></span>
+          <p class="case-say is-ai"><span class="bar"><span data-i18n="rl.ai1">Sehr geehrte Damen und Herren,</span><br><span data-i18n="rl.ai2">anbei 12 Punkte zur Fehleranalyse&nbsp;…</span></span></p>
         </div>
         <p class="quiz-q" id="teaser-q" data-i18n="q.real">Was tust du?</p>
         <div class="quiz-opts">
@@ -2305,6 +2336,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "c.pseudo": "Classic. Multiply by π and it gets realistic.",
       "lang.real": "Life",
       "rl.quote": "Client: \"NOTHING WORKS!!!\"",
+      "case.who": "Client", "case.shout": "NOTHING WORKS!!!",
       "rl.ai1": "Dear Sir or Madam,",
       "rl.ai2": "please find 12 root-cause points\u00a0…",
       "rl.fix1": "Pick up the phone. Listen.",
@@ -2520,6 +2552,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "c.pseudo": "Klassiker. Mal π nehmen, dann wird’s realistisch.",
       "lang.real": "Leben",
       "rl.quote": "Kunde: \"NICHTS GEHT MEHR!!!\"",
+      "case.who": "Kunde", "case.shout": "NICHTS GEHT MEHR!!!",
       "rl.ai1": "Sehr geehrte Damen und Herren,",
       "rl.ai2": "anbei 12 Punkte zur Fehleranalyse\u00a0…",
       "rl.fix1": "Hörer in die Hand. Zuhören.",
@@ -2735,6 +2768,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "c.pseudo": "Классика. Умножь на π — тогда будет реалистично.",
       "lang.real": "Жизнь",
       "rl.quote": "Клиент: «НИЧЕГО НЕ РАБОТАЕТ!!!»",
+      "case.who": "Клиент", "case.shout": "НИЧЕГО НЕ РАБОТАЕТ!!!",
       "rl.ai1": "Уважаемые дамы и господа,",
       "rl.ai2": "направляю 12 пунктов анализа\u00a0…",
       "rl.fix1": "Взять трубку. Выслушать.",
@@ -2965,6 +2999,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "c.pseudo": "Klasika. Pomnoži sa π, pa će biti realno.",
       "lang.real": "Život",
       "rl.quote": "Klijent: \"NIŠTA NE RADI!!!\"",
+      "case.who": "Klijent", "case.shout": "NIŠTA NE RADI!!!",
       "rl.ai1": "Poštovani,",
       "rl.ai2": "u prilogu 12 tačaka analize greške\u00a0…",
       "rl.fix1": "Uzmi telefon. Slušaj.",
@@ -3243,6 +3278,7 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
       "c.pseudo": "Κλασικό. Πολλαπλασίασε με π και γίνεται ρεαλιστικό.",
       "lang.real": "Ζωή",
       "rl.quote": "Πελάτης: \"ΤΙΠΟΤΑ ΔΕΝ ΔΟΥΛΕΥΕΙ!!!\"",
+      "case.who": "Πελάτης", "case.shout": "ΤΙΠΟΤΑ ΔΕΝ ΔΟΥΛΕΥΕΙ!!!",
       "rl.ai1": "Αξιότιμοι κύριοι,",
       "rl.ai2": "επισυνάπτω 12 σημεία ανάλυσης\u00a0…",
       "rl.fix1": "Σήκωσε το τηλέφωνο. Άκου.",
