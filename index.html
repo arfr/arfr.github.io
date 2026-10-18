@@ -573,7 +573,7 @@ a { color: inherit; }
 .stage-next > span { grid-area: 1 / 1; }
 /* "Next" until every question has an answer, then "Result" */
 .stage-next > span + span, .quiz-done .stage-next > span:first-child { visibility: hidden; }
-.quiz-done .stage-next > span + span { visibility: visible; }
+.quiz-done .stage-next > span + span { visibility: inherit; }
 /* narrow cards (small laptops): slightly tighter spacing, so the quiz still fits one screen */
 .review-card.stage { container-type: inline-size; }
 @container (max-width: 420px) {
@@ -788,6 +788,10 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
 .stage-next { --plate-c: var(--bar); color: var(--bar-fg); }
 .stage-next:hover { --plate-c: var(--white); }
 .stage-back:active, .stage-next:active { transform: scale(0.985); }
+/* the bonus question can be left before it is answered: "Ergebnis" waits on a dark plate, like "Zurück", and turns
+   white once the bonus is answered */
+.quiz-done .slide.is-current[data-cta]:not(.answered) .stage-next { visibility: visible; --plate-c: var(--plate); color: var(--fg); }
+.quiz-done .slide.is-current[data-cta]:not(.answered) .stage-next:hover { --plate-c: var(--bar); color: var(--bar-fg); }
 /* the result takes the questions' place: "Ergebnis" on a bar, two big numbers, Alex's line, two ways on as plates
    (the bonus white) */
 .stage .quiz-score { inset: 0; display: flex; flex-direction: column; justify-content: center; gap: clamp(20px, 4vh, 40px); overflow: visible; background: transparent; }
