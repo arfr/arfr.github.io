@@ -719,6 +719,9 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
    occupant: the case, the answers and the voices keep their places from question to question, and the block
    sits in the middle of the slide */
 .quiz-show .track { min-height: 100%; grid-template-rows: auto auto auto; align-content: center; row-gap: clamp(12px, 2.8vh, 32px); }
+/* safe: when the question is taller than the box (phones, held sideways) it starts at the top and scrolls, instead of
+   spilling over the top edge, where no scrolling reaches it */
+.quiz-show .track { align-content: safe center; }
 .quiz-show .stage .slide { grid-area: auto; grid-row: 1 / span 3; grid-column: 1; display: grid; grid-template-rows: subgrid; }
 .quiz-show .quiz { justify-content: flex-end; }
 /* room for the focus ring and the slanted plates, which the scroll box would otherwise cut off; the box never
@@ -815,7 +818,11 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
   .quiz-show { --who: 2.75rem; --who-gap: 12px; }
   .quiz-show .stage-body { --edge: 15px; }
   .quiz-show .track, .quiz-show .slide { row-gap: 14px; }
-  .quiz-show .quiz { padding-left: 0; }
+  /* each question keeps its own rows, so a short code block leaves no hole above the question */
+  .quiz-show .stage .slide { grid-template-rows: none; align-content: start; }
+  /* only the version on show takes room: the AI's draft before the answer, the fix after it */
+  .quiz-show .stage.quiz-on .slide:not(.answered) .hunk-fix, .quiz-show .stage.quiz-on .slide.answered .hunk-ai { display: none; }
+  .quiz-show .quiz { padding-left: 0; margin-top: 10px; }
   .quiz-show .quiz-opts { grid-template-columns: minmax(0, 1fr); gap: 8px; margin-bottom: 0; }
   .quiz-show .quiz-q { font-size: 1.625rem; }
   .quiz-show .case-who { font-size: var(--fs-s); }
@@ -927,6 +934,12 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
 .cli-line.muted, .cli-line .muted { color: var(--term-muted); }
 .cli-line.accent, .cli-line.err { color: var(--term-accent); }
 .cli-line .ok { color: var(--ok); }
+/* `help` in a narrow terminal: the command bright, its description a size smaller and grey beneath it */
+.cli-line.help-cmd { margin-top: 6px; }
+/* the commands in `help` run when clicked; they look like the text they are until a pointer or focus finds them */
+.cli-cmd { padding: 0; border: 0; background: none; color: var(--term-fg); font: inherit; cursor: pointer; text-decoration: underline; text-decoration-color: rgba(var(--white-rgb), 0.25); text-underline-offset: 3px; }
+.cli-cmd:hover, .cli-cmd:focus-visible { color: var(--term-accent); text-decoration-color: currentColor; }
+.cli-line.help-desc { padding-left: 4ch; font-size: var(--fs-s); line-height: var(--lh-snug); }
 .cli-line.chat-in .who { color: var(--term-accent); }
 /* the greeting offers three commands to click, for those who would not know what to type */
 .cli-try { margin-bottom: 8px; }
@@ -1274,6 +1287,13 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
 .game-pad [data-dir="down"] { grid-column: 2; grid-row: 2; }
 .game-pad [data-dir="right"] { grid-column: 3; grid-row: 2; }
 @media (pointer: coarse) { .game-pad { display: grid; } }
+/* phones held sideways: the pad goes beside the field, which keeps the height; the keyboard hint is not needed there */
+@media (pointer: coarse) and (orientation: landscape) and (max-height: 560px) {
+  .game { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr); column-gap: 16px; }
+  .game-hud { grid-column: 1 / -1; }
+  .game-help { display: none; }
+  .game-pad { align-self: center; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(2, 52px); }
+}
 @media (prefers-reduced-motion: reduce) {
   .carousel, .opt { transition: none; }
 }
@@ -1461,7 +1481,15 @@ html.reveal-on .prompt.rv.in .cmd { animation: prompt-type calc(var(--n, 8) * 55
 .ws-list li { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding-top: 18px; }
 .ws-list h3 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: var(--fs-l); line-height: var(--lh-snug); }
 .ws-list p { margin: 0 0 8px; color: var(--text); max-width: 52ch; }
-.ws-list .btn { margin-top: auto; }
+/* Werkstatt: quiet text links with an arrow, not read aloud; the contact buttons keep the site's own style */
+.ws-list .btn { margin-top: auto; min-height: 44px; padding: 0; gap: 8px; border-radius: 0; background: none; color: var(--fg); font-weight: 600; }
+.ws-list .btn:hover { background: none; transform: none; }
+.ws-list .btn span { text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 5px; text-decoration-thickness: 1px; transition: text-decoration-color 0.15s ease; }
+.ws-list .btn:hover span { text-decoration-color: currentColor; }
+.ws-list .btn::after { content: "→"; content: "→" / ""; font-weight: 500; transition: transform 0.15s ease; }
+.ws-list .btn:hover::after { transform: translateX(3px); }
+@media (prefers-reduced-motion: reduce) { .ws-list .btn span, .ws-list .btn::after { transition: none; } }
+.ws-list .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 
 /* The frame: the page sits in a black screen border with rounded inner corners and two tabs */
 :root {
@@ -1602,6 +1630,10 @@ html:not(.slides) .frame::after { bottom: var(--frame); border-radius: 0 0 var(-
 a.ftab:hover .ftab-label, .ftab-bottom .ftab-label:hover { color: var(--term-accent); }
 a.ftab:focus-visible, .ftab-bottom .ftab-label:focus-visible { outline: none; }
 a.ftab:focus-visible .ftab-label, .ftab-bottom .ftab-label:focus-visible { color: var(--term-accent); text-decoration: underline; text-underline-offset: 4px; }
+/* small screens: the drawer keeps all its rows in view (the five languages on one line, the nav without scrolling
+   on phones held sideways) */
+@media (max-width: 360px) { .menu-row { column-gap: 12px; } }
+@media (max-height: 500px) { .menu-nav a { padding-block: 4px; } }
 @media (max-width: 480px) {
   :root { --tab-d: 26px; }
   .ftab-label { font-size: var(--fs-s); letter-spacing: var(--ls-caps); }
@@ -1692,6 +1724,28 @@ html.smart .side-nav { display: none; }
 }
 @media (min-width: 861px) {
   .hero .wrap { align-items: center; }
+}
+
+/* Phones: one rhythm for the whole page. Sections closer together (about 72 px of air between two blocks instead
+   of 112), the steps stand in less from the left edge, and the
+   contact buttons fill their rows instead of leaving one alone */
+@media (max-width: 640px) {
+  /* the headline block stands further from its content than the items of that content from each other */
+  .section .wrap { padding-block: 36px; gap: 40px; }
+  .statement { gap: 14px; }
+  .steps { --gap: 24px; }
+  .steps li { padding-left: 40px; }
+  /* every section opens with its headline: here the portrait follows the headline, in the middle, before the text */
+  .about { gap: 24px; }
+  .about-text { display: contents; }
+  .about-text > .statement { order: -1; }
+  .about > .portrait { width: 220px; margin-block: -20px; }
+  .ws-list { gap: 28px; }
+  /* the terminal opens no taller than its greeting needs; what follows scrolls inside, as before */
+  .cli-screen { height: 220px; }
+  .ws-list li { padding-top: 0; }
+  .contact-row { gap: 12px; }
+  .contact-row .btn { flex: 1 1 auto; justify-content: center; }
 }
 
 /* Slides: on wide, tall enough screens each section fills the frame and the page snaps from one to the next.
@@ -2214,7 +2268,10 @@ SET newsletter = 0
       <div class="about">
         <img class="portrait" src="images/alexander-fuhr.jpg" alt="Alexander Fuhr" width="480" height="480" loading="lazy" decoding="async">
         <div class="about-text">
-          <h2 id="about-title" class="h2"><span data-i18n="about.title">Entwickler von Beruf und aus Leidenschaft.</span></h2>
+          <div class="statement">
+            <h2 id="about-title" class="h2"><span data-i18n="about.title">Entwickler von Beruf</span></h2>
+            <p class="lede"><span class="bar" data-i18n="about.lede">und aus Leidenschaft.</span></p>
+          </div>
           <p data-i18n="about.text">Seit über 20 Jahren entwickle ich für das Web. Mein Ziel ist, Komplexität aufzubrechen, statt Systeme noch komplexer zu machen.</p>
           <p data-i18n="about.text2">Fast genauso lange ist diese Seite mein persönliches Experimentierfeld. Ich baue sie immer wieder neu und probiere aus, was sich im Web bewährt und was nicht.</p>
         </div>
@@ -2362,7 +2419,7 @@ SET newsletter = 0
       "step2.text": "AI takes over the routine, leaving more time for what needs experience and judgment.",
       "step3.title": "Verify every result",
       "step3.text": "Nothing goes out that can’t be explained. Every result is checked, questioned and owned.",
-      "about.eyebrow": "About", "about.title": "A developer by trade and by passion.",
+      "about.eyebrow": "About", "about.title": "A developer by trade", "about.lede": "and by passion.",
       "about.text": "I’ve been building for the web for more than 20 years. My goal is to break complexity down instead of making systems even more complex.", "about.text2": "For almost as long, this site has been my personal test bed. I keep rebuilding it to find out what works on the web and what doesn’t.",
       "nav.workshop": "Workshop", "ws.title": "Still being built.", "ws.lede": "Three experiments running right now.", "ws.quiz.title": "The quiz", "ws.quiz.text": "Ten suggestions from an AI, some code, some everyday work. You decide, then the AI and I say how we see it.", "ws.quiz.go": "Start the quiz", "ws.cli.title": "The terminal", "ws.cli.text": "A command line in the browser, with a few hidden commands. One of them is a game.", "ws.cli.go": "Try it", "ws.slides.title": "Slides instead of scrolling", "ws.slides.text": "On a large screen, the mouse wheel, trackpad or arrow keys always move the page exactly one section on.", "ws.slides.go": "Next slide",
       "contact.eyebrow": "Contact", "contact.title": "Got something that matters?", "contact.lede": "Let’s talk about it.",
@@ -2578,7 +2635,7 @@ SET newsletter = 0
       "step2.text": "KI übernimmt die Routine. So bleibt mehr Zeit für das, was Erfahrung und Urteilsvermögen braucht.",
       "step3.title": "Jedes Ergebnis verifizieren",
       "step3.text": "Nichts geht raus, was man nicht erklären kann. Jedes Ergebnis wird geprüft, hinterfragt und verantwortet.",
-      "about.eyebrow": "Über mich", "about.title": "Entwickler von Beruf und aus Leidenschaft.",
+      "about.eyebrow": "Über mich", "about.title": "Entwickler von Beruf", "about.lede": "und aus Leidenschaft.",
       "about.text": "Seit über 20 Jahren entwickle ich für das Web. Mein Ziel ist, Komplexität aufzubrechen, statt Systeme noch komplexer zu machen.", "about.text2": "Fast genauso lange ist diese Seite mein persönliches Experimentierfeld. Ich baue sie immer wieder neu und probiere aus, was sich im Web bewährt und was nicht.",
       "nav.workshop": "Werkstatt", "ws.title": "Hier wird noch gebaut.", "ws.lede": "Drei Versuche, die gerade laufen.", "ws.quiz.title": "Das Quiz", "ws.quiz.text": "Zehn Vorschläge einer KI, mal Code, mal Alltag. Du entscheidest, danach sagen die KI und ich, wie wir es sehen.", "ws.quiz.go": "Quiz starten", "ws.cli.title": "Das Terminal", "ws.cli.text": "Eine Kommandozeile im Browser, mit ein paar versteckten Befehlen. Einer davon ist ein Spiel.", "ws.cli.go": "Ausprobieren", "ws.slides.title": "Folien statt Scrollen", "ws.slides.text": "Am großen Bildschirm bringen Mausrad, Trackpad oder Pfeiltasten die Seite immer genau einen Abschnitt weiter.", "ws.slides.go": "Weiterblättern",
       "contact.eyebrow": "Kontakt", "contact.title": "Etwas, worauf es ankommt?", "contact.lede": "Sprechen wir darüber.",
@@ -2794,7 +2851,7 @@ SET newsletter = 0
       "step2.text": "ИИ берёт на себя рутину, и остаётся больше времени на то, что требует опыта и здравого суждения.",
       "step3.title": "Проверять каждый результат",
       "step3.text": "Дальше не уходит ничего, что нельзя объяснить. Каждый результат проверяют, ставят под сомнение и отвечают за него.",
-      "about.eyebrow": "Обо мне", "about.title": "Пишу код на работе и для души.",
+      "about.eyebrow": "Обо мне", "about.title": "Пишу код на работе", "about.lede": "и для души.",
       "about.text": "Больше 20 лет я занимаюсь веб-разработкой. Моя цель — упрощать сложное, а не делать системы ещё сложнее.", "about.text2": "Почти столько же времени этот сайт — моя личная площадка для экспериментов. Я раз за разом перестраиваю его и проверяю, что в вебе работает, а что нет.",
       "nav.workshop": "Мастерская", "ws.title": "Здесь всё ещё строится.", "ws.lede": "Три эксперимента, которые идут прямо сейчас.", "ws.quiz.title": "Квиз", "ws.quiz.text": "Десять предложений от ИИ: то код, то рабочие будни. Ты решаешь, а потом ИИ и я говорим, как мы это видим.", "ws.quiz.go": "Начать квиз", "ws.cli.title": "Терминал", "ws.cli.text": "Командная строка в браузере с несколькими скрытыми командами. Одна из них — игра.", "ws.cli.go": "Попробовать", "ws.slides.title": "Слайды вместо прокрутки", "ws.slides.text": "На большом экране колесо мыши, тачпад или стрелки всегда перелистывают страницу ровно на один раздел.", "ws.slides.go": "Дальше",
       "contact.eyebrow": "Контакт", "contact.title": "Есть что-то действительно важное?", "contact.lede": "Давайте обсудим.",
@@ -2984,7 +3041,7 @@ SET newsletter = 0
       "game.again": "Пробел или тап — следующий раунд",
       "game.paused": "Пауза. Пробел или тап — продолжить",
       "game.up": "вверх", "game.down": "вниз", "game.left": "влево", "game.right": "вправо",
-      "game.label": "Игровое поле: твой голубой световой след против фиолетового следа ИИ",
+      "game.label": "Игровое поле: твой голубой световой след против оранжевого следа ИИ",
     },
     sr: {
       "meta.description": "Alexander Fuhr – programer. AI pomaže, čovek vodi.",
@@ -3020,7 +3077,7 @@ SET newsletter = 0
       "step3.title": "Proveriti svaki rezultat",
       "step3.text": "Ništa ne izlazi što se ne može objasniti. Svaki rezultat se proverava, preispituje i za njega se odgovara.",
       "about.eyebrow": "O meni",
-      "about.title": "Programer, na poslu i iz ljubavi.",
+      "about.title": "Programer po zanimanju", "about.lede": "i iz ljubavi.",
       "about.text": "Više od 20 godina razvijam za veb. Cilj mi je da razbijem složenost, umesto da sisteme činim još složenijim.", "about.text2": "Skoro isto toliko dugo ovaj sajt je moje lično polje za eksperimente. Iznova ga pravim i isprobavam šta se na vebu pokazalo dobrim, a šta ne.",
       "nav.workshop": "Radionica", "ws.title": "Ovde se još gradi.", "ws.lede": "Tri eksperimenta koja upravo traju.", "ws.quiz.title": "Kviz", "ws.quiz.text": "Deset predloga jedne AI, nekad kod, nekad svakodnevica. Ti odlučuješ, a zatim AI i ja kažemo kako to vidimo.", "ws.quiz.go": "Pokreni kviz", "ws.cli.title": "Terminal", "ws.cli.text": "Komandna linija u pregledaču, sa nekoliko skrivenih komandi. Jedna od njih je igra.", "ws.cli.go": "Isprobaj", "ws.slides.title": "Slajdovi umesto skrolovanja", "ws.slides.text": "Na velikom ekranu točkić miša, tačped ili strelice uvek pomeraju stranicu tačno za jedan odeljak.", "ws.slides.go": "Dalje",
       "contact.eyebrow": "Kontakt",
@@ -3263,7 +3320,7 @@ SET newsletter = 0
       "game.down": "dole",
       "game.left": "levo",
       "game.right": "desno",
-      "game.label": "Tabla: tvoj cijan svetlosni trag protiv ljubičastog traga AI-ja",
+      "game.label": "Tabla: tvoj cijan svetlosni trag protiv narandžastog traga AI-ja",
     },
     el: {
       "meta.description": "Alexander Fuhr – Προγραμματιστής. Η AI βοηθά, ο άνθρωπος αποφασίζει.",
@@ -3299,7 +3356,7 @@ SET newsletter = 0
       "step3.title": "Επαλήθευση κάθε αποτελέσματος",
       "step3.text": "Τίποτα δεν βγαίνει προς τα έξω αν δεν μπορεί να εξηγηθεί. Κάθε αποτέλεσμα ελέγχεται, αμφισβητείται και έχει κάποιον υπεύθυνο.",
       "about.eyebrow": "Σχετικά",
-      "about.title": "Προγραμματιστής, από επάγγελμα και πάθος.",
+      "about.title": "Προγραμματιστής από επάγγελμα", "about.lede": "και από πάθος.",
       "about.text": "Εδώ και πάνω από 20 χρόνια αναπτύσσω για το web. Στόχος μου είναι να σπάω την πολυπλοκότητα, αντί να κάνω τα συστήματα ακόμη πιο πολύπλοκα.", "about.text2": "Σχεδόν εξίσου καιρό, αυτός ο ιστότοπος είναι το προσωπικό μου πεδίο πειραματισμού. Τον ξαναχτίζω συνεχώς και δοκιμάζω τι δουλεύει στο web και τι όχι.",
       "nav.workshop": "Εργαστήριο", "ws.title": "Εδώ ακόμα χτίζω.", "ws.lede": "Τρία πειράματα που τρέχουν αυτή τη στιγμή.", "ws.quiz.title": "Το κουίζ", "ws.quiz.text": "Δέκα προτάσεις μιας AI, άλλοτε κώδικας, άλλοτε καθημερινότητα. Εσύ αποφασίζεις και μετά η AI κι εγώ λέμε πώς το βλέπουμε.", "ws.quiz.go": "Ξεκίνα το κουίζ", "ws.cli.title": "Το τερματικό", "ws.cli.text": "Μια γραμμή εντολών στον browser, με μερικές κρυφές εντολές. Μία από αυτές είναι παιχνίδι.", "ws.cli.go": "Δοκίμασέ το", "ws.slides.title": "Διαφάνειες αντί για κύλιση", "ws.slides.text": "Σε μεγάλη οθόνη, η ροδέλα του ποντικιού, το touchpad ή τα βελάκια μετακινούν τη σελίδα πάντα κατά μία ενότητα.", "ws.slides.go": "Επόμενη",
       "contact.eyebrow": "Επικοινωνία",
@@ -3542,7 +3599,7 @@ SET newsletter = 0
       "game.down": "κάτω",
       "game.left": "αριστερά",
       "game.right": "δεξιά",
-      "game.label": "Ταμπλό: το κυανό σου ίχνος φωτός απέναντι στο μωβ ίχνος της AI",
+      "game.label": "Ταμπλό: το κυανό σου ίχνος φωτός απέναντι στο πορτοκαλί ίχνος της AI",
     }
   };
   var LANGS = ['en', 'de', 'ru', 'sr', 'el'];
@@ -4862,6 +4919,17 @@ SET newsletter = 0
     var promptText = 'guest@arfr:~$ ';
 
     function pad(s, n) { while (s.length < n) s += ' '; return s; }
+    /* characters per line in the terminal, from the width of one character of its font */
+    function cols() {
+      var m = document.createElement('span');
+      m.textContent = '0000000000';
+      m.style.cssText = 'position:absolute;visibility:hidden;white-space:pre';
+      out.appendChild(m);
+      var w = m.getBoundingClientRect().width / 10;
+      out.removeChild(m);
+      var cs = getComputedStyle(screen);
+      return w ? Math.floor((screen.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) / w) : 80;
+    }
     function line(text, cls) {
       var d = document.createElement('div');
       d.className = 'cli-line' + (cls ? ' ' + cls : '');
@@ -4904,13 +4972,41 @@ SET newsletter = 0
       a.click();
       a.remove();
     }
+    function cmdButton(cmd, label) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'cli-cmd';
+      b.setAttribute('data-cmd', cmd);
+      b.textContent = label;
+      return b;
+    }
+    out.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('.cli-cmd');
+      if (!b || busy) return;
+      run(b.getAttribute('data-cmd'));
+    });
     function help() {
+      var narrow = cols() < 56;
       line(t('cli.help.title'));
       [['help', 'cli.help.help'], ['whoami', 'cli.help.whoami'], ['ls', 'cli.help.ls'],
        ['cat profile.yml', 'cli.help.cat'], ['quiz', 'cli.help.quiz'], ['hangman', 'cli.help.hangman'], ['contact', 'cli.help.contact'],
        ['coffee', 'cli.help.coffee'], ['lang de|en|ru|sr|el', 'cli.help.lang'],
        ['clear', 'cli.help.clear'], ['exit', 'cli.help.exit']].forEach(function (r) {
-        line('  ' + pad(r[0], 22) + t(r[1]), 'muted');
+        /* every command is a button that runs it; `lang` offers each language on its own */
+        var d = document.createElement('div');
+        d.className = 'cli-line ' + (narrow ? 'help-cmd' : 'muted');
+        d.appendChild(document.createTextNode('  '));
+        if (r[0].indexOf('lang ') === 0) {
+          d.appendChild(document.createTextNode('lang '));
+          r[0].slice(5).split('|').forEach(function (l, k) {
+            if (k) d.appendChild(document.createTextNode('|'));
+            d.appendChild(cmdButton('lang ' + l, l));
+          });
+        } else d.appendChild(cmdButton(r[0], r[0]));
+        /* a narrow terminal (phones) has no room for two columns: the description goes on its own line below */
+        if (!narrow) d.appendChild(document.createTextNode(pad('', 22 - r[0].length) + t(r[1])));
+        out.appendChild(d);
+        if (narrow) line(t(r[1]), 'muted help-desc');
       });
       line(t('cli.help.secret'), 'accent');
     }
@@ -5638,7 +5734,11 @@ SET newsletter = 0
     }
     function goTo(k, byUser) {
       n = count();
+      var was = i;
       i = (k + n) % n;
+      /* where the question scrolls inside its box (phones), a new one starts at its top */
+      var box = i !== was && slides[i].closest('.stage-body');
+      if (box) box.scrollTop = 0;
       slides.forEach(function (s, j) {
         var on = j === i;
         s.classList.toggle('is-current', on);
