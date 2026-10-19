@@ -817,19 +817,21 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
 @media (max-width: 700px) {
   .quiz-show { --who: 2.75rem; --who-gap: 12px; }
   .quiz-show .stage-body { --edge: 15px; }
-  .quiz-show .track, .quiz-show .slide { row-gap: 14px; }
+  .quiz-show .review { padding-bottom: 6px; }
+  .quiz-show .stage-result { gap: 6px; }
+  .quiz-show .track, .quiz-show .slide { row-gap: 10px; }
   /* each question keeps its own rows, so a short code block leaves no hole above the question */
   .quiz-show .stage .slide { grid-template-rows: none; align-content: start; }
   /* only the version on show takes room: the AI's draft before the answer, the fix after it */
   .quiz-show .stage.quiz-on .slide:not(.answered) .hunk-fix, .quiz-show .stage.quiz-on .slide.answered .hunk-ai { display: none; }
-  .quiz-show .quiz { padding-left: 0; margin-top: 10px; }
-  .quiz-show .quiz-opts { grid-template-columns: minmax(0, 1fr); gap: 8px; margin-bottom: 0; }
+  .quiz-show .quiz { gap: 12px; padding-left: 0; margin-top: 4px; }
+  .quiz-show .quiz-opts { grid-template-columns: minmax(0, 1fr); gap: 6px; margin-bottom: 0; }
   .quiz-show .quiz-q { font-size: 1.625rem; }
   .quiz-show .case-who { font-size: var(--fs-s); }
-  .quiz-show .case-say { font-size: var(--fs-m); line-height: 1.7; }
+  .quiz-show .case-say { font-size: var(--fs-m); line-height: 1.55; }
   .quiz-show .case .code { font-size: var(--fs-s); padding: 10px 24px; }
-  .quiz-show .opt { min-height: 46px; padding: 6px 22px 6px 20px; font-size: var(--fs-m); }
-  .quiz-show .opt-tag { position: static; margin-left: auto; padding-left: 10px; justify-items: end; }
+  .quiz-show .opt { gap: 10px; min-height: 44px; padding: 4px 20px 4px 16px; font-size: var(--fs-m); line-height: 1.3; }
+  .quiz-show .opt-tag { position: static; margin-left: auto; padding-left: 8px; justify-items: end; }
   .quiz-show .opt.is-correct .opt-tag, .quiz-show .opt.is-picked:not(.is-correct) .opt-tag { color: inherit; }
   .quiz-show .stage-foot { font-size: var(--fs-m); }
   .quiz-show .avatar-ai, .quiz-show .who { font-size: var(--fs-s); }
@@ -837,7 +839,7 @@ html main > section.hero.quiz-shown > .wrap, html.slides main > section.hero.qui
   .stage-head { gap: 16px; }
   .stage .dots { flex: 1 1 auto; gap: 5px; }
   .stage .dot { min-width: 10px; }
-  .quiz-show .stage-row { flex-wrap: wrap; gap: 10px; }
+  .quiz-show .stage-row { flex-wrap: wrap; gap: 8px; }
   .quiz-show .stage.quiz-on .slide .stage-row > .comment { flex-basis: 100%; }
   .quiz-show .stage-next { flex: 1 1 auto; }
   .stage-back, .stage-next { min-height: 44px; padding: 0 20px; }
