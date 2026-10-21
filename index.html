@@ -202,7 +202,7 @@ a { color: inherit; }
 }
 
 /* Hero */
-/* The hero is a dark neon stage in both themes, on purpose: the glow only works on black */
+/* The hero is a window into space in both themes, on purpose: stars and the Earth only work on black */
 .hero {
   position: relative;
   overflow: hidden;
@@ -217,7 +217,7 @@ a { color: inherit; }
   --plate: #121C25; /* the dark plates of the quiz */
   color-scheme: dark;
   color: var(--fg);
-  background: radial-gradient(120% 75% at 50% 60%, var(--stage-glow) 0%, var(--stage-bg) 62%);
+  background: #020306; /* deep space behind the stars and the Earth */
 }
 .hero .review-card { background: var(--stage-surface); border-color: rgba(var(--human-rgb), 0.22); }
 .retro-grid {
@@ -5478,212 +5478,161 @@ SET newsletter = 0
     sizeInput();
   })();
 
-  /* Neon grid behind the hero: a glowing floor with light trails racing across it */
-  (function neonGrid() {
+  /* Space behind the hero: the frame is a window in orbit. A still sky of stars, and the Earth curving up out of the
+     lower left corner, drawn from NASA's Blue Marble images: day surface, clouds, city lights on the night side and a
+     thin blue atmosphere. The planet turns under the window, the clouds drift over it */
+  (function orbitWindow() {
     var hero = document.querySelector('.hero');
-    var cv = document.querySelector('.retro-grid');
-    if (!hero || !cv || !cv.getContext || typeof Path2D === 'undefined') return;
-    var ctx = cv.getContext('2d');
-    var w = 0, h = 0, raf = 0, running = false, onScreen = true, horizonY = 0, last = 0;
-    var CYAN = tone('--human-rgb'), AMBER = tone('--ai-rgb');
-    var FAR = 26;
-    var trails = [];
+    var sky = document.querySelector('.retro-grid');
+    if (!hero || !sky || !sky.getContext) return;
+    var CYAN = tone('--human-rgb'), AMBER = tone('--ai-rgb'), WHITE = tone('--white-rgb');
+    function rng(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
 
-    function rand(a, b) { return a + Math.random() * (b - a); }
-    function spawn(tr) {
-      tr.lateral = Math.random() < 0.35;
-      tr.color = Math.random() < 0.5 ? CYAN : AMBER;
-      tr.len = rand(3, 7);
-      if (tr.lateral) {
-        tr.z = Math.round(rand(3, 9));
-        tr.dir = Math.random() < 0.5 ? 1 : -1;
-        tr.x = -tr.dir * 30;
-        tr.speed = rand(6, 10);
-      } else {
-        tr.x = Math.round(rand(-10, 10));
-        tr.z = FAR + rand(0, 12);
-        tr.speed = rand(3.5, 6);
-      }
-      return tr;
-    }
-    for (var k = 0; k < 4; k++) {
-      var tr = spawn({});
-      if (!tr.lateral) tr.z = rand(4, FAR);
-      else tr.x = rand(-12, 12);
-      trails.push(tr);
-    }
-
-    /* the parts that never move (sky, floor sheen, the rays to the horizon, the horizon itself) are drawn once per
-       resize with their glow; each frame only copies them and adds the moving lines, so scrolling stays smooth */
-    var under = document.createElement('canvas'), over = document.createElement('canvas');
-    var uctx = under.getContext('2d'), octx = over.getContext('2d');
-    function resize() {
+    var w = 0, h = 0, dpr = 1, circle = [0, 0, 1];
+    function layout() {
       var r = hero.getBoundingClientRect();
-      var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       w = r.width; h = r.height;
-      cv.width = under.width = over.width = Math.max(1, Math.round(w * dpr));
-      cv.height = under.height = over.height = Math.max(1, Math.round(h * dpr));
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      uctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      octx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      /* wide: horizon at 58 %; stacked phone layout: right under the text, so the floor shows */
-      horizonY = Math.round(h * 0.58);
-      var side = hero.querySelector('.hero-side');
-      if (w < 860 && side) horizonY = Math.round(side.getBoundingClientRect().bottom - r.top);
-      layers();
-    }
-    function unit() { return Math.max(w, 700) * 0.09; }
-    function proj(x, z) {
-      var p = 1 / z;
-      return [w / 2 + x * unit() * p, horizonY + (h - horizonY) * p];
-    }
-    function glowStroke(c, path, rgb, alpha, width, blur) {
-      c.save();
-      c.strokeStyle = 'rgba(' + rgb + ',' + alpha + ')';
-      c.lineWidth = width;
-      c.shadowColor = 'rgba(' + rgb + ',0.9)';
-      c.shadowBlur = blur;
-      c.stroke(path);
-      c.restore();
-    }
-    /* the same glow without a blur pass: wide faint strokes under the thin line */
-    function softStroke(path, rgb, alpha) {
-      ctx.save();
-      ctx.strokeStyle = 'rgba(' + rgb + ',' + (alpha * 0.16) + ')'; ctx.lineWidth = 6; ctx.stroke(path);
-      ctx.strokeStyle = 'rgba(' + rgb + ',' + (alpha * 0.32) + ')'; ctx.lineWidth = 3; ctx.stroke(path);
-      ctx.strokeStyle = 'rgba(' + rgb + ',' + alpha + ')'; ctx.lineWidth = 1; ctx.stroke(path);
-      ctx.restore();
-    }
-    function layers() {
-      if (!w || !h) return;
-      var hz = horizonY, floor = h - hz;
-      uctx.clearRect(0, 0, w, h);
-      octx.clearRect(0, 0, w, h);
-      var sky = uctx.createLinearGradient(0, hz - 160, 0, hz);
-      sky.addColorStop(0, 'rgba(' + CYAN + ',0)');
-      sky.addColorStop(1, 'rgba(' + CYAN + ',0.14)');
-      uctx.fillStyle = sky;
-      uctx.fillRect(0, hz - 160, w, 160);
-      var sheen = uctx.createLinearGradient(0, hz, 0, h);
-      sheen.addColorStop(0, 'rgba(' + CYAN + ',0.09)');
-      sheen.addColorStop(1, 'rgba(' + CYAN + ',0)');
-      uctx.fillStyle = sheen;
-      uctx.fillRect(0, hz, w, floor);
-      var rays = new Path2D();
-      for (var x = -22; x <= 22; x++) {
-        var a = proj(x, 1), b = proj(x, FAR);
-        rays.moveTo(a[0], a[1]);
-        rays.lineTo(b[0], b[1]);
-      }
-      glowStroke(uctx, rays, CYAN, 0.3, 1, 6);
-      var line = new Path2D();
-      line.moveTo(0, hz + 0.5);
-      line.lineTo(w, hz + 0.5);
-      glowStroke(octx, line, CYAN, 0.9, 1.5, 18);
-    }
-    function draw(now) {
-      if (!w || !h) return;
-      var dt = last && now ? Math.min((now - last) / 1000, 0.05) : 0;
-      last = now || 0;
-      var hz = horizonY, floor = h - hz;
-      var phase = ((now || 0) / 1000 * 0.6) % 1;
-      ctx.clearRect(0, 0, w, h);
-      ctx.drawImage(under, 0, 0, w, h);
-
-      /* the floor lines that run towards the viewer */
-      var grid = new Path2D();
-      for (var i = 0; i < FAR; i++) {
-        var z = 1 + i - phase;
-        if (z < 1) continue;
-        var y = Math.round(hz + floor / z) + 0.5;
-        grid.moveTo(0, y);
-        grid.lineTo(w, y);
-      }
-      softStroke(grid, CYAN, 0.3);
-
-      /* fade the far floor into the haze */
-      ctx.save();
-      ctx.globalCompositeOperation = 'destination-out';
-      var fade = ctx.createLinearGradient(0, hz, 0, hz + floor * 0.4);
-      fade.addColorStop(0, 'rgba(' + tone('--black-rgb') + ',0.75)');
-      fade.addColorStop(1, 'rgba(' + tone('--black-rgb') + ',0)');
-      ctx.fillStyle = fade;
-      ctx.fillRect(0, hz + 1, w, floor);
-      ctx.restore();
-
-      /* horizon */
-      ctx.drawImage(over, 0, 0, w, h);
-
-      /* light trails */
-      trails.forEach(function (t) {
-        if (dt) {
-          if (t.lateral) t.x += t.dir * t.speed * dt;
-          else t.z -= t.speed * dt;
+      if (!w || !h) return false;
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      /* the rim runs from the left edge, under the text, down to the bottom edge past the middle */
+      var phone = w < 860, side = hero.querySelector('.hero-side');
+      var top = phone && side ? side.getBoundingClientRect().bottom - r.top + 40 : h * 0.6;
+      var x1 = 0, y1 = top, x2 = phone ? w * 0.95 : w * 0.58, y2 = phone ? top + w * 0.75 : h;
+      var R = phone ? w * 2.2 : Math.max(w, h) * 1.3;
+      var mx = (x1 + x2) / 2, my = (y1 + y2) / 2, dx = x2 - x1, dy = y2 - y1, d = Math.hypot(dx, dy);
+      var k = Math.sqrt(Math.max(0, R * R - d * d / 4)) / d;
+      circle = [mx - dy * k, my + dx * k, R];
+      /* stars: many faint, a few bright, the same sky on every visit */
+      sky.width = Math.round(w * dpr); sky.height = Math.round(h * dpr);
+      var sc = sky.getContext('2d'); sc.setTransform(dpr, 0, 0, dpr, 0, 0); sc.clearRect(0, 0, w, h);
+      var rand = rng(20261021), n = Math.round(w * h / 900);
+      for (var i = 0; i < n; i++) {
+        var x = rand() * w, y = rand() * h, s = rand(), a = 0.1 + rand() * 0.5;
+        var tint = s > 0.96 ? CYAN : s > 0.93 ? AMBER : WHITE;
+        if (s > 0.993) {
+          var g = sc.createRadialGradient(x, y, 0, x, y, 3);
+          g.addColorStop(0, 'rgba(' + WHITE + ',0.9)'); g.addColorStop(1, 'rgba(' + WHITE + ',0)');
+          sc.fillStyle = g; sc.fillRect(x - 3, y - 3, 6, 6);
+          continue;
         }
-        if ((!t.lateral && t.z < 1.05) || (t.lateral && Math.abs(t.x) > 32)) { spawn(t); return; }
-        var head = proj(t.x, t.z);
-        var tail = t.lateral ? proj(t.x - t.dir * t.len, t.z) : proj(t.x, t.z + t.len);
-        var lw = Math.max(1.2, Math.min(4, 4.5 / t.z));
-        var grad = ctx.createLinearGradient(tail[0], tail[1], head[0], head[1]);
-        grad.addColorStop(0, 'rgba(' + t.color + ',0)');
-        grad.addColorStop(1, 'rgba(' + t.color + ',0.95)');
-        ctx.save();
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = lw;
-        ctx.shadowColor = 'rgba(' + t.color + ',1)';
-        ctx.shadowBlur = 14;
-        ctx.beginPath();
-        ctx.moveTo(tail[0], tail[1]);
-        ctx.lineTo(head[0], head[1]);
-        ctx.stroke();
-        ctx.fillStyle = 'rgba(' + tone('--white-rgb') + ',0.95)';
-        ctx.beginPath();
-        ctx.arc(head[0], head[1], lw * 0.6 + 0.4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      });
+        sc.fillStyle = 'rgba(' + tint + ',' + a + ')';
+        sc.beginPath(); sc.arc(x, y, s > 0.85 ? 0.75 : 0.45, 0, Math.PI * 2); sc.fill();
+      }
+      return true;
     }
-    /* the grid runs for 5 s of visible time, gliding to a halt in the last two, and stays as a still image
-       (WCAG 2.2.2: motion that starts by itself stops within 5 s) */
-    var RUN = 5000, GLIDE = 2000, ran = 0, clock = 0, prev = 0, frozen = false;
+
+    /* the planet: one full screen triangle; every pixel inside the circle finds its point on the sphere */
+    var cv = document.createElement('canvas');
+    cv.className = 'retro-grid';
+    cv.setAttribute('aria-hidden', 'true');
+    sky.after(cv);
+    var gl = cv.getContext('webgl2', { premultipliedAlpha: true, alpha: true, antialias: false });
+    if (!gl) { cv.remove(); layout(); return; }
+    var VS = '#version 300 es\nin vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }';
+    var FS = [
+      '#version 300 es',
+      'precision highp float;',
+      'uniform vec2 uRes; uniform float uDpr; uniform vec3 uCircle; uniform float uSpin; uniform float uDrift; uniform vec3 uSun; uniform float uLoaded;',
+      'uniform sampler2D uDay, uNight, uClouds;',
+      'out vec4 o;',
+      'const float PI = 3.14159265;',
+      'mat3 rotY(float t){ float c = cos(t), s = sin(t); return mat3(c, 0., -s, 0., 1., 0., s, 0., c); }',
+      'mat3 rotX(float t){ float c = cos(t), s = sin(t); return mat3(1., 0., 0., 0., c, s, 0., -s, c); }',
+      'void main(){',
+      '  vec2 px = vec2(gl_FragCoord.x, uRes.y * uDpr - gl_FragCoord.y) / uDpr;',
+      '  vec2 p = vec2(px.x - uCircle.x, uCircle.y - px.y) / uCircle.z;',
+      '  float d = length(p);',
+      '  vec3 air = vec3(0.30, 0.62, 1.0);',
+      '  float lit = clamp(dot(normalize(vec3(p, 0.0)), uSun) * 0.9 + 0.35, 0.0, 1.0);',
+      '  if (d > 1.0) {',
+      '    float out_ = (d - 1.0) * uCircle.z;',
+      '    float hz = (exp(-out_ / 10.0) * 0.85 + exp(-out_ / 70.0) * 0.28) * lit;',
+      '    o = vec4(air * hz, hz); return;',
+      '  }',
+      '  vec3 n = vec3(p, sqrt(1.0 - d * d));',
+      '  vec3 m = rotY(uSpin) * rotX(0.45) * n;',
+      '  vec2 uv = vec2(atan(m.x, m.z) / (2.0 * PI) + 0.5, 0.5 - asin(clamp(m.y, -1.0, 1.0)) / PI);',
+      '  vec2 gx = dFdx(uv), gy = dFdy(uv);',
+      '  if (abs(gx.x) > 0.5) gx.x -= sign(gx.x);',
+      '  if (abs(gy.x) > 0.5) gy.x -= sign(gy.x);',
+      '  vec3 day = textureGrad(uDay, uv, gx, gy).rgb;',
+      '  float city = textureGrad(uNight, uv, gx, gy).r;',
+      '  float cloud = textureGrad(uClouds, uv + vec2(uDrift, 0.0), gx, gy).r;',
+      '  float ndl = dot(n, uSun);',
+      '  float dayk = smoothstep(-0.1, 0.2, ndl);',
+      '  vec3 col = day * (0.04 + 1.15 * max(ndl, 0.0));',
+      '  col = mix(col, vec3(0.97, 0.98, 1.0) * (0.03 + 1.1 * max(ndl, 0.0)), cloud * 0.92);',
+      '  col += vec3(1.0, 0.72, 0.4) * pow(city, 1.6) * (1.0 - dayk) * (1.0 - cloud) * 1.1;',
+      '  float limb = pow(1.0 - n.z, 3.0);',
+      '  col = mix(col, air * (0.15 + 1.1 * max(ndl + 0.15, 0.0)), clamp(limb * 1.4, 0.0, 0.9));',
+      '  col += air * exp(-(1.0 - d) * uCircle.z / 2.5) * 0.7 * lit;',
+      '  col = mix(vec3(0.01, 0.015, 0.03), col, uLoaded);',
+      '  o = vec4(col, 1.0);',
+      '}'
+    ].join('\n');
+    function shader(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+    var prog = gl.createProgram();
+    gl.attachShader(prog, shader(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(prog); gl.useProgram(prog);
+    var buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    var loc = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    var U = {}; ['uRes', 'uDpr', 'uCircle', 'uSpin', 'uDrift', 'uSun', 'uLoaded', 'uDay', 'uNight', 'uClouds'].forEach(function (k) { U[k] = gl.getUniformLocation(prog, k); });
+    var aniso = gl.getExtension('EXT_texture_filter_anisotropic');
+    var loaded = 0, fade = 0;
+    function texture(unit, src, uni) {
+      var t = gl.createTexture();
+      gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([4, 8, 16, 255]));
+      gl.uniform1i(U[uni], unit);
+      var img = new Image();
+      img.onload = function () {
+        gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        if (aniso) gl.texParameterf(gl.TEXTURE_2D, aniso.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(8, gl.getParameter(aniso.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
+        loaded++;
+        if (!running) render(clock);
+      };
+      img.src = src;
+    }
+    texture(0, 'images/space/earth-day.webp', 'uDay');
+    texture(1, 'images/space/earth-night.webp', 'uNight');
+    texture(2, 'images/space/earth-clouds.webp', 'uClouds');
+    var sun = [0.7, 0.5, -0.5], sl = Math.hypot(sun[0], sun[1], sun[2]);
+
+    function size() {
+      if (!layout()) return;
+      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+      gl.viewport(0, 0, cv.width, cv.height);
+    }
+    var clock = 0;
+    function render(t) {
+      if (loaded === 3) fade = reduceMotion ? 1 : Math.min(1, fade + 0.04);
+      gl.uniform2f(U.uRes, w, h); gl.uniform1f(U.uDpr, dpr);
+      gl.uniform3f(U.uCircle, circle[0], circle[1], circle[2]);
+      /* the ground passes under the window at about 30 px a second; the clouds drift a little on their own */
+      gl.uniform1f(U.uSpin, 2.2 + t / 1000 * 30 / circle[2]);
+      gl.uniform1f(U.uDrift, 0.004 + t / 1000 * 0.00025);
+      gl.uniform3f(U.uSun, sun[0] / sl, sun[1] / sl, sun[2] / sl);
+      gl.uniform1f(U.uLoaded, fade);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    var raf = 0, running = false, onScreen = true, prev = 0;
     function loop(now) {
-      var step = prev ? Math.min(now - prev, 50) : 0;
-      prev = now;
-      ran += step;
-      var speed = Math.min(1, Math.max(0, (RUN - ran) / GLIDE));
-      clock += step * speed * speed;
-      draw(clock);
-      if (ran >= RUN) { frozen = true; stop(); return; }
+      clock += prev ? Math.min(now - prev, 100) : 0; prev = now; render(clock);
       if (running) raf = requestAnimationFrame(loop);
     }
-    function start() {
-      if (running || frozen || reduceMotion || !onScreen || document.hidden) return;
-      running = true;
-      prev = 0;
-      raf = requestAnimationFrame(loop);
-    }
-    function stop() {
-      running = false;
-      cancelAnimationFrame(raf);
-    }
-    resize();
-    draw(0);
-    start();
-    if ('ResizeObserver' in window) {
-      new ResizeObserver(function () { resize(); draw(last); }).observe(hero);
-    } else {
-      window.addEventListener('resize', function () { resize(); draw(last); });
-    }
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (entries) {
-        onScreen = entries[0].isIntersecting;
-        if (onScreen) start(); else stop();
-      }).observe(hero);
-    }
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden) stop(); else start();
-    });
+    function start() { if (running || reduceMotion || !onScreen || document.hidden) return; running = true; prev = 0; raf = requestAnimationFrame(loop); }
+    function stop() { running = false; cancelAnimationFrame(raf); }
+    size(); render(0); start();
+    if ('ResizeObserver' in window) new ResizeObserver(function () { size(); render(clock); }).observe(hero);
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { onScreen = e[0].isIntersecting; if (onScreen) start(); else stop(); }).observe(hero);
+    document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); else start(); });
   })();
 
   /* Review carousel: slides through the examples, pauses while hovered or focused */
