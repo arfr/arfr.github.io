@@ -3,7 +3,7 @@
 var I18N = {
   en: {
     "meta.description": "Alexander Fuhr – Developer. AI-assisted, human-led.",
-    "nav.label": "Main", "nav.menu": "Menu", "nav.terminal": "Terminal", "nav.top": "Back to top", "nav.start": "Start", "tab.scroll": "Scroll down", "tab.scroll.aria": "To the next section", "earth.pause": "Pause the Earth", "earth.play": "Let the Earth turn", "nav.approach": "Approach", "nav.about": "About", "nav.sections": "Sections", "nav.contact": "Contact",
+    "nav.label": "Main", "nav.menu": "Menu", "nav.terminal": "Terminal", "nav.top": "Back to top", "nav.start": "Start", "tab.scroll": "Scroll down", "tab.scroll.aria": "To the next section", "earth.pause": "Pause the Earth", "earth.play": "Let the Earth turn", "moon.pause": "Pause the Moon", "moon.play": "Let the Moon turn", "sun.pause": "Pause the Sun", "sun.play": "Let the Sun glow", "nav.approach": "Approach", "nav.about": "About", "nav.sections": "Sections", "nav.contact": "Contact",
     "lang.label": "Language",
     "hero.eyebrow": "Developer · AI-\u2060assisted, human-\u2060led",
     "approach.cmd": "cat approach.md", "role.tag": "AI-assisted, human-led",
@@ -219,7 +219,7 @@ var I18N = {
   },
   de: {
     "meta.description": "Alexander Fuhr – Entwickler. KI-gestützt, menschlich geführt.",
-    "nav.label": "Hauptnavigation", "nav.menu": "Menü", "nav.terminal": "Terminal", "nav.top": "Nach oben", "nav.start": "Start", "tab.scroll": "Nach unten", "tab.scroll.aria": "Zum nächsten Bereich", "earth.pause": "Erde anhalten", "earth.play": "Erde weiterdrehen", "nav.approach": "Vorgehen", "nav.about": "Über mich", "nav.sections": "Abschnitte", "nav.contact": "Kontakt",
+    "nav.label": "Hauptnavigation", "nav.menu": "Menü", "nav.terminal": "Terminal", "nav.top": "Nach oben", "nav.start": "Start", "tab.scroll": "Nach unten", "tab.scroll.aria": "Zum nächsten Bereich", "earth.pause": "Erde anhalten", "earth.play": "Erde weiterdrehen", "moon.pause": "Mond anhalten", "moon.play": "Mond weiterdrehen", "sun.pause": "Sonne anhalten", "sun.play": "Sonne weiterglühen lassen", "nav.approach": "Vorgehen", "nav.about": "Über mich", "nav.sections": "Abschnitte", "nav.contact": "Kontakt",
     "lang.label": "Sprache",
     "hero.eyebrow": "Entwickler · KI-\u2060gestützt, menschlich geführt",
     "approach.cmd": "cat vorgehen.md", "role.tag": "KI-gestützt, menschlich geführt",
@@ -435,7 +435,7 @@ var I18N = {
   },
   ru: {
     "meta.description": "Alexander Fuhr – разработчик. ИИ помогает, решает человек.",
-    "nav.label": "Основная навигация", "nav.menu": "Меню", "nav.terminal": "Терминал", "nav.top": "Наверх", "nav.start": "Начало", "tab.scroll": "Вниз", "tab.scroll.aria": "К следующему разделу", "earth.pause": "Остановить Землю", "earth.play": "Запустить Землю", "nav.approach": "Подход", "nav.about": "Обо мне", "nav.sections": "Разделы", "nav.contact": "Контакт",
+    "nav.label": "Основная навигация", "nav.menu": "Меню", "nav.terminal": "Терминал", "nav.top": "Наверх", "nav.start": "Начало", "tab.scroll": "Вниз", "tab.scroll.aria": "К следующему разделу", "earth.pause": "Остановить Землю", "earth.play": "Запустить Землю", "moon.pause": "Остановить Луну", "moon.play": "Запустить Луну", "sun.pause": "Остановить Солнце", "sun.play": "Запустить Солнце", "nav.approach": "Подход", "nav.about": "Обо мне", "nav.sections": "Разделы", "nav.contact": "Контакт",
     "lang.label": "Язык",
     "hero.eyebrow": "Разработчик · ИИ\u00a0помогает, решает человек",
     "approach.cmd": "cat approach.md", "role.tag": "ИИ помогает, решает человек",
@@ -651,7 +651,7 @@ var I18N = {
   },
   sr: {
     "meta.description": "Alexander Fuhr – programer. AI pomaže, čovek vodi.",
-    "nav.label": "Glavna navigacija", "nav.menu": "Meni", "nav.terminal": "Terminal", "nav.top": "Na vrh", "nav.start": "Početak", "tab.scroll": "Nadole", "tab.scroll.aria": "Na sledeći deo", "earth.pause": "Zaustavi Zemlju", "earth.play": "Pokreni Zemlju",
+    "nav.label": "Glavna navigacija", "nav.menu": "Meni", "nav.terminal": "Terminal", "nav.top": "Na vrh", "nav.start": "Početak", "tab.scroll": "Nadole", "tab.scroll.aria": "Na sledeći deo", "earth.pause": "Zaustavi Zemlju", "earth.play": "Pokreni Zemlju", "moon.pause": "Zaustavi Mesec", "moon.play": "Pokreni Mesec", "sun.pause": "Zaustavi Sunce", "sun.play": "Pokreni Sunce",
     "nav.approach": "Pristup",
     "nav.about": "O meni", "nav.sections": "Odeljci",
     "nav.contact": "Kontakt",
@@ -930,7 +930,7 @@ var I18N = {
   },
   el: {
     "meta.description": "Alexander Fuhr – Προγραμματιστής. Η AI βοηθά, ο άνθρωπος αποφασίζει.",
-    "nav.label": "Κύρια πλοήγηση", "nav.menu": "Μενού", "nav.terminal": "Τερματικό", "nav.top": "Στην κορυφή", "nav.start": "Αρχή", "tab.scroll": "Κάτω", "tab.scroll.aria": "Στην επόμενη ενότητα", "earth.pause": "Παύση της Γης", "earth.play": "Συνέχιση περιστροφής της Γης",
+    "nav.label": "Κύρια πλοήγηση", "nav.menu": "Μενού", "nav.terminal": "Τερματικό", "nav.top": "Στην κορυφή", "nav.start": "Αρχή", "tab.scroll": "Κάτω", "tab.scroll.aria": "Στην επόμενη ενότητα", "earth.pause": "Παύση της Γης", "earth.play": "Συνέχιση περιστροφής της Γης", "moon.pause": "Παύση της Σελήνης", "moon.play": "Συνέχιση περιστροφής της Σελήνης", "sun.pause": "Παύση του Ήλιου", "sun.play": "Συνέχιση κίνησης του Ήλιου",
     "nav.approach": "Προσέγγιση",
     "nav.about": "Σχετικά", "nav.sections": "Ενότητες",
     "nav.contact": "Επικοινωνία",

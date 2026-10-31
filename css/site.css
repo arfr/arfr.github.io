@@ -56,6 +56,7 @@
   /* the neon stage of the hero and the game: bluer blacks and whites; its neon is the human cyan, --neon-light a paler tint */
   --neon-light: #7FF0FF;
   --stage-bg: #05070B;
+  --space: #020306; /* deep space behind the stars, the Earth and the Moon */
   --stage-glow: #0A2131;
   --stage-surface: #0A1219;
   --stage-line: #1B2A34;
@@ -194,7 +195,7 @@ a { color: inherit; }
   --plate: #121C25; /* the dark plates of the quiz */
   color-scheme: dark;
   color: var(--fg);
-  background: #020306; /* deep space behind the stars and the Earth */
+  background: var(--space);
 }
 .hero .review-card { background: var(--stage-surface); border-color: rgba(var(--human-rgb), 0.22); }
 .retro-grid {
@@ -1425,7 +1426,20 @@ html.smart main, html.smart .site-foot, html.smart .nav { display: none !importa
 .about-band { background: var(--term-bg); color: var(--term-fg); }
 /* the darker terminal bands fade in and out of the page ground: no hard edge between sections */
 :root { --band-fade: clamp(96px, 12vw, 180px); }
-.about-band { background: linear-gradient(to bottom, var(--page), var(--term-bg) var(--band-fade), var(--term-bg) calc(100% - var(--band-fade)), var(--page)); }
+/* "About me" and "Contact" look out of the same window as the hero: deep space, stars, the Moon and the Sun (drawn in
+   app.js). Sky and planets fade in and out with the band, so the page ground stays calm between the sections */
+.space-band { position: relative; overflow: hidden; color-scheme: dark; background: linear-gradient(to bottom, var(--page), var(--space) var(--band-fade), var(--space) calc(100% - var(--band-fade)), var(--page)); }
+.space-band .wrap { position: relative; z-index: 1; }
+/* Earth, Moon and Sun can be grabbed and turned sideways (app.js); upward swipes still scroll the page */
+.hero, .space-band { touch-action: pan-y pinch-zoom; }
+.can-grab { cursor: grab; }
+.grabbing, .grabbing * { cursor: grabbing; user-select: none; }
+.space-band > .retro-grid {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--band-fade), #000 calc(100% - var(--band-fade) * 0.6), transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--band-fade), #000 calc(100% - var(--band-fade) * 0.6), transparent);
+}
+/* the photo's backdrop (rgb 7) a touch deeper, down to the black of space, so no lighter disc shows behind the face */
+.about-band .portrait { filter: contrast(1.04); }
 #terminal.next-band { background: linear-gradient(to bottom, var(--page), var(--term-bg) var(--band-fade)); }
 .about-band .h2 { color: var(--term-fg); }
 .about-band .about-text p { color: var(--text); }
@@ -1762,6 +1776,8 @@ html.smart .side-nav { display: none; }
   .about-text { display: contents; }
   .about-text > .statement { order: -1; }
   .about > .portrait { width: 220px; margin-block: -20px; }
+  .about-band .wrap { padding-bottom: calc(36px + 46vw); } /* room for the Moon under the text */
+  #contact .wrap { padding-bottom: calc(36px + 70vw); } /* and for the Sun under the buttons */
   .ws-list { gap: 28px; }
   /* the terminal opens no taller than its greeting needs; what follows scrolls inside, as before */
   .cli-screen { height: 220px; }
