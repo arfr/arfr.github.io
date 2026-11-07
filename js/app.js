@@ -1732,6 +1732,10 @@
             });
           }, reduceMotion ? 0 : 700);
           break;
+        case 'deeper': case 'blackhole':
+          line(t('cli.deeper'), 'accent');
+          setTimeout(function () { document.dispatchEvent(new CustomEvent('arfr:void')); }, reduceMotion ? 0 : 600);
+          break;
         case 'coffee': case './coffee.exe': case 'brew': case 'make':
           seq([[t('cli.coffee1')], ['[###       ]  30 %', 'muted', 400], ['[######    ]  60 %', 'muted', 400],
                ['[##########] 100 %', 'muted', 400], [t('cli.coffee2'), 'accent', 300]]);
@@ -3170,6 +3174,626 @@
       /* a fast spin moves on at most every 0.7 s, so one flick does not race through the page */
       if (now - stepAt > 700 && sectionStep) { stepAt = now; sectionStep(e.deltaY > 0 ? 1 : -1); }
     }, { passive: false });
+  })();
+
+  /* Deep scroll: the last slide is the end, but not quite. Pushing on past it (wheel, trackpad, finger, keys)
+     meets a floor that gives like rubber: a sheet of spacetime that sags into a well, harder with every push and
+     springing back when let go. Pushed hard enough in one go, it tears, the page falls into a black hole, and
+     "You shouldn't be here." Scrolling up (or Esc, or the button) spits the page back out; the floor is whole
+     again, so the next visit through it needs the same push. No hint anywhere; `deeper` in the terminal is the
+     quiet way in. */
+  (function deepScroll() {
+    var root = document.documentElement;
+    var blocks = Array.prototype.slice.call(document.querySelectorAll('main > section'));
+    var last = blocks[blocks.length - 1], wrap = last && (last.querySelector('.wrap') || last);
+    var vd = document.getElementById('void'), glc = document.getElementById('void-gl');
+    var flash = document.getElementById('void-flash'), backBtn = document.getElementById('void-back');
+    var soundBtn = document.getElementById('void-sound');
+    var main = document.querySelector('main');
+    if (!last || !vd || !glc || !main) return;
+
+    var sheet = document.createElement('canvas');
+    sheet.className = 'rubber'; sheet.hidden = true; sheet.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(sheet);
+    var cx2 = sheet.getContext('2d');
+
+    var state = 'idle';          /* idle | open | closing */
+    var T = 0, shown = 0, vel = 0, lastPush = 0, holding = false, endAt = 0, calmUntil = 0, autoAt = 0;
+    var loop = 0, prevT = 0;
+
+    function now() { return performance.now(); }
+    function maxScroll() { return root.scrollHeight - window.innerHeight; }
+    function atEnd() { return maxScroll() > 0 ? window.scrollY >= maxScroll() - 2 : true; }
+    function typing(el) { return !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)); }
+    function blocked(target) {
+      if (root.classList.contains('smart')) return true;
+      var game = document.getElementById('game');
+      if (game && !game.hidden) return true;
+      var chat = document.getElementById('chat-dialog');
+      if (chat && target && chat.contains(target)) return true;
+      var menu = document.getElementById('menu-panel');
+      if (menu && !menu.hidden) return true;
+      return false;
+    }
+    /* the terminal output (or anything else that scrolls by itself) keeps its own scrolling */
+    function scrollsItself(el, dy) {
+      for (; el && el.nodeType === 1 && el !== document.body && el !== root; el = el.parentElement) {
+        if (el.scrollHeight <= el.clientHeight + 1) continue;
+        var oy = getComputedStyle(el).overflowY;
+        if (oy !== 'auto' && oy !== 'scroll') continue;
+        if (dy < 0 ? el.scrollTop > 0 : el.scrollTop + el.clientHeight < el.scrollHeight - 1) return true;
+      }
+      return false;
+    }
+    window.addEventListener('scroll', function () {
+      if (state !== 'idle') return;
+      if (!atEnd()) { endAt = 0; if (T > 0 && !holding) T = 0; }
+      else if (!endAt) endAt = now();
+    }, { passive: true });
+    function settled() {
+      if (!atEnd()) { endAt = 0; return false; }
+      if (!endAt) endAt = now() - 1000;
+      return now() - endAt > 220 && now() > calmUntil;
+    }
+
+    function push(amount) {
+      T = Math.min(1, T + amount);
+      lastPush = now();
+      sound.tension();
+      if (T >= 1) { breakThrough(); return; }
+      run();
+    }
+
+    /* wheel and trackpad: caught before the slide paging, which would only bump into the end */
+    window.addEventListener('wheel', function (e) {
+      if (state !== 'idle') { e.preventDefault(); e.stopImmediatePropagation(); if (e.deltaY < -4) close(); return; }
+      if (now() < calmUntil) { e.preventDefault(); return; }
+      if (e.ctrlKey || e.metaKey || e.deltaY <= 0 || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      if (!settled() || blocked(e.target) || scrollsItself(e.target, e.deltaY)) return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      var px = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+      /* a notch is one firm push (five in a row break through); a trackpad adds up its many small steps */
+      if (e.deltaMode === 0 && Math.abs(e.deltaY) < 40) push(px / (1.6 * window.innerHeight));
+      else push(0.2);
+    }, { passive: false, capture: true });
+
+    /* keys: Down, Page Down, End, space (not while typing): four presses */
+    document.addEventListener('keydown', function (e) {
+      if (state !== 'idle' || e.altKey || e.ctrlKey || e.metaKey) return;
+      var k = e.key, a = document.activeElement;
+      var idle = !a || a === document.body || a === root;
+      if (!(k === 'ArrowDown' || k === 'PageDown' || k === 'End' || (k === ' ' && idle && !e.shiftKey))) return;
+      if (typing(a) || blocked(a) || !settled()) return;
+      if (a && a !== document.body && scrollsItself(a, 1)) return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      push(e.repeat ? 0.07 : 0.27);
+    }, true);
+
+    /* the finger: pulled up at the end of the page, the sheet follows the finger; let go, it springs back */
+    var touchY = null;
+    window.addEventListener('touchstart', function (e) {
+      touchY = null;
+      if (state !== 'idle' || e.touches.length !== 1 || blocked(e.target)) return;
+      if (!atEnd() || now() < calmUntil) return;
+      touchY = e.touches[0].clientY;
+    }, { passive: true });
+    window.addEventListener('touchmove', function (e) {
+      if (touchY === null || state !== 'idle') return;
+      var d = touchY - e.touches[0].clientY;
+      if (d <= 0) { if (holding) { holding = false; T = 0; } touchY = e.touches[0].clientY; return; }
+      if (!atEnd()) { touchY = null; return; }
+      if (!holding && scrollsItself(e.target, 1)) { touchY = null; return; }
+      if (e.cancelable) e.preventDefault();
+      holding = true;
+      var want = Math.min(1, d / (0.42 * window.innerHeight));
+      if (want > T) { T = want; lastPush = now(); sound.tension(); } else T = want;
+      if (T >= 1) { holding = false; touchY = null; breakThrough(); return; }
+      run();
+    }, { passive: false });
+    function letGo() { touchY = null; if (holding) { holding = false; lastPush = now() - 1000; run(); } }
+    window.addEventListener('touchend', letGo, { passive: true });
+    window.addEventListener('touchcancel', letGo, { passive: true });
+
+    /* the quiet way in */
+    document.addEventListener('arfr:void', function () {
+      if (state !== 'idle') return;
+      if (!atEnd()) window.scrollTo({ top: maxScroll(), behavior: 'instant' });
+      autoAt = now(); run();
+    });
+
+    /* --- the sheet ------------------------------------------------------------------------------------- */
+    var cracks = [];
+    (function makeCracks() {
+      var seed = 7;
+      function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+      for (var i = 0; i < 9; i++) {
+        var a = (i / 9) * Math.PI * 2 + rnd() * 0.5, u = 0, v = 0.38, pts = [[u, v]];
+        var len = 0.35 + rnd() * 0.55;
+        for (var s = 0; s < 12; s++) {
+          a += (rnd() - 0.5) * 0.9;
+          u += Math.cos(a) * len / 12; v += Math.sin(a) * len / 12 * 0.8;
+          pts.push([u, v]);
+          if (rnd() < 0.15 && pts.length > 3) cracks.push({ pts: [[u, v], [u + Math.cos(a + 1) * 0.08, v + Math.sin(a + 1) * 0.06]], at: s / 12 });
+        }
+        cracks.push({ pts: pts, at: 0 });
+      }
+    })();
+    function liftOf(s) {
+      var max = Math.min(window.innerHeight * 0.26, 260);
+      if (s <= 0) return max * s * 0.6;
+      return max * (1 - Math.exp(-2.4 * s)) / (1 - Math.exp(-2.4));
+    }
+    function draw(s, jx, jy) {
+      var dpr = Math.min(window.devicePixelRatio || 1, 2), W = window.innerWidth, H = window.innerHeight;
+      if (sheet.width !== Math.round(W * dpr) || sheet.height !== Math.round(H * dpr)) {
+        sheet.width = Math.round(W * dpr); sheet.height = Math.round(H * dpr);
+      }
+      var c = cx2;
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      c.clearRect(0, 0, W, H);
+      if (s <= 0.002) return;
+      var hole = document.querySelector('.frame-hole'), r = hole ? hole.getBoundingClientRect() : { left: 0, right: W, bottom: H };
+      var lift = liftOf(s), bottom = r.bottom, yTop = bottom - lift, mid = (r.left + r.right) / 2, half = (r.right - r.left) / 2;
+      c.save();
+      c.translate(jx, jy);
+      if (reduceMotion) {
+        var gl0 = c.createLinearGradient(0, bottom - 40, 0, bottom);
+        gl0.addColorStop(0, 'rgba(63,224,245,0)'); gl0.addColorStop(1, 'rgba(63,224,245,' + (0.5 * s) + ')');
+        c.fillStyle = gl0; c.fillRect(r.left, bottom - 40, r.right - r.left, 40);
+        c.restore(); return;
+      }
+      var depth = lift * 1.5 + 50 * s, sig = 0.26 + 0.12 * s, sp = Math.pow(s, 1.35);
+      function well(u, v) { var dv = (v - 0.38) * 1.5; return Math.exp(-(u * u + dv * dv) / (2 * sig * sig)); }
+      function P(u, v) {
+        var k = 1 / (1 + v * 2.2), t = (k - 1 / 3.2) / (1 - 1 / 3.2);
+        var x = mid + u * half * (1 + 0.9 * t);
+        var y = yTop + lift * t + depth * sp * well(u, v) * (0.45 + 0.55 * t);
+        return [x, y, t];
+      }
+      /* the sheet itself: dark, with a hot glow at the bottom of the well */
+      c.fillStyle = '#030405';
+      c.beginPath(); c.moveTo(r.left - 20, yTop);
+      for (var u0 = -1.2; u0 <= 1.2001; u0 += 0.05) { var q = P(u0, 1); c.lineTo(q[0], q[1]); }
+      c.lineTo(r.right + 20, H + 40); c.lineTo(r.left - 20, H + 40); c.closePath(); c.fill();
+      var core = P(0, 0.38), g = c.createRadialGradient(core[0], core[1], 0, core[0], core[1], Math.max(30, lift * 1.4));
+      g.addColorStop(0, 'rgba(255,214,160,' + (0.9 * Math.pow(s, 3)) + ')');
+      g.addColorStop(0.25, 'rgba(255,140,50,' + (0.45 * Math.pow(s, 2.2)) + ')');
+      g.addColorStop(1, 'rgba(255,120,40,0)');
+      c.fillStyle = g; c.fillRect(r.left, yTop - 10, r.right - r.left, H - yTop + 20);
+      /* the grid: rows from far to near, columns that fall into the well */
+      c.lineWidth = 1;
+      var rows = 13, i, j, p;
+      for (i = 0; i <= rows; i++) {
+        var v = 1 - i / rows;
+        p = P(0, v);
+        c.strokeStyle = 'rgba(63,224,245,' + ((0.1 + 0.4 * s) * (0.3 + 0.7 * p[2])).toFixed(3) + ')';
+        c.beginPath();
+        for (j = -1.3; j <= 1.3001; j += 0.04) { p = P(j, v); if (j === -1.3) c.moveTo(p[0], p[1]); else c.lineTo(p[0], p[1]); }
+        c.stroke();
+      }
+      for (j = -1.3; j <= 1.3001; j += 0.1) {
+        c.strokeStyle = 'rgba(63,224,245,' + (0.08 + 0.3 * s).toFixed(3) + ')';
+        c.beginPath();
+        for (i = 0; i <= 24; i++) { p = P(j, 1 - i / 24); if (!i) c.moveTo(p[0], p[1]); else c.lineTo(p[0], p[1]); }
+        c.stroke();
+      }
+      /* where the page meets the sheet: a taut, glowing edge */
+      c.shadowColor = 'rgba(63,224,245,0.9)'; c.shadowBlur = 14 * s;
+      c.strokeStyle = 'rgba(160,240,255,' + (0.25 + 0.6 * s).toFixed(3) + ')'; c.lineWidth = 1.5;
+      c.beginPath(); c.moveTo(r.left, yTop); c.lineTo(r.right, yTop); c.stroke();
+      /* close to tearing: cracks run out from the bottom of the well */
+      var cr = (s - 0.78) / 0.22;
+      if (cr > 0) {
+        c.shadowColor = 'rgba(255,150,60,1)'; c.shadowBlur = 10;
+        c.strokeStyle = 'rgba(255,236,214,' + Math.min(1, 0.4 + cr) + ')'; c.lineWidth = 1.3;
+        cracks.forEach(function (k) {
+          var f = (cr - k.at) / (1 - k.at); if (f <= 0) return;
+          var n = Math.max(2, Math.ceil(k.pts.length * Math.min(1, f)));
+          c.beginPath();
+          for (var m = 0; m < n; m++) { var pp = P(k.pts[m][0], k.pts[m][1]); if (!m) c.moveTo(pp[0], pp[1]); else c.lineTo(pp[0], pp[1]); }
+          c.stroke();
+        });
+      }
+      c.restore();
+    }
+    function frame() {
+      loop = 0;
+      var t = now(), dt = Math.min(0.05, (t - prevT) / 1000 || 0.016); prevT = t;
+      if (state !== 'idle') return;
+      if (autoAt) {
+        T = Math.min(1, Math.pow((t - autoAt) / 1300, 1.6)); lastPush = t; sound.tension();
+        if (T >= 1) { autoAt = 0; breakThrough(); return; }
+      } else if (!holding && t - lastPush > 300 && T > 0) {
+        T = Math.max(0, T - dt * (1.1 + 1.8 * T));
+      }
+      /* the sheet follows with a spring, so a let-go overshoots a little */
+      var acc = 190 * (T - shown) - 16 * vel;
+      vel += acc * dt; shown += vel * dt;
+      if (shown < -0.12) { shown = -0.12; vel = 0; }
+      if (reduceMotion) { shown = T; vel = 0; }
+      var quiet = T === 0 && Math.abs(shown) < 0.001 && Math.abs(vel) < 0.01;
+      if (quiet) { shown = 0; vel = 0; }
+      var shake = !reduceMotion && shown > 0.7 ? (shown - 0.7) * 11 : 0;
+      var jx = shake ? (Math.random() - 0.5) * shake : 0, jy = shake ? (Math.random() - 0.5) * shake : 0;
+      if (!reduceMotion) {
+        last.classList.toggle('rubbering', !quiet);
+        wrap.style.transform = quiet ? '' : 'translate(' + jx.toFixed(1) + 'px,' + (-liftOf(shown) + jy).toFixed(1) + 'px)';
+      }
+      sheet.hidden = quiet;
+      draw(shown, jx, jy);
+      sound.level(Math.max(0, shown));
+      if (!quiet || T > 0) run();
+    }
+    function run() { if (!loop) { prevT = prevT && now() - prevT < 100 ? prevT : now(); loop = requestAnimationFrame(frame); } }
+    function resetSheet() {
+      T = 0; shown = 0; vel = 0; holding = false; autoAt = 0;
+      wrap.style.transform = ''; last.classList.remove('rubbering');
+      sheet.hidden = true; draw(0, 0, 0); sound.level(0);
+    }
+
+    /* --- the black hole -------------------------------------------------------------------------------- */
+    var gl = null, prog = null, uRes, uTime, uGrow, uBg, glLoop = 0, grow = 0, bg = 0, tStart = 0, anims = [], prevFocus = null;
+    var FS = [
+      'precision highp float;',
+      'uniform vec2 res; uniform float time, grow, bg;',
+      'float h1(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }',
+      'float n3(vec3 x) {',
+      '  vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);',
+      '  return mix(mix(mix(h1(i), h1(i + vec3(1, 0, 0)), f.x), mix(h1(i + vec3(0, 1, 0)), h1(i + vec3(1, 1, 0)), f.x), f.y),',
+      '             mix(mix(h1(i + vec3(0, 0, 1)), h1(i + vec3(1, 0, 1)), f.x), mix(h1(i + vec3(0, 1, 1)), h1(i + vec3(1, 1, 1)), f.x), f.y), f.z);',
+      '}',
+      'float fbm(vec3 p) { float v = 0.0, a = 0.5; for (int i = 0; i < 4; i++) { v += a * n3(p); p = p * 2.07 + 3.1; a *= 0.5; } return v; }',
+      '/* the sky behind, seen along the bent ray: stars in a few layers and a faint band of dust */',
+      'vec3 sky(vec3 d) {',
+      '  vec3 c = vec3(0.0);',
+      '  for (int l = 0; l < 3; l++) {',
+      '    float sc = 90.0 + float(l) * 110.0;',
+      '    vec3 g = d * sc, id = floor(g), f = fract(g) - 0.5;',
+      '    float r = h1(id + float(l) * 13.0);',
+      '    if (r > 0.978) {',
+      '      vec3 o = vec3(h1(id + 1.7), h1(id + 4.1), h1(id + 7.3)) - 0.5;',
+      '      float s = smoothstep(0.32, 0.0, length(f - o * 0.5));',
+      '      c += s * s * (r - 0.978) * 55.0 * mix(vec3(0.7, 0.8, 1.0), vec3(1.0, 0.85, 0.7), h1(id + 9.0));',
+      '    }',
+      '  }',
+      '  float band = exp(-pow(d.y * 3.0 - d.x * 0.8, 2.0)) * fbm(d * 4.0);',
+      '  c += vec3(0.16, 0.11, 0.2) * band * 0.5;',
+      '  return c;',
+      '}',
+      '/* colour of hot gas: deep orange outside, white-hot inside */',
+      'vec3 heat(float t) {',
+      '  return clamp(vec3(1.0, 0.45, 0.14) * t + vec3(0.0, 0.28, 0.22) * t * t + vec3(0.0, 0.0, 0.12) * t * t * t, 0.0, 8.0);',
+      '}',
+      'void main() {',
+      '  float m = min(res.x, res.y);',
+      '  vec2 uv = (gl_FragCoord.xy - 0.5 * res) / m;',
+      '  uv.y -= 0.07;',
+      '  float g = clamp(grow, 0.0, 1.0);',
+      '  /* falling in: the camera comes from far away and settles close, slightly above the disk, a little tilted */',
+      '  float dist = mix(160.0, 25.0, 1.0 - pow(1.0 - g, 3.0));',
+      '  float az = 0.35 + time * 0.012;',
+      '  vec3 ro = vec3(sin(az), 0.0, -cos(az)) * dist + vec3(0.0, dist * 0.085, 0.0);',
+      '  vec3 fw = normalize(-ro), rt = normalize(cross(vec3(0.0, 1.0, 0.0), fw)), up = cross(fw, rt);',
+      '  float roll = 0.12;',
+      '  vec2 q = mat2(cos(roll), -sin(roll), sin(roll), cos(roll)) * uv;',
+      '  float fov = res.x < res.y ? 0.8 : 0.82;',
+      '  vec3 rd = normalize(fw + (q.x * rt + q.y * up) * fov);',
+      '  /* trace the ray through curved space (Schwarzschild radius 1): bending ~ 1.5 h^2 / r^5 */',
+      '  vec3 p = ro, v = rd;',
+      '  vec3 hv = cross(p, v); float h2 = dot(hv, hv);',
+      '  vec3 col = vec3(0.0); float alpha = 0.0; float caught = 0.0; float rmin = 1e4;',
+      '  for (int i = 0; i < 200; i++) {',
+      '    float r2 = dot(p, p), r = sqrt(r2);',
+      '    if (r < 1.0) { caught = 1.0; break; }',
+      '    if (r > dist * 1.2 && dot(p, v) > 0.0) break;',
+      '    float dt = clamp(0.09 * r, 0.03, 2.5);',
+      '    vec3 pp = p;',
+      '    v += -1.5 * h2 * p / (r2 * r2 * r) * dt;',
+      '    p += v * dt;',
+      '    rmin = min(rmin, r);',
+      '    if (pp.y * p.y < 0.0) {',
+      '      vec3 c = mix(pp, p, pp.y / (pp.y - p.y));',
+      '      float d = length(c.xz);',
+      '      if (d > 2.6 && d < 14.0) {',
+      '        float a = atan(c.z, c.x);',
+      '        /* Kepler: the inner gas turns faster, so the pattern shears into streaks */',
+      '        float om = 1.6 * pow(d, -1.5);',
+      '        float ang = a + time * om * 3.0;',
+      '        float tur = fbm(vec3(d * 3.2, cos(ang) * 1.3, sin(ang) * 1.3));',
+      '        float fine = fbm(vec3(d * 9.0, cos(ang) * 3.0, sin(ang) * 3.0) + 5.0);',
+      '        float lanes = 0.75 + 0.5 * fine;',
+      '        float rad = smoothstep(2.6, 4.0, d) * (1.0 - smoothstep(6.5, 13.5, d));',
+      '        float temp = pow(3.0 / d, 1.15);',
+      '        /* the side coming towards us is brighter and bluer, the other side dimmer and redder */',
+      '        vec3 orb = normalize(vec3(-c.z, 0.0, c.x)) * sqrt(0.5 / d);',
+      '        float dop = 1.0 / (1.0 - dot(orb, -normalize(v)) * 1.0);',
+      '        float dd = pow(dop, 3.0);',
+      '        float dens = rad * (0.15 + 1.1 * tur * lanes);',
+      '        vec3 e = heat(temp * 1.8 * mix(0.8, 1.2, clamp(dop - 0.6, 0.0, 1.0))) * dd * dens * 1.5;',
+      '        float aa = clamp(dens * 1.3, 0.0, 1.0);',
+      '        col += (1.0 - alpha) * e;',
+      '        alpha += (1.0 - alpha) * aa;',
+      '        if (alpha > 0.98) break;',
+      '      }',
+      '    }',
+      '  }',
+      '  vec3 bgc = caught > 0.5 ? vec3(0.0) : sky(normalize(v));',
+      '  col += (1.0 - alpha) * bgc * bg;',
+      '  /* light that skimmed the photon sphere: a thin, smooth ring */',
+      '  if (caught < 0.5) col += vec3(1.0, 0.75, 0.5) * exp(-pow((rmin - 1.5) * 4.5, 2.0)) * 0.22 * (1.0 - alpha);',
+      '  /* filmic curve */',
+      '  col = col * (2.51 * col + 0.03) / (col * (2.43 * col + 0.59) + 0.14);',
+      '  col = pow(clamp(col, 0.0, 1.0), vec3(0.95));',
+      '  float lum = max(max(col.r, col.g), col.b);',
+      '  float a = clamp(bg + lum * 1.2 + alpha + caught * min(1.0, g * 4.0), 0.0, 1.0);',
+      '  a *= smoothstep(0.0, 0.08, g);',
+      '  gl_FragColor = vec4(col * smoothstep(0.0, 0.08, g), a);',
+      '}'].join('\n');
+    function initGL() {
+      if (gl || vd.classList.contains('no-gl')) return !!gl;
+      try {
+        gl = glc.getContext('webgl', { premultipliedAlpha: true, alpha: true, antialias: false });
+        if (!gl) throw 0;
+        function sh(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(s); return s; }
+        prog = gl.createProgram();
+        gl.attachShader(prog, sh(gl.VERTEX_SHADER, 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }'));
+        gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+        gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw gl.getProgramInfoLog(prog);
+        gl.useProgram(prog);
+        var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+        var loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+        uRes = gl.getUniformLocation(prog, 'res'); uTime = gl.getUniformLocation(prog, 'time');
+        uGrow = gl.getUniformLocation(prog, 'grow'); uBg = gl.getUniformLocation(prog, 'bg');
+        return true;
+      } catch (e) { gl = null; vd.classList.add('no-gl'); return false; }
+    }
+    function ease(x) { x = Math.max(0, Math.min(1, x)); return 1 - Math.pow(1 - x, 3); }
+    var targets = [], closeAt = 0, keepY = 0, glScale = window.innerWidth < 700 ? 0.5 : 0.7;
+    function glFrame() {
+      glLoop = 0;
+      if (state === 'idle') return;
+      var t = now(), e = (t - tStart) / 1000;
+      if (state === 'open') {
+        grow = reduceMotion ? 1 : ease(e / 1.9);
+        bg = reduceMotion ? ease(e / 0.6) : ease((e - 0.35) / 1.2);
+        if (vd.classList.contains('no-gl')) vd.style.opacity = bg;
+      } else {
+        var c = (t - closeAt) / 1000;
+        grow = reduceMotion ? 1 - ease(c / 0.4) : 1 - ease(c / 0.9);
+        bg = reduceMotion ? 1 - ease(c / 0.4) : 1 - ease((c - 0.1) / 0.8);
+        if (vd.classList.contains('no-gl')) vd.style.opacity = bg;
+        if (grow <= 0.001 && bg <= 0.001 && c > 1.05) { finishClose(); return; }
+      }
+      if (gl) {
+        /* every pixel traces its ray through curved space: drawn smaller than the screen and scaled up
+           (the scene is all glow, so it stays soft), and smaller still if the device falls behind */
+        var ft = t - (glFrame.at || t); glFrame.at = t;
+        if (ft > 0 && ft < 200) glFrame.avg = (glFrame.avg || 16) * 0.92 + ft * 0.08;
+        if (glFrame.avg > 24 && glScale > 0.3 && t - (glFrame.cut || 0) > 500) { glScale *= 0.85; glFrame.cut = t; }
+        var dpr = Math.min(window.devicePixelRatio || 1, 2) * glScale;
+        var w = Math.max(1, Math.round(glc.clientWidth * dpr)), hh = Math.max(1, Math.round(glc.clientHeight * dpr));
+        if (glc.width !== w || glc.height !== hh) { glc.width = w; glc.height = hh; }
+        gl.viewport(0, 0, w, hh);
+        gl.uniform2f(uRes, w, hh); gl.uniform1f(uTime, (reduceMotion ? 0.15 : 1) * e); gl.uniform1f(uGrow, grow); gl.uniform1f(uBg, bg);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      }
+      glLoop = requestAnimationFrame(glFrame);
+    }
+    /* everything the visitor sees of the page is pulled into the hole */
+    function suckTargets() {
+      return [main, document.querySelector('.chrome'), document.querySelector('.site-head'), sheet,
+        document.getElementById('chat-dialog')].filter(function (el) { return el && el.getClientRects().length; });
+    }
+    function breakThrough() {
+      if (state !== 'idle') return;
+      state = 'open'; tStart = now(); calmUntil = tStart + 900;
+      prevFocus = document.activeElement; keepY = window.scrollY;
+      initGL();
+      vd.hidden = false; vd.classList.remove('leaving', 'show');
+      root.classList.add('void-open');
+      if (vd.classList.contains('no-gl')) vd.style.opacity = 0;
+      var W = window.innerWidth, H = window.innerHeight, hy = H / 2 - 0.07 * Math.min(W, H);
+      targets = suckTargets();
+      anims = targets.map(function (el) {
+        var r = el.getBoundingClientRect();
+        el.style.transformOrigin = (W / 2 - r.left) + 'px ' + (hy - r.top) + 'px';
+        var frames = reduceMotion ? [{ opacity: 1 }, { opacity: 0 }] :
+          [{ transform: 'none', opacity: 1 }, { transform: 'scale(0.4) rotate(70deg)', opacity: 0.95, offset: 0.55 },
+           { transform: 'scale(0.001) rotate(250deg)', opacity: 0 }];
+        return el.animate(frames, { duration: reduceMotion ? 500 : 1500, easing: 'cubic-bezier(.55,0,.75,.2)', fill: 'forwards' });
+      });
+      if (!reduceMotion && flash) flash.animate([{ opacity: 0 }, { opacity: 0.85, offset: 0.1 }, { opacity: 0 }], { duration: 1000, easing: 'ease-out' });
+      sound.boom();
+      setTimeout(function () { if (state === 'open') vd.classList.add('show'); }, reduceMotion ? 300 : 1300);
+      try { vd.focus({ preventScroll: true }); } catch (e) { vd.focus(); }
+      if (!glLoop) glLoop = requestAnimationFrame(glFrame);
+    }
+    function close() {
+      if (state !== 'open' || now() < calmUntil) return;
+      state = 'closing'; closeAt = now();
+      vd.classList.add('leaving'); vd.classList.remove('show');
+      sound.leave();
+      setTimeout(function () {
+        anims.forEach(function (a) { a.playbackRate = reduceMotion ? -1 : -1.5; a.play(); });
+      }, reduceMotion ? 0 : 200);
+    }
+    function finishClose() {
+      if (state === 'idle') return;
+      state = 'idle';
+      anims.forEach(function (a) { a.cancel(); });
+      targets.forEach(function (el) { el.style.transformOrigin = ''; });
+      anims = []; targets = [];
+      vd.hidden = true; vd.classList.remove('leaving', 'show'); vd.style.opacity = '';
+      root.classList.remove('void-open');
+      if (window.scrollY !== keepY) window.scrollTo({ top: keepY, behavior: 'instant' });
+      resetSheet();
+      calmUntil = now() + 700; endAt = now();
+      if (prevFocus && prevFocus.focus && prevFocus !== document.body) { try { prevFocus.focus({ preventScroll: true }); } catch (e) {} }
+      prevFocus = null;
+      if (gl) { gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
+    }
+    /* the way back: up (the wheel is caught above), Esc, a swipe down, the button */
+    var vy = null;
+    vd.addEventListener('touchstart', function (e) { vy = e.touches.length === 1 ? e.touches[0].clientY : null; }, { passive: true });
+    vd.addEventListener('touchmove', function (e) {
+      if (e.cancelable) e.preventDefault();
+      if (vy !== null && e.touches[0].clientY - vy > 60) { vy = null; close(); }
+    }, { passive: false });
+    document.addEventListener('keydown', function (e) {
+      if (state === 'idle') return;
+      var k = e.key;
+      if (k === 'Tab') {
+        var f = [backBtn, soundBtn].filter(Boolean), i = f.indexOf(document.activeElement);
+        e.preventDefault();
+        if (f.length) f[(i + (e.shiftKey ? f.length - 1 : 1) + (i < 0 && e.shiftKey ? 1 : 0)) % f.length].focus();
+        return;
+      }
+      if (k === 'Enter' || (k === ' ' && document.activeElement !== vd)) return; /* the buttons */
+      e.preventDefault(); e.stopImmediatePropagation();
+      if (k === 'Escape' || k === 'ArrowUp' || k === 'PageUp' || k === 'Home') close();
+    }, true);
+    if (backBtn) backBtn.addEventListener('click', function () { calmUntil = 0; close(); });
+
+    /* --- sound: made on the spot (the creak, the boom, the drone), plus the mission-control chatter, slowed and
+       far away. Browsers only allow sound after a click or a key: a wheel alone is not enough, then the speaker
+       button in the corner lets it in --------------------------------------------------------------------- */
+    var sound = (function () {
+      var AC = window.AudioContext || window.webkitAudioContext, ac = null, out = null, noise = null;
+      var hum = null, amb = null, radioBuf = null, radioLoad = null, want = true;
+      try { want = localStorage.getItem('arfr.void.sound') !== 'off'; } catch (e) {}
+      function ctx() {
+        if (!AC) return null;
+        if (!ac) {
+          try { ac = new AC(); } catch (e) { AC = null; return null; }
+          out = ac.createGain(); out.gain.value = 0.9; out.connect(ac.destination);
+          var len = ac.sampleRate * 2; noise = ac.createBuffer(1, len, ac.sampleRate);
+          var d = noise.getChannelData(0); for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+          ac.onstatechange = mark;
+        }
+        return ac;
+      }
+      function live() { return want && ac && ac.state === 'running'; }
+      /* a click or key anywhere wakes the sound up, so the wheel can be heard later */
+      function wake() {
+        var c = ctx(); if (!c) return;
+        if (c.state === 'suspended') c.resume().then(mark, function () {});
+        if (c.state === 'running') ['pointerdown', 'keydown', 'touchend'].forEach(function (ev) { window.removeEventListener(ev, wake, true); });
+      }
+      ['pointerdown', 'keydown', 'touchend'].forEach(function (ev) { window.addEventListener(ev, wake, true); });
+      function src(loop) { var s = ac.createBufferSource(); s.buffer = noise; s.loop = !!loop; return s; }
+      function env(g, t, peak, a, d) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); }
+      function tension() {
+        if (!live() || hum) return;
+        var o = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain();
+        o.type = 'sawtooth'; o.frequency.value = 36; f.type = 'lowpass'; f.frequency.value = 90; f.Q.value = 4;
+        var n = src(true), nf = ac.createBiquadFilter(), ng = ac.createGain();
+        nf.type = 'bandpass'; nf.frequency.value = 260; nf.Q.value = 3; ng.gain.value = 0;
+        g.gain.value = 0;
+        o.connect(f); f.connect(g); g.connect(out); n.connect(nf); nf.connect(ng); ng.connect(out);
+        o.start(); n.start();
+        hum = { o: o, f: f, g: g, n: n, nf: nf, ng: ng, idle: 0 };
+      }
+      function level(s) {
+        if (!hum) return;
+        var t = ac.currentTime;
+        hum.g.gain.setTargetAtTime(0.22 * s * s, t, 0.05);
+        hum.o.frequency.setTargetAtTime(34 + 34 * s, t, 0.08);
+        hum.f.frequency.setTargetAtTime(90 + 520 * s, t, 0.08);
+        hum.ng.gain.setTargetAtTime(0.09 * s * s * s, t, 0.05);
+        hum.nf.frequency.setTargetAtTime(220 + 900 * s, t, 0.08);
+        if (s > 0.001) hum.idle = 0;
+        else if (++hum.idle > 40) stopHum(0.05);
+      }
+      function stopHum(fade) {
+        if (!hum) return;
+        var h0 = hum, t = ac.currentTime; hum = null;
+        h0.g.gain.setTargetAtTime(0, t, fade); h0.ng.gain.setTargetAtTime(0, t, fade);
+        h0.o.stop(t + fade * 6); h0.n.stop(t + fade * 6);
+      }
+      function boom() {
+        if (!live()) { mark(); return; }
+        stopHum(0.02);
+        var t = ac.currentTime;
+        /* the tear: a sharp crack */
+        var c = src(), cf = ac.createBiquadFilter(), cg = ac.createGain();
+        cf.type = 'highpass'; cf.frequency.value = 2200; c.connect(cf); cf.connect(cg); cg.connect(out);
+        env(cg, t, 0.5, 0.004, 0.16); c.start(t); c.stop(t + 0.3);
+        /* the fall: a sub drop and a rumble that sinks */
+        var o = ac.createOscillator(), og = ac.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(24, t + 2.2);
+        o.connect(og); og.connect(out); env(og, t, 0.75, 0.03, 2.8); o.start(t); o.stop(t + 3.2);
+        var n = src(), nf = ac.createBiquadFilter(), ng = ac.createGain();
+        nf.type = 'lowpass'; nf.frequency.setValueAtTime(5000, t); nf.frequency.exponentialRampToValueAtTime(90, t + 1.8);
+        n.connect(nf); nf.connect(ng); ng.connect(out); env(ng, t, 0.45, 0.02, 2.0); n.start(t); n.stop(t + 2.4);
+        ambience(t + 0.9);
+      }
+      function radio() {
+        if (radioBuf || radioLoad || !window.fetch) return radioLoad;
+        radioLoad = fetch('audio/void-radio.mp3').then(function (r) { return r.arrayBuffer(); })
+          .then(function (b) { return new Promise(function (ok, no) { ac.decodeAudioData(b, ok, no); }); })
+          .then(function (buf) { radioBuf = buf; return buf; }, function () { radioLoad = null; });
+        return radioLoad;
+      }
+      function ambience(at) {
+        if (!live() || amb || state !== 'open') return;
+        var t = Math.max(at || 0, ac.currentTime);
+        var g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(1, t + 3); g.connect(out);
+        var f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 170; f.Q.value = 7; f.connect(g);
+        var lfo = ac.createOscillator(), lg = ac.createGain(); lfo.frequency.value = 0.07; lg.gain.value = 70; lfo.connect(lg); lg.connect(f.frequency);
+        var a = ac.createOscillator(), b = ac.createOscillator(), dg = ac.createGain();
+        a.type = b.type = 'sawtooth'; a.frequency.value = 41.2; b.frequency.value = 41.75; dg.gain.value = 0.11;
+        a.connect(dg); b.connect(dg); dg.connect(f);
+        a.start(t); b.start(t); lfo.start(t);
+        amb = { g: g, f: f, nodes: [a, b, lfo], src: null, rg: null };
+        var me = amb;
+        Promise.resolve(radio()).then(function (buf) {
+          if (!buf || amb !== me) return;
+          var s = ac.createBufferSource(); s.buffer = buf; s.playbackRate.value = 0.8;
+          var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1300; bp.Q.value = 0.8;
+          var dl = ac.createDelay(1), fb = ac.createGain(), rg = ac.createGain();
+          dl.delayTime.value = 0.34; fb.gain.value = 0.38; rg.gain.value = 0.3;
+          s.connect(bp); bp.connect(rg); rg.connect(g); rg.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(g);
+          s.start(Math.max(ac.currentTime, t + 0.6));
+          me.src = s; me.rg = rg;
+        });
+      }
+      function stopAmb(fade) {
+        if (!amb) return;
+        var a = amb, t = ac.currentTime; amb = null;
+        a.g.gain.cancelScheduledValues(t); a.g.gain.setTargetAtTime(0, t, fade);
+        a.nodes.forEach(function (n) { n.stop(t + fade * 6); });
+        if (a.src) a.src.stop(t + fade * 6);
+      }
+      function leave() {
+        if (!amb && !live()) return;
+        stopAmb(0.25);
+        if (!live()) return;
+        var t = ac.currentTime, n = src(), f = ac.createBiquadFilter(), g = ac.createGain();
+        f.type = 'bandpass'; f.Q.value = 1.5; f.frequency.setValueAtTime(160, t); f.frequency.exponentialRampToValueAtTime(3200, t + 0.9);
+        n.connect(f); f.connect(g); g.connect(out); env(g, t, 0.28, 0.5, 0.5); n.start(t); n.stop(t + 1.2);
+      }
+      function mark() {
+        if (!soundBtn) return;
+        var on = !!(want && ac && ac.state === 'running');
+        soundBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        var key = on ? 'void.sound.off' : 'void.sound.on';
+        soundBtn.setAttribute('data-i18n-aria', key); soundBtn.setAttribute('aria-label', t(key)); soundBtn.title = t(key);
+        if (on && state === 'open') ambience(0);
+      }
+      if (soundBtn) soundBtn.addEventListener('click', function () {
+        var on = soundBtn.getAttribute('aria-pressed') === 'true';
+        want = !on;
+        try { localStorage.setItem('arfr.void.sound', want ? 'on' : 'off'); } catch (e) {}
+        if (want) { var c = ctx(); if (c && c.state !== 'running') c.resume().then(mark, function () {}); }
+        else stopAmb(0.3);
+        mark();
+      });
+      document.addEventListener('arfr:lang', mark);
+      mark();
+      return { tension: tension, level: level, boom: boom, leave: leave };
+    })();
   })();
 
   /* Entrance: whatever scrolls in rises in turn; prompts type their command */

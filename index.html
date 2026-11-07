@@ -644,6 +644,16 @@ SET newsletter = 0
   </div>
 </div>
 
+<!-- behind the last slide: only for those who push hard enough -->
+<div class="void" id="void" role="dialog" aria-modal="true" aria-labelledby="void-title" tabindex="-1" hidden>
+  <canvas class="void-gl" id="void-gl" aria-hidden="true"></canvas>
+  <div class="void-text">
+    <p class="void-title" id="void-title" data-i18n="void.title">Du solltest gar nicht hier sein.</p>
+    <button type="button" class="void-back" id="void-back"><span aria-hidden="true">↑</span> <span data-i18n="void.back">Zurück, solange du noch kannst</span></button>
+  </div>
+  <button type="button" class="void-sound" id="void-sound" aria-pressed="false" aria-label="Ton an" data-i18n-aria="void.sound.on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path class="on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/><path class="off" d="m16 9 6 6m0-6-6 6"/></svg></button>
+</div>
+<div class="void-flash" id="void-flash" aria-hidden="true"></div>
 
 </body>
 </html>

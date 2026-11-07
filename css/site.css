@@ -1810,3 +1810,63 @@ html.slides main > section:not(.is-active) > .wrap { opacity: 0; transform: tran
   html.slides main > section > .wrap, html.slides main > section:not(.is-active) > .wrap { opacity: 1; transform: none; transition: none; }
 }
 @media print { html.slides main > section > .wrap { opacity: 1 !important; transform: none !important; } }
+
+/* Deep scroll: past the end of the last slide the floor gives like rubber (a sheet of spacetime that sags into a
+   well); pushed hard enough, it tears and the page falls into a black hole. Nothing of it shows until then */
+.rubber { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 64; pointer-events: none; }
+.rubber[hidden] { display: none; }
+main > section.rubbering .wrap { will-change: transform; transform-origin: 50% 0; }
+html.void-open { scrollbar-color: transparent transparent; scroll-snap-type: none; }
+.void {
+  position: fixed; inset: 0; z-index: 120;
+  display: grid; place-items: center;
+  color: #fff; background: transparent;
+  overscroll-behavior: contain; touch-action: none;
+  outline: none;
+}
+.void[hidden] { display: none; }
+.void-gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.void.no-gl { background: radial-gradient(circle at 50% 42%, #000 0 11vmin, rgba(255, 196, 120, 0.95) 11.6vmin, rgba(255, 120, 40, 0.35) 14vmin, transparent 26vmin), #000; }
+.void-text {
+  position: absolute; left: 0; right: 0; bottom: max(9vh, 56px);
+  display: flex; flex-direction: column; align-items: center; gap: 22px;
+  padding: 0 16px; text-align: center; pointer-events: none;
+}
+.void-title {
+  margin: 0;
+  font-family: var(--font-display); font-weight: 500;
+  font-size: clamp(22px, 3.4vw, 44px); letter-spacing: 0.01em; line-height: 1.15;
+  opacity: 0; transform: translateY(10px) scale(0.98); filter: blur(6px);
+  transition: opacity 1.6s ease, transform 1.6s ease, filter 1.6s ease;
+}
+.void-back {
+  appearance: none; border: 0; background: none; cursor: pointer; pointer-events: auto;
+  font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.55); padding: 8px 12px;
+  opacity: 0; transition: opacity 1.2s ease, color 0.2s ease;
+}
+.void-back:hover, .void-back:focus-visible { color: #fff; }
+.void-back:focus-visible, .void-sound:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.void.show .void-title { opacity: 1; transform: none; filter: none; }
+.void.show .void-back { opacity: 1; transition-delay: 2.2s, 0s; }
+.void-sound {
+  position: absolute; right: max(16px, 2.5vw); bottom: max(16px, 2.5vw);
+  width: 40px; height: 40px; display: grid; place-items: center;
+  appearance: none; border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35); color: rgba(255, 255, 255, 0.7); cursor: pointer;
+  opacity: 0; transition: opacity 1s ease 1.4s, color 0.2s ease, border-color 0.2s ease;
+}
+.void.show .void-sound { opacity: 1; }
+.void-sound:hover { color: #fff; border-color: rgba(255, 255, 255, 0.45); }
+.void-sound svg { width: 20px; height: 20px; }
+.void-sound .off { display: none; }
+.void-sound[aria-pressed="false"] .on { display: none; }
+.void-sound[aria-pressed="false"] .off { display: inline; }
+.void.leaving .void-title, .void.leaving .void-back, .void.leaving .void-sound { opacity: 0; transition: opacity 0.35s ease; transition-delay: 0s; }
+.void-flash {
+  position: fixed; inset: 0; z-index: 121; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at 50% 70%, #fff 0, rgba(255, 236, 210, 0.9) 18%, rgba(255, 170, 90, 0.35) 45%, transparent 75%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .void-title { transform: none; filter: none; }
+}
