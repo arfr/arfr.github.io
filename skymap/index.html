@@ -374,7 +374,11 @@
   body:not(.globeOn) #tDist{display:none}         /* только для 3D — в обычном виде не нужна */
   body.globeOn #panel{z-index:6;
     max-height:calc(100dvh - max(12px,env(safe-area-inset-top)) - 56px - var(--dock-h, 180px))}
-  body.globeOn *:not(#panel){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  body.globeOn *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  /* размытие под меню пересчитывается каждый кадр анимации — на телефоне это
+     рывки; вместо него в 3D меню почти непрозрачное */
+  body.globeOn #panel{background:rgba(6,9,13,.95)}
+  body.night.globeOn #panel{background:rgba(14,2,2,.96)}
   #globebar{
     display:flex;align-items:center;justify-content:space-between;gap:8px;
     padding:0 0 5px;margin:0 0 5px;border-bottom:1px solid var(--rule);
@@ -1541,6 +1545,38 @@
 <div class="hint" id="hint">тяни — поворот · тап — что это · колесо — приблизить</div>
 
 <script>
+// Панели обновляются каждый кадр (время, компас, кнопки), чаще всего теми же
+// значениями. Одинаковая запись всё равно заставляет браузер пересчитать
+// стили и раскладку — на телефоне при анимации это лишние подтормаживания.
+// Поэтому запись того же текста или атрибута пропускаем.
+(() => {
+  const тк = Object.getOwnPropertyDescriptor(Node.prototype, "textContent");
+  if (тк && тк.set) Object.defineProperty(Node.prototype, "textContent", {
+    configurable: true, enumerable: тк.enumerable, get: тк.get,
+    set(v){
+      const s = v == null ? "" : String(v), f = this.firstChild;
+      if (this.nodeType === 1 && f && f === this.lastChild && f.nodeType === 3 && f.data === s) return;
+      тк.set.call(this, s);
+    },
+  });
+  const sa = Element.prototype.setAttribute;
+  Element.prototype.setAttribute = function(n, v){
+    if (this.getAttribute(n) === String(v)) return;
+    return sa.call(this, n, v);
+  };
+  const скр = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "hidden");
+  if (скр && скр.set) Object.defineProperty(HTMLElement.prototype, "hidden", {
+    configurable: true, enumerable: скр.enumerable, get: скр.get,
+    set(v){ if (скр.get.call(this) === !!v && typeof v !== "string") return; скр.set.call(this, v); },
+  });
+  for (const имя of ["min", "max"]){
+    const д = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, имя);
+    if (д && д.set) Object.defineProperty(HTMLInputElement.prototype, имя, {
+      configurable: true, enumerable: д.enumerable, get: д.get,
+      set(v){ if (д.get.call(this) === String(v)) return; д.set.call(this, v); },
+    });
+  }
+})();
 
 
 window.SKYDATA = {
@@ -4879,7 +4915,23 @@ window.EVENTS = [
            layers: { sun: true, pl: true, nam: true } },
     hint: "Венера на диске Солнца в миг наибольшего сближения центров."
   },
-
+  {
+    id: "galaxy-flight",
+    name: { ru: "Солнечная система в Галактике", en: "The Solar System in the Galaxy" },
+    note: { ru: "Солнце вместе с планетами летит вокруг центра Галактики со скоростью около 245 км/с — в сторону Лебедя. "
+              + "Планеты не просто кружат вокруг Солнца, а догоняют его по спиралям: за каждым телом тянется его настоящий путь. "
+              + "Скорость Солнца — стандартные значения (вращение Галактики по McMillan 2017 и собственное движение Солнца по "
+              + "Schönrich 2010); для наглядности Солнце замедлено в 10 раз. «Скорость» переключает 1:10, 1:100 и 1:1.",
+            en: "The Sun and its planets fly around the Galactic centre at about 245 km/s, towards Cygnus. "
+              + "The planets do not just circle the Sun, they chase it along spirals: each body leaves its real path behind. "
+              + "The Sun's velocity uses standard values (Galactic rotation after McMillan 2017, solar motion after "
+              + "Schönrich 2010); for clarity the Sun is slowed down tenfold. «Speed» switches 1:10, 1:100 and 1:1." },
+    find: { kind: "now" },
+    set:  { dome: false, fov: 110, alt: 20, az: 180, aim: false, day: false, galaxy: true,
+            layers: { stars: true, fig: true, nam: true, ecl: true, sun: true, moon: true, pl: true } },
+    hint: { ru: "3D-вид «В Галактике», полёт запущен. Крутите вид пальцем, «Стоп» — остановить.",
+            en: "3D view «In the Galaxy», flight running. Turn the view with a finger, «Stop» to halt." }
+  }
 ];
 
 
@@ -9852,7 +9904,11 @@ function computeSkyState(instant, observer, dayOn, magnitudeLimit, xf, obsFrame)
   const earthShadow = полосы.length ? { sunAlt, sunAzDeg: sunAz, antiAzDeg, bands: полосы } : null;
   
 
-  const antitwilight = deriveAntitwilightScene(sunAlt, sunAz, observer.air);
+  // тень Земли на сумеречном небе считается долго (лучи через атмосферу);
+  // пока открыт 3D-вид, обычного неба не видно — при быстром ходе времени
+  // это давало рывки в каждом кадре
+  const antitwilight = (typeof шарОткрыт !== "undefined" && шарОткрыт) ? null
+    : deriveAntitwilightScene(sunAlt, sunAz, observer.air);
   return { sunAlt, level, mlim, glow, earthShadow, antitwilight,
            sun, moon, earthFromMoon, planets, moonUp };
 }
@@ -14212,6 +14268,8 @@ function showEvent(ev){
 
   stopPlay();
   const s = ev.set;
+  // обычные явления показываются на небе — из 3D возвращаемся к нему
+  if (!s.galaxy && typeof шарОткрыт !== "undefined" && шарОткрыт) closeGlobe();
   жцРецептТронул("дата");
   cam.date = мигРецепта(срок.when, s);
   applyFrame(s);
@@ -14303,6 +14361,12 @@ function showEvent(ev){
 
 
   setMenu(false);
+  // ярлык «Солнечная система в Галактике»: сразу 3D, вид Галактики и полёт
+  if (s.galaxy && typeof openGlobe === "function"){
+    openGlobe();
+    if (!шарГалактика) шарГалВкл(true);
+    шарПолёт(true);
+  }
   return срок;
 }
 
@@ -19824,10 +19888,11 @@ let _регКлюч = "";
 function раскладкаРегулятора(){
   const бар = document.getElementById("altbar");
   const щель = бар && бар.querySelector(".altslot");
-  if (!щель || !бар.getClientRects().length) return;
+  if (!щель) return;
   const низ = низВзгляда();
   const ключ = `${низ}|${innerWidth}x${innerHeight}|${document.body.className}`;
-  if (ключ === _регКлюч) return;
+  if (ключ === _регКлюч) return;                   // раскладку не трогаем каждый кадр
+  if (!бар.getClientRects().length) return;
   _регКлюч = ключ;
   // исходная геометрия из CSS
   бар.style.top = бар.style.transform = бар.style.height = "";
@@ -22273,11 +22338,13 @@ function openGlobe(){
     if (ц.крен !== undefined) шарКрен = ц.крен;
   }
   шарРежимКнопки();
+  _высотыПанелей.clear();                          // нижняя полоса стала выше
   renderNow();
 }
 function closeGlobe(){
   if (!шарОткрыт) return;
   шарПолёт(false);
+  if (шарГалактика) шарГалВкл(false);              // при новом открытии — обычный 3D, а не полвида Галактики
   шарОткрыт = false; шарПальцы.clear();
   шарХолст.hidden = true;
   cvs.style.visibility = "";
@@ -22285,6 +22352,7 @@ function closeGlobe(){
   шарКлючЗвёзд = ""; шарЗвёзды.width = шарЗвёзды.height = 1;   // отдать память
   document.getElementById("globebar").hidden = true;
   document.getElementById("globeTop").setAttribute("aria-pressed", "false");
+  _высотыПанелей.clear();
   renderNow();
 }
 function шарПоставитьРежим(режим){
@@ -24752,10 +24820,28 @@ if (замер){
       `камера  ${cam.azimuthNorthDeg.toFixed(1)}° / ${cam.altitudeDeg.toFixed(1)}°\n` +
       `режим   ${!opt.smooth ? "без сглаживания" : гироЖивой() ? "гироскоп + компас" : "только компас" + (гироОшибка ? " (" + гироОшибка + ")" : "")}\n` +
       `расхожд ${замер.расхN ? (замер.расх/замер.расхN).toFixed(1) + "° (макс " + замер.расхМакс.toFixed(1) + "°)" : "–"}\n` +
-      `уход    ${(Math.hypot(_уход[0], _уход[1], _уход[2])/D2R).toFixed(2)} °/с`;
+      `уход    ${(Math.hypot(_уход[0], _уход[1], _уход[2])/D2R).toFixed(2)} °/с` +
+      (шарОткрыт ? `\n3D      ${замер.шКадры} кадр/с · ${замер.шКадры ? (замер.шМс/замер.шКадры).toFixed(1) : "–"} мс (макс ${замер.шМакс.toFixed(0)})` +
+                   `\nэкран   ${замер.эКадры} /с · рывков >50 мс: ${замер.рывки} (макс ${замер.эМакс.toFixed(0)} мс)` : "");
+    замер.шКадры = замер.шМс = замер.шМакс = замер.эКадры = замер.рывки = замер.эМакс = 0;
     замер.события = замер.гиро = замер.кадры = 0; замер.мс = замер.макс = 0;
     замер.расх = замер.расхN = замер.расхМакс = 0;
   }, 1000);
+  // 3D: время отрисовки шара и настоящие промежутки между кадрами экрана
+  Object.assign(замер, { шКадры: 0, шМс: 0, шМакс: 0, эКадры: 0, рывки: 0, эМакс: 0 });
+  const _drawGlobe = drawGlobe;
+  drawGlobe = function(...а){
+    const t0 = performance.now(), r = _drawGlobe.apply(this, а), dt = performance.now() - t0;
+    замер.шКадры++; замер.шМс += dt; замер.шМакс = Math.max(замер.шМакс, dt);
+    return r;
+  };
+  let _эПред = 0;
+  const _эКадр = (t) => {
+    if (шарОткрыт && _эПред){ const d = t - _эПред; замер.эКадры++; замер.эМакс = Math.max(замер.эМакс, d); if (d > 50) замер.рывки++; }
+    _эПред = шарОткрыт ? t : 0;
+    requestAnimationFrame(_эКадр);
+  };
+  requestAnimationFrame(_эКадр);
 }
 let датчикКадр = 0;
 const ДАТЧИК_МИН_ЧАСТОТА = 0.2, ДАТЧИК_БЕТА = 0.1, ДАТЧИК_ЧАСТОТА_СКОРОСТИ = 1;
@@ -25695,16 +25781,45 @@ function navSpan(){ return state.time.navSpan; }
 
 
 
+// Высоты нижних панелей нужны каждому кадру анимации. Чтение offsetHeight
+// после записи в DOM заставляет браузер пересчитать раскладку посреди кадра
+// (а при открытом меню это вся длинная панель) — отсюда рывки. Поэтому высоту
+// запоминаем, а ResizeObserver сообщает, когда она и правда изменилась.
+const _высотыПанелей = new Map();
+// после любого действия человека (и при смене вида) высоты читаем заново —
+// так кадр сразу после нажатия видит новую раскладку; во время анимации
+// без касаний остаётся запомненное значение
+for (const тип of ["pointerdown", "click", "keydown", "input", "change", "resize", "orientationchange"])
+  addEventListener(тип, () => _высотыПанелей.clear(), true);
+function _высотаПанели(id, приСмене){
+  if (_высотыПанелей.has(id)) return _высотыПанелей.get(id);
+  const п = document.getElementById(id);
+  if (!п) return 0;
+  const h = п.offsetHeight || 0;
+  if (typeof ResizeObserver !== "function") return h;
+  _высотыПанелей.set(id, h);
+  if (!_высотаПанели.следим) _высотаПанели.следим = new Set();
+  if (!_высотаПанели.следим.has(id)){
+    _высотаПанели.следим.add(id);
+    let было = h;
+    new ResizeObserver(() => {                       // высота сменилась сама, без касания
+      const н = п.offsetHeight || 0;                 // здесь раскладка уже посчитана
+      if (н === было) return;
+      было = н; _высотыПанелей.set(id, н);
+      if (приСмене) приСмене(); else relayout();
+      scheduleRender();
+    }).observe(п);
+  }
+  return h;
+}
 function шарПолосаCss(){
-  const п = document.getElementById("globebar");
-  return (п && !п.hidden && п.offsetHeight) ? п.offsetHeight : 0;
+  return _высотаПанели("globebar");
 }
 function шарНизИнсет(л){
   return (л.botInset || 0) + Math.round(шарПолосаCss()*л.w/Math.max(1, л.cssW || л.w));
 }
 function dockHeightPx(){
-  const п = document.getElementById("timedock");
-  return (п && !п.hidden && п.offsetHeight) ? п.offsetHeight : 0;
+  return _высотаПанели("timedock", () => publishDockHeight());
 }
 
 
@@ -25718,7 +25833,7 @@ let ростПолосы = null;
 function publishDockHeight(){
   const h = dockHeightPx();
   const el = document.documentElement;
-  if (el && el.style && el.style.setProperty)
+  if (el && el.style && el.style.setProperty && el.style.getPropertyValue("--dock-h") !== h + "px")
     el.style.setProperty("--dock-h", h + "px");
   if (h !== ростПолосы){
     ростПолосы = h;
