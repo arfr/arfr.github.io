@@ -118,7 +118,7 @@
 
   body.night #topbar, body.night #panel, body.night #note, body.night #fsTop,
   body.night #card,
-  body.night #altbar, body.night #azbar, body.night .hint{
+  body.night #altbar, body.night #zoombar, body.night #azbar, body.night .hint{
     filter:brightness(var(--dim,1));
   }
   body.night #menu[aria-expanded=true],
@@ -371,6 +371,16 @@
     -webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;
   }
   #globe[hidden]{display:none}
+  /* регулятор масштаба 3D — как регулятор высоты: тянуть, тапнуть по шкале
+     или по подписи на конце */
+  #zoombar{
+    position:fixed;right:14px;z-index:6;
+    top:calc((100dvh - var(--dock-h, 180px))/2 + 28px);transform:translateY(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    height:min(36vh,240px);
+  }
+  #zoombar[hidden]{display:none}
+  body.short #zoombar{height:min(46vh,200px);right:10px}
   body:not(.globeOn) #tDist{display:none}         /* только для 3D — в обычном виде не нужна */
   body.globeOn #panel{z-index:6;
     max-height:calc(100dvh - max(12px,env(safe-area-inset-top)) - 56px - var(--dock-h, 180px))}
@@ -394,13 +404,14 @@
   }
   @media (max-width:560px){
     #globecoords{flex-basis:100%;order:-1;padding-bottom:4px}
+    #globecoords:empty{display:none}
   }
   /* Столбец справа: «⋮», снимок и компас видны всегда, остальное — в группе. */
   #toolcol{position:fixed;top:max(12px,env(safe-area-inset-top));right:14px;z-index:6;
     display:flex;flex-direction:column;gap:10px}
   #toolcol > button{position:static;flex:none}
   body:not(.toolsOpen) :is(#globeTop,#fsTop,#nightTop,#shareTop,#langTop,#refrTop){display:none !important}
-  body.toolsOpen #altbar{visibility:hidden}
+  body.toolsOpen :is(#altbar,#zoombar){visibility:hidden}
   body.night #moreTop{filter:brightness(var(--dim,1))}
   #menu:focus-visible{outline:1px solid var(--spec-A);outline-offset:2px}
   
@@ -783,7 +794,7 @@
 
 
 
-  #altbar input[type=range]{
+  :is(#altbar,#zoombar) input[type=range]{
     writing-mode:vertical-lr;direction:rtl;
     -webkit-appearance:none;appearance:none;
     width:34px;height:100%;margin:0;
@@ -791,21 +802,21 @@
   }
   
 
-  #altbar input[type=range]::-webkit-slider-thumb{
+  :is(#altbar,#zoombar) input[type=range]::-webkit-slider-thumb{
     -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
     background:radial-gradient(circle, var(--ink) 0 2.5px, transparent 3px),
                var(--panel);
     border:1.5px solid var(--ink);box-shadow:0 0 0 1px rgba(0,0,0,.55);
     cursor:pointer;
   }
-  #altbar input[type=range]::-moz-range-thumb{
+  :is(#altbar,#zoombar) input[type=range]::-moz-range-thumb{
     width:20px;height:20px;border-radius:50%;
     background:radial-gradient(circle, var(--ink) 0 2.5px, transparent 3px),
                var(--panel);
     border:1.5px solid var(--ink);box-shadow:0 0 0 1px rgba(0,0,0,.55);
     cursor:pointer;
   }
-  #altbar input[type=range]::-moz-range-track{
+  :is(#altbar,#zoombar) input[type=range]::-moz-range-track{
     width:2px;background:var(--rule);
   }
   
@@ -1480,6 +1491,12 @@
 
 <canvas id="earth" hidden></canvas>
 <canvas id="globe" hidden></canvas>
+<div id="zoombar" hidden>
+  <button class="cap capbtn" id="zoomNear" title="Ближе">Земля</button>
+  <div class="altslot"><input type="range" id="zoomR" min="0" max="1000" step="1" value="1000"
+         aria-label="Масштаб 3D: ближе — дальше"></div>
+  <button class="cap capbtn" id="zoomFar" title="Дальше">Планеты</button>
+</div>
 
 
 <div id="timedock" hidden>
@@ -1498,12 +1515,16 @@
     </span>
     <span class="zooms">
       <button class="t" id="globeZEarth" aria-pressed="true">Земля</button>
+      <button class="t" id="globeJunk" aria-pressed="false">Мусор</button>
       <button class="t" id="globeZMoon" aria-pressed="false">До Луны</button>
       <button class="t" id="globeZSun" aria-pressed="false">До Солнца</button>
       <button class="t" id="globeZAll" aria-pressed="false">Все планеты</button>
       <button class="t" id="globeGal" aria-pressed="false">В Галактике</button>
       <button class="t" id="globeGalSpeed" hidden>Скорость 1:1</button>
       <button class="t" id="globeGalFly" hidden aria-pressed="false">▶ Полёт</button>
+      <button class="t" id="globeGalWide" hidden>Галактика</button>
+      <button class="t" id="globeGalKids" hidden aria-pressed="false">Как летим</button>
+      <button class="t" id="globeGalFollow" hidden aria-pressed="false">За Солнцем</button>
     </span>
   </div>
   
@@ -4914,6 +4935,64 @@ window.EVENTS = [
     set: { dome: false, fov: 10, aim: "sun", day: false,
            layers: { sun: true, pl: true, nam: true } },
     hint: "Венера на диске Солнца в миг наибольшего сближения центров."
+  },
+  {
+    id: "milky-way-bright",
+    name: { ru: "Почему Млечный Путь ярче к Стрельцу", en: "Why the Milky Way is brighter towards Sagittarius" },
+    note: { ru: "Конец августа, Москва, десять вечера. Млечный Путь перекинулся через всё небо от горизонта до горизонта. "
+              + "На юго-западе у самой земли — ЦЕНТР ГАЛАКТИКИ в Стрельце, над головой — Лебедь: туда, к метке ВРАЩЕНИЕ, "
+              + "нас несёт вращение Галактики (центр не там, это частая путаница). На северо-востоке — АНТИЦЕНТР в Возничем. "
+              + "Яркость полосы — по настоящим измерениям.",
+            en: "Late August, Moscow, ten in the evening. The Milky Way spans the whole sky from horizon to horizon. "
+              + "In the south-west, right at the ground, the GALACTIC CENTRE in Sagittarius; overhead Cygnus: towards the "
+              + "ROTATION mark the Galaxy's rotation carries us (the centre is not there, a common mix-up). In the north-east, "
+              + "the ANTICENTRE in Auriga. The brightness of the band follows real measurements." },
+    find: { kind: "at", ms: 1819307850000 },
+    set:  { dome: true, zoom: 0.4, alt: 90, aim: false, target: false, day: false,
+            place: { lat: 55.75, lon: 37.62 },
+            layers: { stars: true, fig: true, nam: true, mw: true, apex: true } },
+    hint: { ru: "Сравни: у метки ЦЕНТР ГАЛАКТИКИ полоса яркая и широкая, у АНТИЦЕНТРА — бледная и узкая. Почему?",
+            en: "Compare: at the GALACTIC CENTRE mark the band is bright and wide, at the ANTICENTRE pale and narrow. Why?" },
+    explain: { ru: "Мы живём внутри плоского звёздного диска, в 27 000 световых лет от его центра. Млечный Путь — это диск, "
+                 + "увиденный изнутри, с ребра. К центру мы смотрим сквозь всю толщу звёзд до центра и дальше, сквозь "
+                 + "утолщение-балдж с миллиардами старых звёзд. К антицентру — наружу, к краю диска, до которого около "
+                 + "20 000 световых лет, и звёзд по пути куда меньше. Тёмная щель через Лебедя и Орла — пыль, она "
+                 + "заслоняет свет за ней. Снаружи это видно в 3D: «В Галактике», затем «Галактика».",
+               en: "We live inside a flat disk of stars, 27,000 light years from its centre. The Milky Way is that disk seen "
+                 + "from inside, edge-on. Towards the centre we look through all the stars up to the centre and beyond, "
+                 + "through the bulge with billions of old stars. Towards the anticentre we look outwards, to the edge of "
+                 + "the disk, about 20,000 light years away, with far fewer stars on the way. The dark rift through Cygnus "
+                 + "and Aquila is dust hiding the light behind it. From outside you see it in 3D: «In the Galaxy», then «Galaxy»." }
+  },
+  {
+    id: "moon-sun-gone",
+    name: { ru: "Луна светит, а Солнца нет", en: "The Moon shines, but the Sun is gone" },
+    note: { ru: "Ближайший вечер с молодой Луной: Солнце уже село, а Луна сияет. Светит она не сама — её и сейчас "
+              + "освещает Солнце, просто Солнце под горизонтом. Пунктирная дуга идёт от освещённого края Луны к Солнцу: "
+              + "это большой круг небесной сферы, кратчайший путь по небу. Поэтому серп «смотрит» не прямо вниз, а вдоль дуги — "
+              + "на глаз кажется, что мимо Солнца. Луна в нужные дни ищется для текущего места.",
+            en: "The nearest evening with a young Moon: the Sun has set, yet the Moon shines. It does not shine by itself — "
+              + "the Sun is lighting it right now, only the Sun is below the horizon. The dashed arc runs from the lit edge of "
+              + "the Moon to the Sun: a great circle of the celestial sphere, the shortest way across the sky. That is why the "
+              + "crescent «points» along the arc rather than straight down — to the eye it seems to miss the Sun. The evening "
+              + "is found for the current place." },
+    find: { kind: "moon-evening" },
+    set:  { dome: false, fov: 100, aim: false, target: false, day: true, moonsun: true,
+            span: 3600,
+            layers: { stars: true, fig: true, nam: true, sun: true, moon: true, pl: true } },
+    hint: { ru: "Солнце уже село, а Луна светит. Пунктир — путь солнечного света к Луне. Пуск — Луна уходит вслед за Солнцем. "
+              + "«Почему?» — там и вид в 3D.",
+            en: "The Sun has set, yet the Moon shines. The dashed line is the path of sunlight to the Moon. Play — the Moon "
+              + "follows the Sun down. «Why?» also opens the 3D view." },
+    explain: { ru: "Луна — камень, своего света у неё нет. Солнце освещает половину Луны всегда, и днём, и ночью. "
+                 + "Для нас Солнце село, потому что Земля повернулась и закрыла его, — но Луну оно видит по-прежнему: "
+                 + "она выше, над краем Земли. Поэтому светлая сторона серпа всегда обращена к Солнцу, даже к "
+                 + "невидимому. В 3D видно: шар Земли, ты на ночной стороне, а Луна освещена с той стороны, где Солнце.",
+               en: "The Moon is a rock with no light of its own. The Sun lights half of the Moon always, by day and by night. "
+                 + "For us the Sun has set because the Earth turned and hid it — but the Moon still sees it: the Moon is higher, "
+                 + "above the edge of the Earth. So the lit side of the crescent always faces the Sun, even an invisible one. "
+                 + "In 3D you see it: the Earth's globe, you on the night side, and the Moon lit from the side where the Sun is." },
+    globe3d: "луна"
   },
   {
     id: "galaxy-flight",
@@ -10741,11 +10820,83 @@ function drawMeridianLayer(c, frame, display){
 
 
 
+// «Луна светит, а Солнца нет»: дуга большого круга от Луны к Солнцу — путь
+// солнечного света по небесной сфере. Под горизонтом — пунктиром поверх земли,
+// у Солнца подпись, на сколько градусов оно село.
+let луноСолнце = false;
+// поле зрения пошире, пока Луна и Солнце не поместятся оба (на узком
+// экране телефона 100° по высоте мало по ширине)
+function вместитьЛунуИСолнце(f0){
+  for (let f = f0; f <= 170; f += 10){
+    setFov(f); rebuildFrame();
+    if (!frame || !frame.sky || !frame.sky.sun || !frame.sky.moon) return;
+    const w = frame.viewport.width, h = frame.viewport.height, запас = 0.07*Math.min(w, h);
+    const внутри = (т) => { const п = horizontalIn(frame.flat, т.ra, т.dec, true), p = горизонтальнаяТочка(frame, п.az, п.alt);
+                            return p && p.x > запас && p.x < w - запас && p.y > запас*2 && p.y < h - запас*2; };
+    if (внутри(frame.sky.sun) && внутри(frame.sky.moon)) return;
+  }
+}
+function drawMoonSunArc(c, frame){
+  if (!луноСолнце || !frame.sky || !frame.sky.sun || !frame.sky.moon) return;
+  const с = horizontalIn(frame.flat, frame.sky.sun.ra, frame.sky.sun.dec, true);
+  const л = horizontalIn(frame.flat, frame.sky.moon.ra, frame.sky.moon.dec, true);
+  const ед = (п) => { const a = п.alt*D2R, z = п.az*D2R; return [Math.cos(a)*Math.sin(z), Math.cos(a)*Math.cos(z), Math.sin(a)]; };
+  const A = ед(л), B = ед(с);
+  const ω = Math.acos(Math.max(-1, Math.min(1, A[0]*B[0] + A[1]*B[1] + A[2]*B[2])));
+  if (ω < 0.02) return;
+  const N = 96, точки = [];
+  for (let i = 0; i <= N; i++){
+    const t = i/N, a = Math.sin((1 - t)*ω)/Math.sin(ω), b = Math.sin(t*ω)/Math.sin(ω);
+    const v = [a*A[0] + b*B[0], a*A[1] + b*B[1], a*A[2] + b*B[2]];
+    const alt = Math.asin(Math.max(-1, Math.min(1, v[2])))/D2R, az = Math.atan2(v[0], v[1])/D2R;
+    точки.push({ alt, p: горизонтальнаяТочка(frame, az, alt) });
+  }
+  const лЭкран = точки[0].p, rЛуны = frame.xf.px(16, 0.3);
+  c.save();
+  c.lineWidth = frame.xf.hair(1.6);
+  c.strokeStyle = "rgba(255,214,110,.85)"; c.fillStyle = "rgba(255,214,110,.9)";
+  // над горизонтом — сплошной, под ним — пунктир
+  for (const под of [false, true]){
+    c.setLineDash(под ? [frame.xf.px(5, 0.3), frame.xf.px(5, 0.3)] : []);
+    c.beginPath();
+    let перо = false;
+    for (const т of точки){
+      const близко = лЭкран && т.p && Math.hypot(т.p.x - лЭкран.x, т.p.y - лЭкран.y) < rЛуны;
+      if (!т.p || близко || (т.alt < 0) !== под){ перо = false; continue; }
+      if (перо) c.lineTo(т.p.x, т.p.y); else { c.moveTo(т.p.x, т.p.y); перо = true; }
+    }
+    c.stroke();
+  }
+  c.setLineDash([]);
+  // стрелки: свет идёт от Солнца к Луне
+  const ш = frame.xf.px(6, 0.3);
+  for (const доля of [0.3, 0.55, 0.8]){
+    const i = Math.round(доля*N), p = точки[i].p, q = точки[i - 2] && точки[i - 2].p;
+    if (!p || !q) continue;
+    let dx = q.x - p.x, dy = q.y - p.y; const д = Math.hypot(dx, dy) || 1; dx /= д; dy /= д;
+    c.beginPath(); c.moveTo(p.x + dx*ш, p.y + dy*ш);
+    c.lineTo(p.x - dy*ш*0.6, p.y + dx*ш*0.6); c.lineTo(p.x + dy*ш*0.6, p.y - dx*ш*0.6); c.closePath(); c.fill();
+  }
+  // Солнце под горизонтом
+  const sp = точки[N].p;
+  if (sp && с.alt < 0){
+    const r = frame.xf.px(10, 0.3);               // само Солнце рисует слой Солнца
+    const град = Math.round(-с.alt);
+    const текст = tr({ ru: `Солнце · ${град}° под горизонтом`, en: `Sun · ${град}° below the horizon` });
+    c.font = labelFont(13); c.textAlign = "center"; c.textBaseline = "top";
+    const полш = c.measureText(текст).width/2 + frame.xf.px(8, 0.3);
+    const tx = Math.max(полш, Math.min(frame.viewport.width - полш - frame.xf.px(44, 0.3), sp.x));
+    c.lineWidth = frame.xf.px(3, 0.3); c.strokeStyle = "rgba(0,0,0,.65)";
+    c.strokeText(текст, tx, sp.y + r*2.1); c.fillText(текст, tx, sp.y + r*2.1);
+  }
+  c.restore();
+}
 const НАПРАВЛЕНИЯ_ПОЛЁТА = [
   { id: "apex",      raH: 18 + 4/60,  dec:  30,      знак: "куда",   слово: { ru: "АПЕКС", en: "APEX" } },
   { id: "antapex",   raH: 6 + 4/60,   dec: -30,      знак: "откуда", слово: { ru: "АНТИАПЕКС", en: "ANTAPEX" } },
   { id: "gc",        raH: 17.7603,    dec: -28.9362, знак: "центр",  слово: { ru: "ЦЕНТР ГАЛАКТИКИ", en: "GALACTIC CENTRE" } },
   { id: "grot",      raH: 21.2003,    dec:  48.3296, знак: "куда",   слово: { ru: "ВРАЩЕНИЕ", en: "ROTATION" } },
+  { id: "gac",       raH: 5.7603,     dec:  28.9362, знак: "откуда", слово: { ru: "АНТИЦЕНТР", en: "ANTICENTRE" } },
 ];
 const _полётТочка = (frame, raH, decDeg) => {
   const v = frame.xf.j2000ToCamera(raH, decDeg);
@@ -13714,6 +13865,40 @@ function sunHorizonMoment(side, from){
 
 
 
+// Ближайший вечер, когда Солнце опустилось на 8° под горизонт, а молодая Луна
+// ещё высоко: элонгация 35…110°, Луна выше 10°. Из нескольких подходящих
+// вечеров подряд берём тот, где Луна ближе к 70° от Солнца — серп уже
+// заметный, а Солнце и Луна помещаются в один вид.
+function вечерСЛуной(from){
+  const ЛУНА = { kind: "body", name: "moon" }, СОЛНЦЕ = { kind: "body", name: "sun" };
+  const ед = (п) => { const a = п.alt*D2R, z = п.az*D2R; return [Math.cos(a)*Math.sin(z), Math.cos(a)*Math.cos(z), Math.sin(a)]; };
+  let лучший = null, t = new Date(from.getTime() - 3*3600000);
+  for (let день = 0; день < 45; день++){
+    const закат = sunHorizonMoment("setting", t);
+    if (!закат) { t = new Date(t.getTime() + 86400000); continue; }
+    t = new Date(закат.when.getTime() + 20*3600000);
+    if (закат.when.getTime() < from.getTime() - 2*3600000) continue;
+    let мс = закат.when.getTime(), с = null;
+    for (let k = 0; k < 90; k++){                   // до трёх часов после заката
+      мс += 120000; с = гдеНаНебе(СОЛНЦЕ, мс);
+      if (с.alt <= -8) break;
+    }
+    if (!с || с.alt > -7) { if (лучший) break; continue; }
+    const л = гдеНаНебе(ЛУНА, мс), A = ед(л), B = ед(с);
+    const э = Math.acos(Math.max(-1, Math.min(1, A[0]*B[0] + A[1]*B[1] + A[2]*B[2])))/D2R;
+    const годен = л.alt >= 10 && э >= 35 && э <= 110;
+    if (годен){
+      const оценка = Math.abs(э - 70);
+      if (!лучший || оценка < лучший.оценка){
+        const x = A[0] + B[0], y = A[1] + B[1];
+        лучший = { when: new Date(мс), оценка, элонгация: э,
+                   азимут: (Math.atan2(x, y)/D2R + 360) % 360,
+                   высота: Math.max(0, Math.min(30, (л.alt + с.alt)/2)) };
+      }
+    } else if (лучший) break;                       // подходящие вечера кончились
+  }
+  return лучший;
+}
 function solarLongitudeDate(целевая, from){
   const рас = (t) => { let d = solarLon(t) - целевая; while (d > 180) d -= 360;
                        while (d < -180) d += 360; return d; };
@@ -13816,6 +14001,10 @@ function eventDate(ev, from = cam.date){
     return { when: new Date(ev.find.ms), станция: new Date(ev.find.ms), precision: "instant" };
   if (ev.find.kind === "now")
     return { when: new Date(from), станция: new Date(from), precision: точностьСрока(ev) };
+  if (ev.find.kind === "moon-evening"){
+    const у = вечерСЛуной(new Date(from));
+    return у ? { when: у.when, узел: у, precision: "instant" } : null;
+  }
   if (ev.find.kind === "sun-horizon"){
     const у = sunHorizonMoment(ev.find.side, new Date(from));
     if (!у) return null;
@@ -14330,7 +14519,10 @@ function showEvent(ev){
 
 
     if (s.target === false){ target = null; syncAim(); }
-  } else applyGaze(срок.узел ? { ...s, az: срок.узел.азимут } : s);
+  } else applyGaze(срок.узел ? { ...s, az: срок.узел.азимут,
+                                  ...(срок.узел.высота !== undefined && s.moonsun ? { alt: срок.узел.высота } : {}) } : s);
+  луноСолнце = !!s.moonsun;
+  if (s.moonsun) вместитьЛунуИСолнце(s.fov || 100);
   
 
 
@@ -14366,7 +14558,6 @@ function showEvent(ev){
     openGlobe();
     if (!шарГалактика) шарГалВкл(true);
     шарПолёт(true);
-    шарГалТур = { t0: null };                        // и камера сама облетает систему
   }
   return срок;
 }
@@ -14418,6 +14609,18 @@ function обновитьПочему(){
   кнопкаПочему.setAttribute("aria-expanded", объяснениеРаскрыто ? "true" : "false");
   карточкаПочему.hidden = !текст || !объяснениеРаскрыто;
   карточкаПочему.textContent = текст;
+  if (текст && ev.globe3d && typeof openGlobe === "function"){
+    const к = document.createElement("button");
+    к.className = "t"; к.style.cssText = "display:block;margin-top:8px";
+    к.textContent = tr({ ru: "Показать в 3D", en: "Show in 3D" });
+    к.addEventListener("click", (e) => {
+      e.stopPropagation();
+      объяснениеРаскрыто = false; обновитьПочему();
+      openGlobe();
+      if (ev.globe3d === "луна") шарВидСбоку();
+    });
+    карточкаПочему.appendChild(к);
+  }
   разместитьПочему();
 }
 if (кнопкаПочему) кнопкаПочему.addEventListener("click", () => {
@@ -16242,6 +16445,7 @@ const жцСлой = (k) => `слой:${k}`;
 
 
 function закрытьЯвление({ откат = true } = {}){
+  луноСолнце = false;
   const было = жц;
   жц = null;
   if (!было) return null;
@@ -18982,7 +19186,7 @@ function drawConstellationArtLayer(c, frame, display){
   рисункиСозвездий(c, проектор, f.w, f.h, 0.4*(1 - 0.8*(frame.sky.level || 0)),
                    (frame.render && frame.render.quality === "interactive" ? 6 : 1.5)*дпр);
 }
-function рисункиСозвездий(c, проектор, Wэ, Hэ, прозрачность, допуск){
+function рисункиСозвездий(c, проектор, Wэ, Hэ, прозрачность, допуск, доляФигуры){
   const f = { w: Wэ, h: Hэ }, p = {x:0, y:0};
   const рисунки = _рисункиГотовь();
   const запас = Math.max(f.w, f.h);
@@ -18991,6 +19195,7 @@ function рисункиСозвездий(c, проектор, Wэ, Hэ, про�
   c.globalAlpha = прозрачность;
   for (const р of рисунки){
     if (!р.img.complete || !р.img.naturalWidth) continue;
+    if (доляФигуры){ const д = доляФигуры(р.ru); if (д < 0.01) continue; c.globalAlpha = прозрачность*д; }
     const N = р.N, M = N + 1, г = р.сетка;
     const X = new Float32Array(M*M), Y = new Float32Array(M*M), ok = new Uint8Array(M*M);
     let minx = 1e9, maxx = -1e9, miny = 1e9, maxy = -1e9, k = 0;
@@ -19509,6 +19714,7 @@ function renderCanvas(frame, display){
   
   drawGroundLayer(ctx, frame, display);
   drawHorizonLineLayer(ctx, frame, display);
+  drawMoonSunArc(ctx, frame);
   
 
 
@@ -19597,6 +19803,7 @@ function updateHud(frame){
     hudDir.textContent = `${c.name.padEnd(3)} ${c.deg.toFixed(0).padStart(3)}°`;
     hudSt.textContent = `S ${fmtH(((frame.flat.st%24)+24)%24)}`;
     hudSub.textContent = `${tr(СЛОВА_ПОКАЗАНИЙ.высота)} ${шк.alt.toFixed(0)}°`;
+    syncNav();                                       // дата внизу идёт и при свободной камере 3D
     return;
   }
   const c = compass(cam.azimuthNorthDeg);
@@ -21465,11 +21672,9 @@ function шарПодпись(){
                                                               en: "double-click a spot to stand there" });
     return;
   }
-  const { lat, lon } = тн;
-  const где = шарЦентрТело() !== "earth" ? tr(шарИмяЦентра()) + " · " : "";
-  el.textContent = где + tr({
-    ru: `${Math.abs(lat).toFixed(3)}° ${lat >= 0 ? "с" : "ю"}. ш. · ${Math.abs(lon).toFixed(3)}° ${lon >= 0 ? "в" : "з"}. д.`,
-    en: `${Math.abs(lat).toFixed(3)}° ${lat >= 0 ? "N" : "S"} · ${Math.abs(lon).toFixed(3)}° ${lon >= 0 ? "E" : "W"}` });
+  // координаты своего места в 3D ничего не дают, а на телефоне занимают
+  // целую строку над кнопками: строка остаётся только для подсказки
+  el.textContent = "";
 }
 // Небесное направление (прямое восхождение в часах, склонение) в осях центрального тела.
 function _шарНебо(raЧ, decГрад, оси){
@@ -21561,19 +21766,43 @@ function шарРисуйЗвёзды(c, л, г, оси, ρЗвёзды, дпр)
              y: г.cy - ρЗвёзды*(s[0]*г.n[0] + s[1]*г.n[1] + s[2]*г.n[2]),
              z: s[0]*г.k[0] + s[1]*г.k[1] + s[2]*г.k[2] };
   };
+  // Млечный Путь — те же размытые пятна, что на обычном небе, позади звёзд
+  if (opt.mw){
+    const пятно = mwBlob(false), ЯРКОСТЬ_МП_3D = 1.1;
+    const r = K ? Math.max(6, K*Math.tan(3.2*D2R)) : Math.max(6*дпр, ρЗвёзды*3.2*D2R);   // пятна крупнее, чем на небе: без сетки
+    c.save();
+    c.globalCompositeOperation = "lighter";
+    for (let i = 0; i < MW.n; i++){
+      const т = кНебу(MW.ra[i], MW.dec[i]);
+      if (т.z >= 0 || т.x < -r || т.x > л.w + r || т.y < -r || т.y > л.h + r) continue;
+      // ярче, чем на небе: там пятна ложатся на светлый фон неба
+      c.globalAlpha = Math.min(1, MW.lvl[i]/255*0.7*ЯРКОСТЬ_МП_3D*(K ? 1 : 1.1 + 0.5*Math.sqrt(-т.z)));
+      c.drawImage(пятно, т.x - r, т.y - r, 2*r, 2*r);
+    }
+    c.restore();
+  }
   c.save();
   c.lineWidth = Math.max(1, дпр*0.7);
-  c.strokeStyle = "rgba(120,190,150,.26)";
-  c.beginPath();
-  if (opt.fig) for (const poly of FIGPOLYS){
-    let перо = false;
-    for (let i = 0; i < poly.ra.length; i++){
-      const т = кНебу(poly.ra[i], poly.dec[i]);
-      if (т.z > -0.05){ перо = false; continue; }
-      if (перо) c.lineTo(т.x, т.y); else { c.moveTo(т.x, т.y); перо = true; }
+  const долиФиг = галДоляСозвездий();
+  const линии = polys => {
+    for (const poly of polys){
+      let перо = false;
+      for (let i = 0; i < poly.ra.length; i++){
+        const т = кНебу(poly.ra[i], poly.dec[i]);
+        if (т.z > -0.05){ перо = false; continue; }
+        if (перо) c.lineTo(т.x, т.y); else { c.moveTo(т.x, т.y); перо = true; }
+      }
     }
+  };
+  if (opt.fig && !долиФиг){
+    c.strokeStyle = "rgba(120,190,150,.26)";
+    c.beginPath(); линии(FIGPOLYS); c.stroke();
+  } else if (opt.fig) for (const ф of FIGS){
+    const д = долиФиг(ф.ru);
+    if (д < 0.01) continue;
+    c.strokeStyle = `rgba(120,190,150,${(0.26*д).toFixed(3)})`;
+    c.beginPath(); линии(ф.polys); c.stroke();
   }
-  c.stroke();
   if (opt.stars) for (let i = 0; i < STARS.n; i++){
     const m = STARS.mag[i];
     if (m > 4.6) continue;
@@ -21585,7 +21814,7 @@ function шарРисуйЗвёзды(c, л, г, оси, ρЗвёзды, дпр)
   }
   if (opt.art){
     const проектор = (ra, dec, p) => { const т = кНебу(ra, dec); if (т.z > -0.02) return false; p.x = т.x; p.y = т.y; return true; };
-    рисункиСозвездий(c, проектор, л.w, л.h, 0.32, 1.5*дпр);
+    рисункиСозвездий(c, проектор, л.w, л.h, 0.32, 1.5*дпр, долиФиг);
   }
   // Названия созвездий — посередине видимой части фигуры. Если включено
   // «Видно сегодня», краской как на небе: красным — не видно сегодня,
@@ -21596,6 +21825,9 @@ function шарРисуйЗвёзды(c, л, г, оси, ρЗвёзды, дпр)
     c.lineJoin = "round"; c.lineWidth = 3*дпр; c.strokeStyle = "rgba(3,6,11,.85)";
     const кегль = Math.max(10, 11*дпр), занято = [];
     for (const ф of FIGS){
+      const д = долиФиг ? долиФиг(ф.ru) : 1;
+      if (д < 0.05) continue;
+      c.globalAlpha = д;
       let sx = 0, sy = 0, k = 0;
       for (const poly of ф.polys) for (let i = 0; i < poly.ra.length; i++){
         const т = кНебу(poly.ra[i], poly.dec[i]);
@@ -21635,11 +21867,13 @@ function шарЭквВОси(x, y, z, оси){
 // Галактики. Точки следа лежат на сетке времени и кэшируются: при ходе времени
 // досчитываются только новые, при повороте и приближении только проецируются.
 let шарГалактика = false, шарГалЗамедл = 1;
+// галактические → экваториальные J2000: экв = Tᵀ · гал
+const ГАЛ_T = [[-0.0548755604, -0.8734370902, -0.4838350155],
+               [ 0.4941094279, -0.4448296300,  0.7469822445],
+               [-0.8676661490, -0.1980763734,  0.4559837762]];
 const ГАЛ_V_КМС = (() => {
   const U = 11.1, V = 232.8 + 12.24, W = 7.25;      // км/с: к центру, по вращению, к северному полюсу Галактики
-  const T = [[-0.0548755604, -0.8734370902, -0.4838350155],
-             [ 0.4941094279, -0.4448296300,  0.7469822445],
-             [-0.8676661490, -0.1980763734,  0.4559837762]];
+  const T = ГАЛ_T;
   // экваториальные J2000 = Tᵀ · галактические
   return [0, 1, 2].map(i => T[0][i]*U + T[1][i]*V + T[2][i]*W);
 })();
@@ -21674,6 +21908,8 @@ function шарРисуйПуть(c, л, г, масштаб, дпр, jd, изЭ�
   // след длиной примерно в два экрана, но не дольше тысячи лет
   const полЭкранаАе = г.H/масштаб/AU_KM;
   const Tдн = Math.min(365250, (шарГалВид && шарЦентрСолнце ? 3.4 : 2.4)*полЭкранаАе/vСут);
+  // издали весь след с витками планет меньше пары пикселей — не считаем его
+  if (Math.max(vСут*Tдн, 60)*AU_KM*масштаб < 2*дпр){ шарГалПодпись = { Tдн, шагМакс: Tдн }; return; }
   const тела = [["sun", 0, "#ffd85e"], ["earth", 365.256, "#6ea0eb"]];
   PLANETS.forEach((P, i) => тела.push([PLANET_IDS[i], 360/P[6][1],
     (typeof PLANET_COLOR !== "undefined" && PLANET_COLOR[PLANET_IDS[i]]) || P[8] || "#cfd3da"]));
@@ -21737,7 +21973,7 @@ function шарРисуйПуть(c, л, г, масштаб, дпр, jd, изЭ�
   c.restore();
   шарГалПодпись = { Tдн, шагМакс: Tдн };
 }
-let шарГалПодпись = null;
+let шарГалПодпись = null, _галШирокоБыло = false;
 // «Полёт»: время бежит само, со скоростью под масштаб — весь видимый след
 // проходит примерно за 12 секунд. Камера стоит среди звёзд (как при пуске
 // времени), чтобы вид не крутился вместе с Землёй.
@@ -21753,7 +21989,6 @@ function шарПолёт(вкл){
     _полётКадр = requestAnimationFrame(_полётШаг);
   } else {
     cancelAnimationFrame(_полётКадр);
-    шарГалТурСтоп();
     if (typeof syncTimeInputs === "function") syncTimeInputs();
   }
   шарГалКнопки(); шарРежимКнопки();
@@ -21776,7 +22011,6 @@ function _полётШаг(t){
   const вСек = Math.min(T/12, Pмин/3);
   cam.date = new Date(cam.date.getTime() + вСек*dt*86400000);
   if (t - _полётВремяПоле > 250 && typeof syncTimeInputs === "function"){ syncTimeInputs(); _полётВремяПоле = t; }
-  шарГалТурШаг(t);
   renderNow();
   _полётКадр = requestAnimationFrame(_полётШаг);
 }
@@ -21784,6 +22018,15 @@ function шарГалКнопки(){
   const в = document.getElementById("globeGalFly");
   if (в){ в.hidden = !шарГалактика; в.setAttribute("aria-pressed", String(шарГалПолёт));
           в.textContent = шарГалПолёт ? tr({ ru: "❚❚ Стоп", en: "❚❚ Stop" }) : tr({ ru: "▶ Полёт", en: "▶ Fly" }); }
+  const нг = document.getElementById("globeGalKids");
+  if (нг){ нг.hidden = !шарГалактика; нг.setAttribute("aria-pressed", String(шарГалНаглядно));
+           нг.textContent = tr({ ru: "Как летим", en: "How we fly" }); }
+  const зс = document.getElementById("globeGalFollow");
+  if (зс){ зс.hidden = !(шарГалактика && шарГалНаглядно); зс.setAttribute("aria-pressed", String(шарГалСледом));
+           зс.textContent = tr({ ru: "За Солнцем", en: "Follow the Sun" }); }
+  const ш = document.getElementById("globeGalWide");
+  if (ш){ ш.hidden = !шарГалактика;
+          ш.textContent = _галШирокоБыло ? tr({ ru: "К Солнцу", en: "Back to the Sun" }) : tr({ ru: "Галактика", en: "Galaxy" }); }
   const а = document.getElementById("globeGal"), б = document.getElementById("globeGalSpeed");
   if (а) а.setAttribute("aria-pressed", String(шарГалактика));
   if (б){
@@ -21792,9 +22035,7 @@ function шарГалКнопки(){
   }
 }
 // камера «В Галактике»: сбоку от движения, полёт по диагонали вверх
-// θ — поворот вокруг направления полёта, φ — угол между взглядом и полётом
-// (π/2 — строго сбоку). Без аргументов — исходный вид «как в роликах».
-function шарГалКамера(θ = 0, φ = Math.PI/2, тихо = false){
+function шарГалКамера(){
       const оси = шарОси(cam.date);
       const V = шарЭквВОси(ГАЛ_V_КМС[0], ГАЛ_V_КМС[1], ГАЛ_V_КМС[2], оси);
       // смотрим поперёк движения, но со стороны полюса эклиптики: орбиты видны
@@ -21803,43 +22044,58 @@ function шарГалКамера(θ = 0, φ = Math.PI/2, тихо = false){
       const N = шарЭквВОси(0, -Math.sin(ε), Math.cos(ε), оси);
       const vн = Math.hypot(V[0], V[1], V[2]), Vе = V.map(x => x/vн);
       const NV = N[0]*Vе[0] + N[1]*Vе[1] + N[2]*Vе[2];
-      let a = [N[0] - NV*Vе[0], N[1] - NV*Vе[1], N[2] - NV*Vе[2]];
-      const н = Math.hypot(a[0], a[1], a[2]) || 1; a = a.map(x => x/н);
-      const bv = [Vе[1]*a[2] - Vе[2]*a[1], Vе[2]*a[0] - Vе[0]*a[2], Vе[0]*a[1] - Vе[1]*a[0]];
-      const sφ = Math.sin(φ), cφ = Math.cos(φ), cθ = Math.cos(θ), sθ = Math.sin(θ);
-      const k = [0, 1, 2].map(i => sφ*(cθ*a[i] + sθ*bv[i]) + cφ*Vе[i]);
+      let k = [N[0] - NV*Vе[0], N[1] - NV*Vе[1], N[2] - NV*Vе[2]];
+      const н = Math.hypot(k[0], k[1], k[2]) || 1; k = k.map(x => x/н);
       const lat = Math.asin(Math.max(-1, Math.min(1, k[2])))/D2R, lon = Math.atan2(k[1], k[0])/D2R;
       const φц = lat*D2R, λ = lon*D2R;
       const e0 = [-Math.sin(λ), Math.cos(λ), 0], n0 = [-Math.sin(φц)*Math.cos(λ), -Math.sin(φц)*Math.sin(λ), Math.cos(φц)];
       const ue = V[0]*e0[0] + V[1]*e0[1], un = V[0]*n0[0] + V[1]*n0[1] + V[2]*n0[2];
       шарЦентр = { lat, lon }; шарКрен = Math.atan2(-ue, un) + ГАЛ_НАКЛОН;
-      шарВзгляд = null; шарИнерц = null; if (!тихо) шарРежимКнопки();
+      шарВзгляд = null; шарИнерц = null; шарРежимКнопки();
     }
-// Облёт для явления «Солнечная система в Галактике»: камера сама медленно
-// обходит летящую систему — то сбоку, то наискосок спереди или сзади, где
-// следы планет видны как витки пружины. Любое касание вида его прекращает.
-let шарГалТур = null;
-const ТУР_ОБХОД_С = 90, ТУР_НАКЛОН_С = 40, ТУР_НАКЛОН = 0.8;   // ≈ 46° от «сбоку»
-function шарГалТурШаг(t){
-  if (!шарГалТур) return;
-  if (шарГалТур.t0 === null) шарГалТур.t0 = t;
-  const с = (t - шарГалТур.t0)/1000;
-  // старт ровно с исходного вида; за 6 с вращение плавно набирает скорость
-  const u = Math.min(1, с/6), путь = с < 6 ? 6*(u*u*u - u*u*u*u/2) : с - 3;
-  const θ = 2*Math.PI*путь/ТУР_ОБХОД_С;
-  const φ = Math.PI/2 - ТУР_НАКЛОН*(1 - Math.cos(2*Math.PI*с/ТУР_НАКЛОН_С))/2;
-  шарГалКамера(θ, φ, true);
-}
-function шарГалТурСтоп(){
-  if (!шарГалТур) return;
-  шарГалТур = null;
+// «Луна светит, а Солнца нет» в 3D: Земля крупно, смотрим сбоку, поперёк
+// направления на Солнце и Луну. Ты — на краю шара, зенит вверх; Солнце уже
+// под твоим горизонтом (стрелка внизу справа), а Луна выше — ей Солнце видно.
+function шарВидСбоку(){
+  const тн = точкаНаблюдения(state), оси = шарОси(cam.date);
+  const φ = тн.lat*D2R, λ = тн.lon*D2R;
+  const e = [-Math.sin(λ), Math.cos(λ), 0], n = [-Math.sin(φ)*Math.cos(λ), -Math.sin(φ)*Math.sin(λ), Math.cos(φ)];
+  const u = [Math.cos(φ)*Math.cos(λ), Math.cos(φ)*Math.sin(λ), Math.sin(φ)];
+  const сцена = шарНебоСцены(frame), с = сцена.sun, л = сцена.moon;
+  if (!с || !л) return;
+  const S = _шарНебо(с.ra, с.dec, оси), M = _шарНебо(л.ra, л.dec, оси);
+  const гор = (v) => { const x = v[0]*e[0] + v[1]*e[1] + v[2]*e[2], y = v[0]*n[0] + v[1]*n[1] + v[2]*n[2]; return Math.atan2(x, y); };
+  // смотрим поперёк направления на Солнце: граница дня и ночи видна ребром,
+  // ты — на краю шара, на несколько градусов уже в ночи
+  const A0 = гор(S);
+  const поставь = (A) => {
+    const k = [0, 1, 2].map(i => Math.sin(A)*e[i] + Math.cos(A)*n[i]);
+    const lat = Math.asin(Math.max(-1, Math.min(1, k[2])))/D2R, lon = Math.atan2(k[1], k[0])/D2R;
+    const φц = lat*D2R, λц = lon*D2R;
+    const e0 = [-Math.sin(λц), Math.cos(λц), 0], n0 = [-Math.sin(φц)*Math.cos(λц), -Math.sin(φц)*Math.sin(λц), Math.cos(φц)];
+    const ψ = Math.atan2(-(u[0]*e0[0] + u[1]*e0[1] + u[2]*e0[2]), u[0]*n0[0] + u[1]*n0[1] + u[2]*n0[2]);
+    return { lat, lon, ψ };
+  };
+  const примени = (в) => {
+    шарЦентр = { lat: в.lat, lon: в.lon }; шарКрен = в.ψ;
+    шарВзгляд = null; шарИнерц = null;
+    renderNow();
+  };
+  шарЦентрСолнце = false; шарГалВид = false;
+  шарАним = null; шарМ = 0.5/шарРадиусКм(); шарПресет = "земля"; шарЗумКнопки();
+  примени(поставь(A0 - Math.PI/2));
+  // Солнце — справа, зенит — вверх; иначе смотрим с другой стороны
+  const солнце = (шарЭкранТел || []).find(т => т.id === "sun");
+  if (солнце && шарВид && солнце.x < шарВид.cx) примени(поставь(A0 + Math.PI/2));
   шарРежимКнопки();
 }
 const ГАЛ_НАКЛОН = -0.42;                          // полёт не строго вверх, а по диагонали
 let шарГалВид = false;                              // Солнце сдвинуто вверх-влево (вид «как в роликах»)
 let _галРасстБыло = null;                           // «Расстояния в 3D» до входа в Галактику
 function шарГалВкл(вкл){
-  if (!вкл){ шарГалТурСтоп(); шарПолёт(false); шарГалВид = false; шарЦентрСолнце = false; }
+  if (вкл && шарМусор){ шарМусор = false; document.getElementById("globeJunk")?.setAttribute("aria-pressed", "false"); }
+  if (!вкл){ шарПолёт(false); шарГалВид = false; шарЦентрСолнце = false; шарГалНаглядно = false; шарГалСледом = false;
+    if (шарГалактика && frame && шарМ < шарЦели(frame).планеты*0.4){ шарАним = null; шарМ = шарЦели(frame).планеты; шарПресет = "планеты"; шарЗумКнопки(); } }
   // расстояния от Земли в Галактике только мешают: подписи — одни имена;
   // при выходе возвращаем, как было
   if (вкл && !шарГалактика){ _галРасстБыло = opt.dist; opt.dist = false; }
@@ -21847,6 +22103,7 @@ function шарГалВкл(вкл){
   if (typeof syncToggles === "function") syncToggles();
   шарГалактика = вкл; шарГалКнопки();
   if (вкл){
+    _галТекстураФоном();
     // как в роликах: Солнце вверху слева, витки внутренних планет тянутся
     // по диагонали вниз, Солнце замедлено в 10 раз
     шарГалЗамедл = 0.1; шарЦентрСолнце = true; шарГалВид = true; шарГалКнопки();
@@ -21859,6 +22116,463 @@ function шарГалВкл(вкл){
               en: "The Sun and planets fly around the Galactic centre, 245 km/s towards Cygnus. Lines are each body's path behind it" }), 5000);
   }
   renderNow();
+}
+// ── Млечный Путь снаружи ──
+// В Галактике можно отдалиться до десятков тысяч световых лет: тогда видна
+// модель нашей Галактики в настоящем масштабе и настоящей ориентации к звёздам.
+// Снимка Млечного Пути снаружи нет — модель собрана по измерениям: четыре
+// спиральных рукава с шагом около 12° и короткий рукав Ориона (по мазерам,
+// Reid и др. 2019), бар длиной около 9 тыс. пк под 27° к линии Солнце — центр,
+// центр (Sgr A*) в 8,2 кпк от Солнца (GRAVITY 2019), Солнце на 20 пк выше плоскости.
+const КПК_КМ = 3.0857e16, СВГОД_КМ = 9.4607e12;
+const ГАЛ_R0 = 8.2, ГАЛ_Z0 = 0.02, ГАЛ_БАР = 27*D2R, ГАЛ_БАР_ДЛ = 4.5;
+const ГАЛ_ПОЛ = 16;                                // кпк: половина стороны текстуры
+// Рукав: R(β) = R0·exp(−β·tg ψ), β — угол от направления центр → Солнце по вращению
+// Галактики (к Лебедю). Отстающие рукава: наружу закручиваются против вращения.
+const ГАЛ_РУКАВА = [
+  { имя: { ru: "Рукав Щита — Центавра", en: "Scutum–Centaurus Arm" }, R0: 4.97, тан: Math.tan(12*D2R), βот: 0.471, βдо: -5.35, вес: 1, ширина: 1, βимя: -1.25 },
+  { имя: { ru: "Рукав Персея", en: "Perseus Arm" },                    R0: 9.70, тан: Math.tan(12*D2R), βот: 3.613, βдо: -2.20, вес: 1, ширина: 1, βимя: -0.30 },
+  { имя: { ru: "Рукав Стрельца — Киля", en: "Sagittarius–Carina Arm" }, R0: 6.94, тан: Math.tan(12*D2R), βот: 2.037, βдо: -3.30, вес: 0.7, ширина: 0.9, βимя: 0.75 },
+  { имя: { ru: "Внешний рукав", en: "Outer Arm" },                     R0: 3.56, тан: Math.tan(12*D2R), βот: -1.10, βдо: -6.77, вес: 0.7, ширина: 0.9, βимя: -5.5 },
+  { имя: { ru: "Рукав Ориона", en: "Orion Arm" },                      R0: 8.35, тан: Math.tan(11.4*D2R), βот: 0.55, βдо: -0.22, вес: 0.3, ширина: 0.55, βимя: 0.33 },
+];
+function галРукав(р, β){ const R = р.R0*Math.exp(-β*р.тан); return [-R*Math.cos(β), R*Math.sin(β)]; }
+// Яркие и близкие звёзды — вехи масштаба между Солнечной системой и Галактикой.
+// α, δ (J2000, часы и градусы), расстояние в световых годах.
+const ГАЛ_ЗВЁЗДЫ = [
+  [{ ru: "α Центавра", en: "Alpha Centauri" }, 14.660, -60.835, 4.37],
+  [{ ru: "Звезда Барнарда", en: "Barnard's Star" }, 17.963, 4.693, 5.96],
+  [{ ru: "Сириус", en: "Sirius" }, 6.752, -16.716, 8.6],
+  [{ ru: "Процион", en: "Procyon" }, 7.655, 5.225, 11.46],
+  [{ ru: "Альтаир", en: "Altair" }, 19.846, 8.868, 16.7],
+  [{ ru: "Вега", en: "Vega" }, 18.616, 38.784, 25],
+  [{ ru: "Арктур", en: "Arcturus" }, 14.261, 19.182, 36.7],
+  [{ ru: "Капелла", en: "Capella" }, 5.278, 45.998, 42.9],
+  [{ ru: "Альдебаран", en: "Aldebaran" }, 4.599, 16.509, 65],
+  [{ ru: "Регул", en: "Regulus" }, 10.140, 11.967, 79],
+  [{ ru: "Спика", en: "Spica" }, 13.420, -11.161, 250],
+  [{ ru: "Полярная", en: "Polaris" }, 2.530, 89.264, 433],
+  [{ ru: "Плеяды", en: "Pleiades" }, 3.790, 24.117, 444],
+  [{ ru: "Бетельгейзе", en: "Betelgeuse" }, 5.919, 7.407, 550],
+  [{ ru: "Антарес", en: "Antares" }, 16.490, -26.432, 550],
+  [{ ru: "Ригель", en: "Rigel" }, 5.242, -8.202, 860],
+  [{ ru: "Туманность Ориона", en: "Orion Nebula" }, 5.588, -5.391, 1344],
+  [{ ru: "Денеб", en: "Deneb" }, 20.690, 45.280, 2600],
+  [{ ru: "Большое Магелланово Облако", en: "Large Magellanic Cloud" }, 5.392, -69.756, 163000, 1.6],
+  [{ ru: "Малое Магелланово Облако", en: "Small Magellanic Cloud" }, 0.877, -72.829, 200000, 0.8],
+];
+function галГладко(x){ x = Math.max(0, Math.min(1, x)); return x*x*(3 - 2*x); }
+// Созвездие — только рисунок, видимый с Земли: его звёзды лежат на разных
+// расстояниях, обычно в сотнях световых лет. Когда вид отходит дальше этих
+// звёзд, фигура теряет смысл и тает — каждая на своём расстоянии; а когда
+// проступает сама Галактика, исчезают все. Расстояния (св. лет) — типичные
+// для ярких звёзд фигуры, грубо; остальным 300.
+const СОЗВ_ДАЛЬ = { "Андромеда": 200, "Близнецы": 60, "Большая Медведица": 80, "Малая Медведица": 200,
+  "Большой Пес": 400, "Малый Пес": 60, "Волопас": 100, "Возничий": 150, "Водолей": 300, "Дева": 150,
+  "Дракон": 150, "Жираф": 500, "Кассиопея": 200, "Цефей": 300, "Персей": 400, "Лебедь": 1500,
+  "Лира": 100, "Орел": 150, "Орион": 800, "Телец": 150, "Скорпион": 500, "Стрелец": 150, "Лев": 80,
+  "Пегас": 150, "Овен": 70, "Рыбы": 150, "Козерог": 100, "Весы": 80, "Рак": 150, "Гидра": 150,
+  "Геркулес": 150, "Змееносец": 100, "Северная Корона": 75, "Кит": 100, "Эридан": 150, "Заяц": 400,
+  "Южный Крест": 300, "Центавр": 300, "Киль": 300, "Корма": 1000, "Паруса": 600 };
+// null — все фигуры видны полностью, иначе функция имя → 0…1
+function галДоляСозвездий(){
+  if (!шарГалактика) return null;
+  const пол = 1/(шарМ*СВГОД_КМ);                  // св. лет на полэкрана
+  if (пол < 20) return null;
+  const вся = 1 - галГладко(галДоли().а/0.35);    // Галактика проступает — созвездий нет
+  if (вся <= 0) return () => 0;
+  return ru => вся*(1 - галГладко(Math.log(пол/(0.5*(СОЗВ_ДАЛЬ[ru] || 300)))/Math.log(4)));
+}
+// насколько видна Галактика (0…1) и насколько вид сместился к её центру
+function галДоли(){
+  if (!шарГалактика) return { а: 0, ц: 0, пол: 0 };
+  const пол = 1/(шарМ*КПК_КМ);                    // кпк на полэкрана
+  return { пол,
+           а: галГладко(Math.log(пол/0.5)/Math.log(3/0.5)),
+           ц: галГладко(Math.log(пол/3)/Math.log(14/3)) };
+}
+function свЛет(n){
+  const ру = tr({ ru: true, en: false });
+  const т = n >= 100 ? Math.round(n/(n >= 10000 ? 1000 : n >= 1000 ? 100 : 10))*(n >= 10000 ? 1000 : n >= 1000 ? 100 : 10)
+          : n >= 10 ? Math.round(n) : Math.round(n*10)/10;
+  const ч = т.toLocaleString(ру ? "ru-RU" : "en-US");
+  if (!ру) return `${ч} ly`;
+  return `${ч} св. ${Number.isInteger(т) ? склонЛет(т) : "года"}`;
+}
+function _галСлуч(seed){
+  let a = seed >>> 0;
+  return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a;
+    t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0)/4294967296; };
+}
+function _галСпрайт(rgb){
+  const s = document.createElement("canvas"); s.width = s.height = 32;
+  const x = s.getContext("2d"), g = x.createRadialGradient(16, 16, 0, 16, 16, 16);
+  g.addColorStop(0, `rgba(${rgb},1)`); g.addColorStop(0.3, `rgba(${rgb},.5)`);
+  g.addColorStop(0.65, `rgba(${rgb},.12)`); g.addColorStop(1, `rgba(${rgb},0)`);
+  x.fillStyle = g; x.fillRect(0, 0, 32, 32);
+  return s;
+}
+// гауссово пятно: ±3σ на 64 пикселях
+const _галГауссы = {};
+function _галГаусс(rgb){
+  if (_галГауссы[rgb]) return _галГауссы[rgb];
+  const s = document.createElement("canvas"); s.width = s.height = 64;
+  const x = s.getContext("2d"), img = x.createImageData(64, 64), [r, g, b] = rgb.split(",").map(Number);
+  for (let j = 0; j < 64; j++) for (let i = 0; i < 64; i++){
+    const u = (i + 0.5 - 32)/(64/6), v = (j + 0.5 - 32)/(64/6), k = 4*(j*64 + i);
+    img.data[k] = r; img.data[k + 1] = g; img.data[k + 2] = b;
+    img.data[k + 3] = Math.round(255*Math.exp(-(u*u + v*v)/2)*(u*u + v*v < 9 ? 1 : 0));
+  }
+  x.putImageData(img, 0, 0);
+  return _галГауссы[rgb] = s;
+}
+// Вид сверху (с северного полюса Галактики) один раз в текстуру: рукава,
+// звёздные скопления, пылевые прожилки, бар. Дальше она только поворачивается.
+let _галТекстура = null;
+function* _галТекстураШаги(){
+  const N = 1024, кт = 2*ГАЛ_ПОЛ/N;
+  const cv = document.createElement("canvas"); cv.width = cv.height = N;
+  const x = cv.getContext("2d");
+  x.globalCompositeOperation = "lighter";
+  const сл = _галСлуч(20261109);
+  const гаусс = () => { let u = 0; while (!u) u = сл(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*сл()); };
+  const голуб = _галСпрайт("165,195,255"), бел = _галСпрайт("232,236,255"), розов = _галСпрайт("255,120,175"),
+        тёпл = _галСпрайт("255,214,165"), тёмн = _галСпрайт("0,0,0");
+  const ставь = (спр, xg, yg, r, a) => { x.globalAlpha = Math.min(1, a); x.drawImage(спр, N/2 + xg/кт - r, N/2 + yg/кт - r, 2*r, 2*r); };
+  // старые звёзды диска между рукавами
+  for (let i = 0; i < 9000; i++){
+      if ((i & 511) === 511) yield;
+    const R = -2.6*Math.log(сл()*сл()), φ = 2*Math.PI*сл();
+    if (R > 15.5) continue;
+    ставь(сл() < 0.6 ? тёпл : бел, R*Math.cos(φ), R*Math.sin(φ), 1 + сл(), 0.22*Math.exp(-R/7));
+  }
+  // рукава: молодые голубые звёзды, розовые облака водорода, мягкое свечение
+  for (const р of ГАЛ_РУКАВА){
+    const n = Math.round(11000*р.вес);
+    for (let i = 0; i < n; i++){
+      if ((i & 511) === 511) yield;
+      const β = р.βдо + (р.βот - р.βдо)*сл();
+      const R = р.R0*Math.exp(-β*р.тан);
+      if (R > 16) continue;
+      const ш = (0.16 + 0.03*R)*р.ширина;
+      const xg = -R*Math.cos(β) + гаусс()*ш, yg = R*Math.sin(β) + гаусс()*ш;
+      const ярк = Math.exp(-(R - 4.5)/6)*Math.min(1, р.вес*1.3);
+      const q = сл();
+      if (q < 0.05) ставь(розов, xg, yg, 2 + 2.5*сл(), 0.6*ярк);
+      else if (q < 0.22) ставь(голуб, xg, yg, 7 + 9*сл(), 0.05*ярк);
+      else ставь(q < 0.7 ? голуб : бел, xg, yg, 1.1 + 1.3*сл(), (0.25 + 0.5*сл())*ярк);
+    }
+  }
+  // бар: старые жёлтые звёзды вытянутым облаком
+  for (let i = 0; i < 4000; i++){
+      if ((i & 511) === 511) yield;
+    let t = гаусс()*0.5; while (Math.abs(t) > 1) t = гаусс()*0.5;
+    const вдоль = ГАЛ_БАР_ДЛ*t, поперёк = гаусс()*0.55*(1 - 0.55*Math.abs(t));
+    const cb = Math.cos(ГАЛ_БАР), sb = Math.sin(ГАЛ_БАР);
+    ставь(тёпл, -вдоль*cb + поперёк*sb, вдоль*sb + поперёк*cb, 1.5 + 2.5*сл(), 0.2);
+  }
+  // пыль по внутренней кромке рукавов приглушает свет
+  x.globalCompositeOperation = "destination-out";
+  for (const р of ГАЛ_РУКАВА){
+    const n = Math.round(3500*р.вес);
+    for (let i = 0; i < n; i++){
+      if ((i & 511) === 511) yield;
+      const β = р.βдо + (р.βот - р.βдо)*сл();
+      const R = р.R0*Math.exp(-β*р.тан) - (0.22 + 0.02*р.R0*Math.exp(-β*р.тан))*р.ширина;
+      if (R > 16 || R < 3) continue;
+      ставь(тёмн, -R*Math.cos(β) + гаусс()*0.12, R*Math.sin(β) + гаусс()*0.12, 3 + 4*сл(), 0.16);
+    }
+  }
+  x.globalAlpha = 1; x.globalCompositeOperation = "source-over";
+  _галТекстура = cv;
+}
+// готовим по кусочкам в паузах, как только включили Галактику: к моменту,
+// когда отдалились, текстура уже есть и кадр не замирает
+let _галГен = null;
+function _галТекстураГотовь(){
+  if (!_галТекстура){ if (!_галГен) _галГен = _галТекстураШаги(); while (!_галГен.next().done); }
+  return _галТекстура;
+}
+function _галТекстураФоном(){
+  if (_галТекстура) return;
+  if (!_галГен) _галГен = _галТекстураШаги();
+  const позже = window.requestIdleCallback || ((f) => setTimeout(f, 30));
+  const шаг = () => {
+    if (_галТекстура) return;
+    const до = performance.now() + 8;
+    while (performance.now() < до) if (_галГен.next().done) return;
+    позже(шаг);
+  };
+  позже(шаг);
+}
+// пиксели экрана на килопарсек вдоль осей X (к центру), Y (к Лебедю), Z (к северному полюсу Галактики)
+function галОси(г, оси, масштаб){
+  const к = масштаб*КПК_КМ;
+  return ГАЛ_T.map(r => {
+    const P = шарЭквВОси(r[0], r[1], r[2], оси);
+    return [к*(P[0]*г.e[0] + P[1]*г.e[1] + P[2]*г.e[2]), -к*(P[0]*г.n[0] + P[1]*г.n[1] + P[2]*г.n[2]),
+            P[0]*г.k[0] + P[1]*г.k[1] + P[2]*г.k[2]];
+  });
+}
+// объёмное гауссово облако (бар, балдж, диск): его проекция — эллипс с
+// ковариацией Σ = Σ sᵢ²·uᵢuᵢᵀ; яркость в середине растёт, когда смотрим с ребра
+function _галОблако(c, ц, оси3, rgb, а0){
+  let a = 0, b = 0, d = 0;
+  for (const [u, s] of оси3){ a += s*s*u[0]*u[0]; b += s*s*u[0]*u[1]; d += s*s*u[1]*u[1]; }
+  const ср = (a + d)/2, р = Math.hypot((a - d)/2, b);
+  const σ1 = Math.sqrt(Math.max(1e-6, ср + р)), σ2 = Math.sqrt(Math.max(1e-6, ср - р)), θ = 0.5*Math.atan2(2*b, a - d);
+  if (σ1 < 0.3) return;
+  c.save();
+  c.globalAlpha = Math.min(1, а0*оси3[0][2]/(σ1*σ2));
+  c.setTransform(Math.cos(θ)*σ1, Math.sin(θ)*σ1, -Math.sin(θ)*σ2, Math.cos(θ)*σ2, ц[0], ц[1]);
+  c.drawImage(_галГаусс(rgb), -3, -3, 6, 6);
+  c.restore();
+}
+let шарГалМетки = null;                             // для подписей после тел
+function шарРисуйГалактику(c, л, г, оси, масштаб, S, доли, дпр){
+  const [ux, uy, uz] = галОси(г, оси, масштаб), к = Math.hypot(ux[0], ux[1], uy[0], uy[1])/Math.SQRT2;   // пикселей на кпк в плоскости
+  const экран = (X, Y, Z) => [S[0] + X*ux[0] + Y*uy[0] + Z*uz[0], S[1] + X*ux[1] + Y*uy[1] + Z*uz[1]];
+  const изЦентра = (xg, yg, zg) => экран(xg + ГАЛ_R0, yg, zg - ГАЛ_Z0);
+  const G = изЦентра(0, 0, 0);
+  const а = доли.а;
+  шарГалМетки = { а, G, S, звёзды: [], рукава: [] };
+  c.save();
+  c.globalCompositeOperation = "lighter";
+  if (а > 0.002){
+    // облака: сначала весь диск, потом бар с балджем и яркое ядро
+    const cb = Math.cos(ГАЛ_БАР), sb = Math.sin(ГАЛ_БАР);
+    const ось = (X, Y, Z) => [X*ux[0] + Y*uy[0] + Z*uz[0], X*ux[1] + Y*uy[1] + Z*uz[1]];
+    const лицо = (sx, sy) => sx*sy*к*к;            // σ1σ2, если смотреть сверху
+    const облако = (оси3, rgb, a0, sx, sy) => _галОблако(c, G, оси3.map(([v, s]) => [v, s, лицо(sx, sy)]), rgb, a0*а);
+    облако([[ось(1, 0, 0), 4.2], [ось(0, 1, 0), 4.2], [ось(0, 0, 1), 0.35]], "255,232,205", 0.20, 4.2, 4.2);
+    облако([[ось(-cb, sb, 0), 1.9], [ось(sb, cb, 0), 0.75], [ось(0, 0, 1), 0.55]], "255,212,150", 0.55, 1.9, 0.75);
+    облако([[ось(1, 0, 0), 0.45], [ось(0, 1, 0), 0.45], [ось(0, 0, 1), 0.38]], "255,238,210", 0.9, 0.45, 0.45);
+    // рукава — текстура вида сверху, повёрнутая в плоскость Галактики
+    const Т = _галТекстураГотовь(), N = Т.width, кт = 2*ГАЛ_ПОЛ/N;
+    c.globalAlpha = а;
+    c.imageSmoothingEnabled = true;
+    c.setTransform(кт*ux[0], кт*ux[1], кт*uy[0], кт*uy[1],
+                   G[0] - N/2*кт*(ux[0] + uy[0]), G[1] - N/2*кт*(ux[1] + uy[1]));
+    c.drawImage(Т, 0, 0);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.globalCompositeOperation = "source-over";
+    // путь Солнца вокруг центра и стрелка: куда летим
+    c.globalAlpha = (шарГалНаглядно ? 0.4 : 0.55)*а;
+    c.strokeStyle = "#ffd85e"; c.lineWidth = Math.max(1, дпр);
+    c.setLineDash([5*дпр, 6*дпр]);
+    c.beginPath();
+    const Rс = ГАЛ_R0;
+    for (let i = 0; i <= 128; i++){
+      const β = i/128*2*Math.PI, p = изЦентра(-Rс*Math.cos(β), Rс*Math.sin(β), ГАЛ_Z0);
+      i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]);
+    }
+    c.stroke(); c.setLineDash([]);
+    // стрелка «куда летим» — дугой по самой орбите, а не по касательной
+    if (!шарГалНаглядно){
+      const точки = [];
+      let длина = 0, прошл = null;
+      for (let β = 0; β < Math.PI/2 && длина < 70*дпр; β += Math.PI/1500){
+        const q = изЦентра(-Rс*Math.cos(β), Rс*Math.sin(β), ГАЛ_Z0);
+        if (Math.hypot(q[0] - S[0], q[1] - S[1]) < 11*дпр){ прошл = q; continue; }
+        if (прошл && точки.length) длина += Math.hypot(q[0] - прошл[0], q[1] - прошл[1]);
+        точки.push(q); прошл = q;
+      }
+      if (точки.length > 3 && длина > 10*дпр){
+        c.globalAlpha = 0.9*а; c.fillStyle = "#ffd85e"; c.lineCap = "round";
+        c.beginPath(); точки.forEach((q, i) => i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1])); c.stroke();
+        const к1 = точки[точки.length - 1], к0 = точки[Math.max(0, точки.length - 4)];
+        let dx = к1[0] - к0[0], dy = к1[1] - к0[1]; const дл = Math.hypot(dx, dy) || 1; dx /= дл; dy /= дл;
+        c.beginPath(); c.moveTo(к1[0] + dx*7*дпр, к1[1] + dy*7*дпр);
+        c.lineTo(к1[0] - dy*4*дпр, к1[1] + dx*4*дпр); c.lineTo(к1[0] + dy*4*дпр, к1[1] - dx*4*дпр); c.closePath(); c.fill();
+      }
+    }
+    for (const р of ГАЛ_РУКАВА) шарГалМетки.рукава.push({ имя: р.имя, p: изЦентра(...галРукав(р, р.βимя), 0) });
+    if (шарГалНаглядно){
+      шарГалМетки.н = шарРисуйНаглядно(c, л, экран, изЦентра, [ux, uy, uz], G, галГладко((а - 0.3)/0.4), дпр);
+      c.restore();
+      return;
+    }
+  }
+  // звёзды-вехи: точка, когда она отошла от Солнца хотя бы на 12 пикселей
+  c.globalCompositeOperation = "lighter";
+  for (const [имя, ra, dec, ly, σ] of ГАЛ_ЗВЁЗДЫ){
+    const α = ra*15*D2R, δ = dec*D2R, Dkm = ly*СВГОД_КМ;
+    const P = шарЭквВОси(Math.cos(δ)*Math.cos(α), Math.cos(δ)*Math.sin(α), Math.sin(δ), оси);
+    const x = S[0] + масштаб*Dkm*(P[0]*г.e[0] + P[1]*г.e[1] + P[2]*г.e[2]);
+    const y = S[1] - масштаб*Dkm*(P[0]*г.n[0] + P[1]*г.n[1] + P[2]*г.n[2]);
+    const r = Math.hypot(x - S[0], y - S[1]);
+    if (r < 12*дпр || x < -50*дпр || x > л.w + 50*дпр || y < -50*дпр || y > л.h + 50*дпр) continue;
+    const β = галГладко((r - 12*дпр)/(18*дпр));
+    if (σ){                                        // Магеллановы Облака — пятна
+      const s = σ*к;
+      c.globalAlpha = Math.min(1, 0.5*β); c.setTransform(s, 0, 0, s*0.7, x, y);
+      c.drawImage(_галГаусс("220,225,255"), -3, -3, 6, 6); c.setTransform(1, 0, 0, 1, 0, 0);
+    } else {
+      c.globalAlpha = 0.9*β; c.fillStyle = "#e8eeff";
+      c.beginPath(); c.arc(x, y, 1.6*дпр, 0, 2*Math.PI); c.fill();
+    }
+    шарГалМетки.звёзды.push({ имя, ly, x, y, β });
+  }
+  c.restore();
+}
+// подписи — после подписей тел, тем же раскладчиком (без наложений)
+function шарПодписиГалактики(положи, дпр){
+  const м = шарГалМетки;
+  if (!м) return;
+  for (const з of м.звёзды) положи(`${tr(з.имя)} · ${свЛет(з.ly)}`, з.x + 6*дпр, з.y, "left", "rgba(225,232,250,.95)", 0.85*з.β);
+  if (м.а < 0.15) return;
+  шарПодписиНаглядно(положи, м, дпр);
+  const а = галГладко((м.а - 0.15)/0.5);
+  положи(tr({ ru: "Центр Галактики · Sgr A*", en: "Galactic Centre · Sgr A*" }), м.G[0], м.G[1] + 16*дпр, "center", "rgba(255,236,200,.95)", а);
+  if (!шарГалНаглядно) for (const р of м.рукава) положи(tr(р.имя), р.p[0], р.p[1], "center", "rgba(185,210,255,.9)", 0.85*а);
+}
+// «Наглядно»: не в масштабе, а чтобы было видно глазами — как в роликах.
+// Солнечная система увеличена примерно в 5 миллионов раз (Нептун — 700 парсек
+// на схеме), Солнце обходит центр Галактики за 10 минут, планеты
+// кружат медленнее, чем надо, — и за Солнцем тянутся винты и петли. Плоскость
+// орбит наклонена к Галактике по-настоящему (полюс эклиптики: l = 96,4°,
+// b = 29,8°), планеты стартуют с настоящих мест на своих орбитах.
+let шарГалНаглядно = false, _нагляднНачало = 0, _нагляднФазы = null;
+const НАГЛЯДНО_ОБОРОТ = 600;                       // с на оборот Солнца вокруг центра
+// где Солнце на схеме: гелиоцентрически, кпк (в начале — на своём месте)
+function _нагляднСолнце(τ){ const β = 2*Math.PI/НАГЛЯДНО_ОБОРОТ*τ; return [ГАЛ_R0*(1 - Math.cos(β)), ГАЛ_R0*Math.sin(β), 0]; }
+// «За Солнцем»: камера летит вместе с Солнцем схемы — оно стоит посреди
+// экрана, а Галактика и чёрная дыра проплывают мимо, за ним тянутся винты.
+// Переход туда и обратно плавный (_следДоля 0…1).
+let шарГалСледом = false, _следДоля = 0, _следВремя = 0;
+const СЛЕД_ПОЛ_КПК = 1.5;                          // кпк на полэкрана: Солнечная система схемы — на полэкрана
+function шарЗаСолнцем(вкл){
+  шарГалСледом = вкл;
+  if (вкл && (шарАним || Math.abs(Math.log(галДоли().пол/СЛЕД_ПОЛ_КПК)) > 0.3)) шарЛетиК(1/(СЛЕД_ПОЛ_КПК*КПК_КМ), 2500);
+  шарГалКнопки();
+  renderNow();
+}
+const НАГЛЯДНО_ТЕЛА = [                            // id, а. е., период (годы)
+  ["mercury", 0.387, 0.241], ["venus", 0.723, 0.615], ["earth", 1, 1], ["mars", 1.524, 1.881],
+  ["jupiter", 5.203, 11.86], ["saturn", 9.537, 29.46], ["uranus", 19.19, 84.0], ["neptune", 30.07, 164.8],
+];
+const НАГЛЯДНО_ИМЕНА = { mercury: { ru: "Меркурий", en: "Mercury" }, venus: { ru: "Венера", en: "Venus" },
+  earth: { ru: "Земля", en: "Earth" }, mars: { ru: "Марс", en: "Mars" }, jupiter: { ru: "Юпитер", en: "Jupiter" },
+  saturn: { ru: "Сатурн", en: "Saturn" }, uranus: { ru: "Уран", en: "Uranus" }, neptune: { ru: "Нептун", en: "Neptune" } };
+const _нагляднРадиус = (a) => 0.7*Math.sqrt(a/30.07);           // кпк на схеме
+const _нагляднПериод = (P) => 3*Math.pow(P, 0.33);             // с на схеме: витки плотные
+// базис плоскости эклиптики в галактических осях: точка весны и 90° от неё
+const _НАГЛЯДНО_P1 = [ГАЛ_T[0][0], ГАЛ_T[1][0], ГАЛ_T[2][0]];
+const _НАГЛЯДНО_P2 = (() => {
+  const l = 96.38*D2R, b = 29.81*D2R, N = [Math.cos(b)*Math.cos(l), Math.cos(b)*Math.sin(l), Math.sin(b)], p = _НАГЛЯДНО_P1;
+  return [N[1]*p[2] - N[2]*p[1], N[2]*p[0] - N[0]*p[2], N[0]*p[1] - N[1]*p[0]];
+})();
+function шарНаглядно(вкл){
+  шарГалНаглядно = вкл;
+  if (!вкл) шарГалСледом = false;
+  if (вкл){
+    _нагляднНачало = performance.now();
+    const d = julianDay(cam.date) - 2451543.5;
+    _нагляднФазы = {};
+    for (const [id] of НАГЛЯДНО_ТЕЛА){
+      const h = id === "earth" ? earthHelio(d) : планетаГелио(PLANETS[PLANET_IDS.indexOf(id)], d);
+      _нагляднФазы[id] = Math.atan2(h.y, h.x);
+    }
+    шарПолёт(false);
+    if (Math.abs(Math.log(галДоли().пол/10)) > 0.3) шарЛетиК(1/(10*КПК_КМ), 4500);
+    note(tr({ ru: "Наглядно, не в масштабе: Солнечная система увеличена в 5 миллионов раз, время сжато. Видно, как планеты летят за Солнцем вокруг центра Галактики",
+              en: "Illustrative, not to scale: the Solar System is enlarged five million times and time is compressed. You can see the planets following the Sun around the Galactic centre" }), 6000);
+  }
+  шарГалКнопки();
+  renderNow();
+}
+function шарРисуйНаглядно(c, л, экран, изЦентра, U, G, а, дпр){
+  const [ux, uy] = U, к = Math.hypot(ux[0], ux[1], uy[0], uy[1])/Math.SQRT2;
+  const t = (performance.now() - _нагляднНачало)/1000;
+  const ω = 2*Math.PI/НАГЛЯДНО_ОБОРОТ;
+  const солнцеГ = _нагляднСолнце;
+  const P1 = _НАГЛЯДНО_P1, P2 = _НАГЛЯДНО_P2;
+  c.save();
+  c.globalAlpha = а;
+  // чёрная дыра в центре: оранжевое свечение, яркое кольцо в плоскости диска, тень
+  {
+    const R = Math.max(44*дпр, 1.8*к);
+    const g = c.createRadialGradient(G[0], G[1], 0, G[0], G[1], R);
+    g.addColorStop(0, "rgba(255,170,60,.85)"); g.addColorStop(0.35, "rgba(255,120,30,.45)"); g.addColorStop(1, "rgba(255,90,20,0)");
+    c.fillStyle = g; c.beginPath(); c.arc(G[0], G[1], R, 0, 7); c.fill();
+    const м = Math.max(14*дпр, 0.4*к)/к;            // кпк, но не меньше 14 пикселей
+    c.save();
+    c.setTransform(ux[0], ux[1], uy[0], uy[1], G[0], G[1]);
+    const кольцо = c.createRadialGradient(0, 0, м*0.55, 0, 0, м);
+    кольцо.addColorStop(0, "rgba(255,250,230,1)"); кольцо.addColorStop(0.5, "rgba(255,200,110,.9)"); кольцо.addColorStop(1, "rgba(255,140,40,0)");
+    c.fillStyle = кольцо; c.beginPath(); c.arc(0, 0, м, 0, 7); c.fill();
+    c.restore();
+    c.fillStyle = "#000"; c.beginPath(); c.arc(G[0], G[1], м*0.5*к, 0, 7); c.fill();
+  }
+  // следы планет: винты и петли за Солнцем, старое — бледнее
+  c.lineWidth = Math.max(0.8, 0.8*дпр); c.lineJoin = "round";
+  const сейчас = {};
+  for (const [id, a, P] of НАГЛЯДНО_ТЕЛА){
+    const r = _нагляднРадиус(a), T = _нагляднПериод(P), φ0 = _нагляднФазы[id] || 0;
+    const где = (τ) => { const s = солнцеГ(τ), θ = φ0 + 2*Math.PI*τ/T, cθ = Math.cos(θ)*r, sθ = Math.sin(θ)*r;
+                         return экран(s[0] + cθ*P1[0] + sθ*P2[0], s[1] + cθ*P1[1] + sθ*P2[1], s[2] + cθ*P1[2] + sθ*P2[2]); };
+    // длинные следы — ровная лента витков вдоль пути Солнца, как в роликах
+    const длина = Math.min(360, 60*T), шаг = T/24, n = Math.ceil(длина/шаг);
+    const цвет = id === "earth" ? "#6ea0eb" : (PLANET_COLOR[id] || "#cfd3da");
+    c.strokeStyle = цвет;
+    for (let q = 0; q < 4; q++){
+      c.globalAlpha = а*0.7*(1 - q/4);
+      c.beginPath();
+      const i0 = Math.floor(q*n/4), i1 = Math.floor((q + 1)*n/4);
+      for (let i = i0; i <= i1; i++){ const p = где(t - i*шаг); i === i0 ? c.moveTo(p[0], p[1]) : c.lineTo(p[0], p[1]); }
+      c.stroke();
+    }
+    сейчас[id] = { p: где(t), цвет };
+  }
+  c.globalAlpha = а;
+  // планеты и Солнце
+  for (const [id] of НАГЛЯДНО_ТЕЛА){
+    const { p, цвет } = сейчас[id];
+    const r = (id === "jupiter" || id === "saturn" ? 4.5 : id === "uranus" || id === "neptune" ? 3.8 : 3)*дпр;
+    c.fillStyle = цвет; c.beginPath(); c.arc(p[0], p[1], r, 0, 7); c.fill();
+    if (id === "saturn"){ c.strokeStyle = цвет; c.beginPath(); c.ellipse(p[0], p[1], r*2.1, r*0.7, -0.35, 0, 7); c.stroke(); }
+  }
+  const sг = солнцеГ(t), S = экран(sг[0], sг[1], sг[2]);
+  {
+    const R = 9*дпр, g = c.createRadialGradient(S[0], S[1], 0, S[0], S[1], R*2.2);
+    g.addColorStop(0, "rgba(255,245,200,1)"); g.addColorStop(0.3, "rgba(255,215,90,.9)"); g.addColorStop(1, "rgba(255,190,60,0)");
+    c.fillStyle = g; c.beginPath(); c.arc(S[0], S[1], R*2.2, 0, 7); c.fill();
+  }
+  // стрелка: куда летит Солнце — дугой вдоль его пути вокруг центра
+  {
+    const точки = [];
+    let длина = 0, прошл = null;
+    for (let τ = t; τ < t + НАГЛЯДНО_ОБОРОТ/4 && длина < 95*дпр; τ += НАГЛЯДНО_ОБОРОТ/2000){
+      const g = солнцеГ(τ), q = экран(g[0], g[1], g[2]);
+      if (Math.hypot(q[0] - S[0], q[1] - S[1]) < 26*дпр){ прошл = q; continue; }
+      if (прошл && точки.length) длина += Math.hypot(q[0] - прошл[0], q[1] - прошл[1]);
+      точки.push(q); прошл = q;
+    }
+    if (точки.length > 3 && длина > 12*дпр){
+      c.strokeStyle = c.fillStyle = "rgba(255,216,94,.95)"; c.lineWidth = Math.max(1.5, 1.6*дпр); c.lineCap = "round";
+      c.beginPath(); точки.forEach((q, i) => i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1])); c.stroke();
+      const к1 = точки[точки.length - 1], к0 = точки[Math.max(0, точки.length - 4)];
+      let dx = к1[0] - к0[0], dy = к1[1] - к0[1]; const д = Math.hypot(dx, dy) || 1; dx /= д; dy /= д;
+      c.beginPath(); c.moveTo(к1[0] + dx*8*дпр, к1[1] + dy*8*дпр);
+      c.lineTo(к1[0] - dy*5*дпр, к1[1] + dx*5*дпр); c.lineTo(к1[0] + dy*5*дпр, к1[1] - dx*5*дпр); c.closePath(); c.fill();
+    }
+  }
+  c.restore();
+  return { S, сейчас };
+}
+// подписи схемы — общим раскладчиком, без наложений
+function шарПодписиНаглядно(положи, м, дпр){
+  if (!м || !м.н) return;
+  const а = галГладко((м.а - 0.3)/0.4);
+  if (а <= 0) return;
+  const { S, сейчас } = м.н;
+  положи(tr({ ru: `Солнце · ${Math.round(ГАЛ_СКОРОСТЬ)} км/с`, en: `Sun · ${Math.round(ГАЛ_СКОРОСТЬ)} km/s` }),
+         S[0] + 20*дпр, S[1] - 14*дпр, "left", "#ffe08a", а);
+  for (const id of ["earth", "jupiter", "neptune"]){
+    const { p, цвет } = сейчас[id];
+    положи(tr(НАГЛЯДНО_ИМЕНА[id]), p[0] + 8*дпр, p[1], "left", цвет, 0.9*а);
+  }
 }
 function склонЛет(n){
   const a = n % 10, b = n % 100;
@@ -21973,7 +22687,7 @@ function drawGlobe(frame){
   const ключЗвёзд = [г.e, г.n].map(v => шарОсиВЭкв(v, оси).map(x => x.toFixed(5)).join(",")).join(";")
     + "|" + оси.тело + "|" + л.w + "x" + л.h + "|" + г.cx.toFixed(1) + "," + г.cy.toFixed(1) + "|" + дпр
     + "|" + шарФонКакНебо().toFixed(2)
-    + (шарФонКакНебо() ? "|" + [frame.flat.cx, frame.flat.cy, cam.azimuthNorthDeg, cam.altitudeDeg, cam.zoom, cam.dome].map(String).join(",") : "") + "|" + opt.figNam + opt.vis + opt.art + opt.stars + opt.fig + (opt.art ? _рисункиГотовь().filter(р => р.img.complete).length : "") + state.ui.lang + (opt.vis && !шарГалПолёт ? (_видСэмплы(), _видСег.ключ) : "");
+    + (шарФонКакНебо() ? "|" + [frame.flat.cx, frame.flat.cy, cam.azimuthNorthDeg, cam.altitudeDeg, cam.zoom, cam.dome].map(String).join(",") : "") + "|" + opt.figNam + (шарГалактика && 1/(шарМ*СВГОД_КМ) >= 20 ? "~" + Math.round(Math.log2(1/(шарМ*СВГОД_КМ))*6) : "") + opt.vis + opt.art + opt.stars + opt.fig + opt.mw + (opt.art ? _рисункиГотовь().filter(р => р.img.complete).length : "") + state.ui.lang + (opt.vis && !шарГалПолёт ? (_видСэмплы(), _видСег.ключ) : "");
   // Вид поворачивается кадр за кадром (облёт, перетаскивание) — запасной
   // холст всё равно устарел бы к следующему кадру, а его перерисовка и
   // перенос на экран на телефоне дороже, чем нарисовать звёзды сразу на
@@ -21992,6 +22706,20 @@ function drawGlobe(frame){
     c.drawImage(шарЗвёзды, 0, 0);
   }
   _шарЗвёздыДвижутся = сдвигЗвёзд;
+  // издали Галактики звёзды неба — внутри неё, а не вокруг: фон приглушаем
+  const галД = галДоли();
+  // а когда Галактика видна целиком, созвездий уже нет: все их звёзды —
+  // рядом с Солнцем, в пятнышке размером в пару процентов Галактики
+  // Звёзды фона — небо, каким его видно с Земли. Стоит отойти от Солнца
+  // дальше самих этих звёзд (обычно сотни св. лет), и такой фон обманывает:
+  // Сириус «позади» уже не там. Гасим его от 20 до 300 св. лет на полэкрана;
+  // остаются только подписанные звёзды на своих настоящих местах.
+  const полСвЛет = шарГалактика ? 1/(шарМ*СВГОД_КМ) : 0;
+  const тьмаФона = полСвЛет > 20 ? галГладко(Math.log(полСвЛет/20)/Math.log(300/20)) : 0;
+  if (галД.а > 0 || тьмаФона > 0){
+    const тьма = Math.max(тьмаФона, 0.8*галД.а + 0.2*галГладко(Math.log(галД.пол/2.6)/Math.log(6/2.6)));
+    c.fillStyle = `rgba(3,6,11,${тьма.toFixed(3)})`; c.fillRect(0, 0, л.w, л.h);
+  }
   // «Солнце в центре» (двойной клик по Солнцу): весь вид сдвигаем так, чтобы
   // Солнце стояло посередине экрана. Звёзды бесконечно далеко — их не трогаем.
   if (шарЦентрСолнце && масштаб*СОЛНЦЕ_КМ < Math.hypot(л.w, л.h)){   // Солнце больше экрана — центр не трогаем
@@ -22004,14 +22732,48 @@ function drawGlobe(frame){
         const к = Math.min(л.w/2, (низ - верх)/2);
         const V = шарЭквВОси(ГАЛ_V_КМС[0], ГАЛ_V_КМС[1], ГАЛ_V_КМС[2], оси);
         let vx = V[0]*г.e[0] + V[1]*г.e[1] + V[2]*г.e[2], vy = -(V[0]*г.n[0] + V[1]*г.n[1] + V[2]*г.n[2]);
-        const н = Math.hypot(vx, vy) || 1; vx /= н; vy /= н;
-        г.cx += vx*к*0.62; г.cy += vy*к*0.62;
+        // доля полной скорости, видимая на экране: когда полёт идёт на нас,
+        // сдвиг плавно уходит в ноль, а не перескакивает
+        const н = Math.hypot(V[0], V[1], V[2]) || 1; vx /= н; vy /= н;
+        г.cx += vx*к*0.62*(1 - галД.а); г.cy += vy*к*0.62*(1 - галД.а);
       }
     }
   }
+  // Млечный Путь снаружи и звёзды-вехи. Издали вид плавно переходит
+  // к центру Галактики: вращаешь — Галактика крутится вокруг своего центра.
+  if (шарГалактика){
+    if ((галД.пол > 1) !== _галШирокоБыло){ _галШирокоБыло = галД.пол > 1; шарГалКнопки(); }
+    const с = шарНебоСцены(frame).sun;
+    let S = [г.cx, г.cy];
+    if (с){
+      const s = _шарНебо(с.ra, с.dec, оси), D = (с.distAu || 1)*AU_KM;
+      S = [г.cx + масштаб*D*(s[0]*г.e[0] + s[1]*г.e[1] + s[2]*г.e[2]), г.cy - масштаб*D*(s[0]*г.n[0] + s[1]*г.n[1] + s[2]*г.n[2])];
+    }
+    // «За Солнцем»: плавно переводим камеру на Солнце схемы
+    {
+      const сейч = performance.now(), dt = _следВремя ? Math.min(100, сейч - _следВремя) : 0;
+      _следВремя = сейч;
+      const цель = шарГалСледом && шарГалНаглядно ? 1 : 0;
+      if (_следДоля !== цель){
+        _следДоля = цель > _следДоля ? Math.min(1, _следДоля + dt/1500) : Math.max(0, _следДоля - dt/1500);
+        scheduleRender();
+      }
+    }
+    const след = галГладко(_следДоля);
+    if (галД.ц > 0 || след > 0){
+      const [ux, uy, uz] = галОси(г, оси, масштаб);
+      const ц = галД.ц*(1 - след), сс = след > 0 ? _нагляднСолнце((performance.now() - _нагляднНачало)/1000) : [0, 0, 0];
+      const dx = ц*(ГАЛ_R0*ux[0] - ГАЛ_Z0*uz[0]) + след*(сс[0]*ux[0] + сс[1]*uy[0]);
+      const dy = ц*(ГАЛ_R0*ux[1] - ГАЛ_Z0*uz[1]) + след*(сс[0]*ux[1] + сс[1]*uy[1]);
+      г.cx -= dx; г.cy -= dy; S = [S[0] - dx, S[1] - dy];
+    }
+    шарРисуйГалактику(c, л, г, оси, масштаб, S, галД, дпр);
+  } else шарГалМетки = null;
+  const системаТочкой = шарГалактика && галД.пол > 5e-4;   // вся Солнечная система — в пару пикселей
   // 2. Тела на настоящих расстояниях.
   // «Что показывать» действует и здесь: Солнце, Луна, планеты
-  const тела = шарТела(frame, оси).filter(т => т.id === "sun" ? opt.sun : т.id === "moon" ? opt.moon
+  const схема = шарГалНаглядно && шарГалактика && галД.а > 0.3;   // «Наглядно»: настоящие точки не мешают
+  const тела = схема ? [] : шарТела(frame, оси).filter(т => т.id === "sun" ? opt.sun : т.id === "moon" ? opt.moon
                                              : т.id === "earth" ? true : opt.pl);
   const солнце = тела.find(т => т.id === "sun");
   for (const т of тела){
@@ -22048,6 +22810,7 @@ function drawGlobe(frame){
   const ε = наклонЭклиптикиГрад(julianDay(cam.date))*D2R;
   const ρЭкл = г.H*0.86;
   const эклиптика = (переднюю) => {
+    if (системаТочкой) return;                     // издали круг эклиптики только путает
     c.save();
     c.strokeStyle = "rgba(255,214,140,.22)";
     c.lineWidth = Math.max(1, дпр*0.8);
@@ -22202,13 +22965,13 @@ function drawGlobe(frame){
       const rr = Math.max(R, 3.5*дпр);
       c.font = шрифт; c.textAlign = "left"; c.textBaseline = "middle";
       c.fillStyle = "#ffcc33";
-      c.fillText(tr(шарИмяЦентра()) + " · " + tr({ ru: "ты здесь", en: "you are here" }), г.cx + rr + 6*дпр, г.cy);
+      if (!системаТочкой) c.fillText(tr(шарИмяЦентра()) + " · " + tr({ ru: "ты здесь", en: "you are here" }), г.cx + rr + 6*дпр, г.cy);
     }
     c.restore();
   };
   // по глубине: дальнее раньше, ближнее позже
   const сцена = тела.map(т => ({ z: т.z, рисуй: () => рисуйТело(т) }));
-  сцена.push({ z: 0, рисуй: рисуйЗемлю });
+  if (!схема) сцена.push({ z: 0, рисуй: рисуйЗемлю });
   сцена.sort((a, b) => a.z - b.z);
   let эклиптикаСпереди = false;
   for (const э of сцена){
@@ -22216,15 +22979,17 @@ function drawGlobe(frame){
     э.рисуй();
   }
   if (!эклиптикаСпереди && opt.ecl) эклиптика(true);
+  if (шарМусор && тело === "earth" && !шарГалактика && !шарЦентрСолнце) шарРисуйМусор(c, г, оси, масштаб, R, дпр);
   // 4. Подписи: имя и расстояние. Тела за краем экрана — стрелкой у края.
   const занято = [];
   шарПодписиТел = [];
+  const справа = 52*дпр;                           // справа регулятор масштаба — подписи и стрелки левее
   const положи = (текст, x, y, выравн, цвет, альфа, id) => {
     if (!opt.nam) return;                           // «Названия» выключены
     c.font = шрифт;
     const ш = c.measureText(текст).width, в = кегль*1.2;
     let lx = выравн === "left" ? x : выравн === "right" ? x - ш : x - ш/2;
-    lx = Math.max(4*дпр, Math.min(л.w - ш - 4*дпр, lx));
+    lx = Math.max(4*дпр, Math.min(л.w - ш - справа, lx));
     for (const сдвиг of [0, 1, -1, 2, -2, 3, -3]){
       const ly = y + сдвиг*в;
       const кор = { x: lx, y: ly - в/2, w: ш, h: в };
@@ -22251,7 +23016,10 @@ function drawGlobe(frame){
   };
   const поле = 10*дпр;
   for (const т of тела){
-    const текст = opt.dist ? `${tr(т.имя)} · ${шарКм(т.D)}` : tr(т.имя);
+    // издали все планеты в одной точке с Солнцем — подписываем только его
+    if (шарГалактика && т.id !== "sun" && солнце && Math.hypot(т.x - солнце.x, т.y - солнце.y) < 8*дпр) continue;
+    const текст = системаТочкой && т.id === "sun" ? tr({ ru: "Солнце · мы здесь", en: "The Sun · we are here" })
+                : opt.dist ? `${tr(т.имя)} · ${шарКм(т.D)}` : tr(т.имя);
     const цвет = т.id === "sun" ? "#ffe08a" : "rgba(235,242,250,.95)";
     if (т.наЭкране){
       if (т.заЗемлёй){
@@ -22266,7 +23034,7 @@ function drawGlobe(frame){
     }
     // стрелка у края экрана в сторону тела
     const dx = т.x - г.cx, dy = т.y - г.cy;
-    const tX = dx > 0 ? (л.w - поле - г.cx)/dx : dx < 0 ? (поле - г.cx)/dx : Infinity;
+    const tX = dx > 0 ? (л.w - справа - г.cx)/dx : dx < 0 ? (поле - г.cx)/dx : Infinity;
     const tY = dy > 0 ? (низ - поле - г.cy)/dy : dy < 0 ? (верх + поле + 30*дпр - г.cy)/dy : Infinity;
     const t = Math.min(tX, tY);
     const ex = г.cx + dx*t, ey = г.cy + dy*t, α = Math.atan2(dy, dx);
@@ -22280,14 +23048,18 @@ function drawGlobe(frame){
     положи(текст, ex - dx/д*10*дпр, ey - dy/д*10*дпр,
            dx/д > 0.35 ? "right" : dx/д < -0.35 ? "left" : "center", цвет, т.z < 0 ? 0.6 : 0.95, т.id);
   }
+  if (шарГалактика) шарПодписиГалактики(положи, дпр);
   шарЭкранТел = тела.map(т => ({ id: т.id, имя: т.имя, x: т.x, y: т.y, r: т.r,
                                   виден: т.наЭкране && !т.заЗемлёй }));
   // 5. Линейка масштаба.
   {
     const кмНаПиксель = 1/масштаб;
     const цель = 110*дпр*кмНаПиксель;
-    const p10 = Math.pow(10, Math.floor(Math.log10(цель)));
-    const км = [1, 2, 5, 10].map(k => k*p10).filter(k => k <= цель).pop() || p10;
+    // единица: км, а. е. (за пределами планет) или световые годы
+    const ед = цель >= 0.05*СВГОД_КМ ? СВГОД_КМ : цель >= 3e9 ? AU_KM : 1;
+    const p10 = Math.pow(10, Math.floor(Math.log10(цель/ед)));
+    const сколько = [1, 2, 5, 10].map(k => k*p10).filter(k => k <= цель/ед).pop() || p10;
+    const км = сколько*ед;
     const ш = км*масштаб;
     const x0 = 16*дпр, y0 = низ - 16*дпр;
     c.save();
@@ -22298,9 +23070,27 @@ function drawGlobe(frame){
     c.font = шрифт; c.textAlign = "left"; c.textBaseline = "bottom";
     c.fillStyle = "rgba(235,242,250,.85)";
     const ру = tr({ ru: true, en: false });
-    const подпись = км < 1e6 ? `${Math.round(км).toLocaleString(ру ? "ru-RU" : "en-US")} ${ру ? "км" : "km"}`
+    const чис = (x) => (+x.toPrecision(3)).toLocaleString(ру ? "ru-RU" : "en-US");
+    const подпись = ед === СВГОД_КМ ? свЛет(сколько)
+                  : ед === AU_KM ? `${чис(сколько)} ${ру ? "а. е." : "AU"}`
+                  : км < 1e6 ? `${Math.round(км).toLocaleString(ру ? "ru-RU" : "en-US")} ${ру ? "км" : "km"}`
                   : км < 1e9 ? `${км/1e6} ${ру ? "млн км" : "million km"}` : `${км/1e9} ${ру ? "млрд км" : "billion km"}`;
     c.fillText(подпись, x0, y0 - 6*дпр);
+    if (шарМусор && !шарГалактика){
+      const куски = ру ? ["Вокруг Земли радары следят за 47 000 объектов", "работают из них около 15 800",
+                          "ещё 1,5 млн обломков от 1 до 10 см и 230 млн мельче — их не видно",
+                          "летят со скоростью 7–8 км/с, примерно в 10 раз быстрее пули"]
+                       : ["Radars track 47,000 objects around the Earth", "about 15,800 of them are working",
+                          "plus 1.5 million fragments of 1–10 cm and 230 million smaller ones, too small to track",
+                          "they fly at 7–8 km/s, about ten times faster than a bullet"];
+      c.fillStyle = "rgba(255,170,140,.95)";
+      const ширина = л.w - 2*x0, строки = [];
+      for (const к of куски){
+        const пр = строки.length ? строки[строки.length - 1] + " · " + к : null;
+        if (пр && c.measureText(пр).width <= ширина) строки[строки.length - 1] = пр; else строки.push(к);
+      }
+      строки.forEach((т, i) => c.fillText(т, x0, y0 - 6*дпр - кегль*1.35*(строки.length - i)));
+    }
     if (шарГалактика && шарГалПодпись){
       const Т = шарГалПодпись.Tдн, лет = Т/365.25;
       const срок = лет >= 2 ? (ру ? `${Math.round(лет)} ${склонЛет(Math.round(лет))}` : `${Math.round(лет)} years`)
@@ -22309,9 +23099,18 @@ function drawGlobe(frame){
       const аеВГод = ГАЛ_СКОРОСТЬ*86400*365.25/AU_KM;
       c.fillStyle = "rgba(255,226,140,.9)";
       // куски строки; на узком экране переносим на следующую строку вверх
-      const куски = ру ? [`Солнце: ${Math.round(ГАЛ_СКОРОСТЬ)} км/с к Лебедю`, `${Math.round(аеВГод)} а. е. в год`, `след ${срок}`]
-                       : [`Sun: ${Math.round(ГАЛ_СКОРОСТЬ)} km/s towards Cygnus`, `${Math.round(аеВГод)} AU a year`, `trail ${срок}`];
-      if (шарГалЗамедл !== 1) куски.push(ру ? `Солнце замедлено в ${Math.round(1/шарГалЗамедл)} раз`
+      const галВидна = галД.а > 0.5;
+      const куски = галВидна && шарГалНаглядно
+        ? (ру ? ["Наглядно, не в масштабе", "Солнечная система увеличена в 5 млн раз", "оборот Солнца — 10 минут вместо 230 млн лет"]
+              : ["Illustrative, not to scale", "Solar System enlarged 5 million times", "one solar orbit in 10 minutes instead of 230 million years"])
+        : галВидна
+        ? (ру ? ["Млечный Путь: около 100 000 св. лет поперёк", "Солнце в 27 000 св. лет от центра",
+                 `${Math.round(ГАЛ_СКОРОСТЬ)} км/с`, "оборот за 230 млн лет"]
+              : ["Milky Way: about 100,000 ly across", "Sun 27,000 ly from the centre",
+                 `${Math.round(ГАЛ_СКОРОСТЬ)} km/s`, "one orbit in 230 million years"])
+        : ру ? [`Солнце: ${Math.round(ГАЛ_СКОРОСТЬ)} км/с к Лебедю`, `${Math.round(аеВГод)} а. е. в год`, `след ${срок}`]
+             : [`Sun: ${Math.round(ГАЛ_СКОРОСТЬ)} km/s towards Cygnus`, `${Math.round(аеВГод)} AU a year`, `trail ${срок}`];
+      if (шарГалЗамедл !== 1 && !галВидна) куски.push(ру ? `Солнце замедлено в ${Math.round(1/шарГалЗамедл)} раз`
                                            : `Sun slowed ${Math.round(1/шарГалЗамедл)}×`);
       const ширина = л.w - 2*x0, строки = [];
       for (const к of куски){
@@ -22323,6 +23122,9 @@ function drawGlobe(frame){
     c.restore();
   }
   шарПодпись();
+  шарЗумРегулятор();
+  if (шарГалНаглядно && шарГалактика) scheduleRender();       // схема движется сама
+  if (шарМусор && !шарГалактика) scheduleRender();            // мусор летит сам
 }
 function шарПодписиКнопок(){
   const тело = шарЦентрТело();
@@ -22331,6 +23133,151 @@ function шарПодписиКнопок(){
   if (б) б.textContent = tr(тело === "earth" ? { ru: "До Луны", en: "To the Moon" } : { ru: "До Земли", en: "To the Earth" });
 }
 приПереводе(() => { if (typeof шарОткрыт !== "undefined"){ шарПодписиКнопок(); шарГалКнопки(); } });
+// «Мусор»: что летает вокруг Земли. По одной точке на каждый объект, который
+// сейчас отслеживают радары (ESA, «Space debris by the numbers», 02.11.2026:
+// около 47 360, из них около 15 800 работающих спутников). Орбиты не настоящие
+// по отдельности, а розданы так, как распределено всё вместе: Starlink на
+// 340–570 км, солнечно-синхронные на 500–1000 км, облака обломков на 750–1000 км,
+// навигация на 20 000 км, кольцо геостационара на 35 786 км, ступени ракет на
+// вытянутых орбитах. Точки во много раз крупнее самих объектов. Время
+// ускорено: 1 секунда — 5 минут, низкий виток — 18 секунд.
+const МУСОР_ВСЕГО = 47360, МУСОР_РАБОТАЮТ = 15800, МУСОР_УСКОР = 300;
+let шарМусор = false, _мусор = null, _мусорНачало = 0;
+function _мусорГотовь(){
+  if (_мусор) return _мусор;
+  const N = МУСОР_ВСЕГО, RЗ = 6371, μ = 398600.44;
+  const сл = _галСлуч(20261102);
+  const гаусс = () => { let u = 0; for (let i = 0; i < 6; i++) u += сл(); return (u - 3)/Math.sqrt(0.5); };
+  const из = (вар) => { let r = сл()*вар.reduce((a, v) => a + v[1], 0); for (const [x, w] of вар){ if ((r -= w) <= 0) return x; } return вар[0][0]; };
+  const P = new Float32Array(3*N), Q = new Float32Array(3*N), A = new Float32Array(N), E = new Float32Array(N),
+        M0 = new Float32Array(N), n = new Float32Array(N), жив = new Uint8Array(N);
+  let k = 0;
+  // перигей и апогей (высоты, км), наклон (°)
+  const положи = (hp, ha, i, работает) => {
+    const rp = RЗ + hp, ra = RЗ + ha, a = (rp + ra)/2, e = (ra - rp)/(ra + rp);
+    const Ω = сл()*2*Math.PI, ω = сл()*2*Math.PI, ι = i*D2R;
+    const cΩ = Math.cos(Ω), sΩ = Math.sin(Ω), cω = Math.cos(ω), sω = Math.sin(ω), cι = Math.cos(ι), sι = Math.sin(ι);
+    P[3*k] = cΩ*cω - sΩ*sω*cι; P[3*k + 1] = sΩ*cω + cΩ*sω*cι; P[3*k + 2] = sω*sι;
+    Q[3*k] = -cΩ*sω - sΩ*cω*cι; Q[3*k + 1] = -sΩ*sω + cΩ*cω*cι; Q[3*k + 2] = cω*sι;
+    A[k] = a; E[k] = e; M0[k] = сл()*2*Math.PI; n[k] = Math.sqrt(μ/(a*a*a)); жив[k] = работает ? 1 : 0;
+    k++;
+  };
+  const круг = (h, i, р) => { const d = Math.abs(гаусс())*0.002*h; положи(h, h + d, i, р); };
+  // работающие спутники
+  for (let j = 0; j < 9500; j++)  круг(из([[340, 1], [480 + 80*сл(), 8], [570, 1]]), из([[43, 25], [53, 40], [70, 10], [97.6, 25]]), 1);   // Starlink
+  for (let j = 0; j < 650; j++)   круг(1200, 87.9, 1);                                                         // OneWeb
+  for (let j = 0; j < 800; j++)   круг(800 + 300*сл(), из([[50, 1], [60, 1], [85, 1]]), 1);                     // новые созвездия
+  for (let j = 0; j < 150; j++)   круг(19100 + 4100*сл(), 55 + 10*сл(), 1);                                    // навигация
+  for (let j = 0; j < 600; j++)   круг(35786, 2*сл(), 1);                                                      // геостационар
+  for (let j = 0; j < 100; j++)   положи(600, 39700, 63.4, 1);                                                 // «Молния»
+  while (k < МУСОР_РАБОТАЮТ)      круг(400 + 450*Math.abs(гаусс())*0.6, сл() < 0.6 ? 97.5 : 30 + 70*сл(), 1);  // прочие низкие
+  // мусор: мёртвые спутники, ступени ракет, обломки
+  for (let j = 0; j < 2500; j++)  положи(200 + 400*сл(), 20000 + 16000*сл(), из([[6, 2], [28, 3], [51, 1], [15, 1]]) + 3*сл(), 0);   // ступени на переходных орбитах
+  for (let j = 0; j < 2000; j++)  круг(35500 + 800*сл(), 15*сл(), 0);                                          // кладбище над геостационаром
+  for (let j = 0; j < 300; j++)   круг(19000 + 4000*сл(), 55 + 10*сл(), 0);
+  for (let j = 0; j < 400; j++)   положи(500, 39000, 63 + 2*сл(), 0);
+  while (k < N){
+    const h = из([[780 + 110*гаусс(), 5], [950 + 80*гаусс(), 2], [1450 + 60*гаусс(), 1], [450 + 250*сл(), 2], [1000 + 1000*сл(), 1]]);
+    const hp = Math.max(250, h), e = Math.abs(гаусс())*0.004;
+    положи(hp, hp + 2*(RЗ + hp)*e, из([[98.5, 35], [82.5, 15], [74, 10], [65, 8], [52, 7], [28 + 80*сл(), 25]]) + 0.6*гаусс(), 0);
+  }
+  const B = new Float32Array(N); for (let i = 0; i < N; i++) B[i] = A[i]*Math.sqrt(1 - E[i]*E[i]);
+  // текущее положение на орбите: cos и sin эксцентрической аномалии
+  // порядок рисования вперемешку, чтобы ни спутники, ни мусор не закрывали всех других
+  const порядок = new Uint32Array(N); for (let i = 0; i < N; i++) порядок[i] = i;
+  for (let i = N - 1; i > 0; i--){ const j = Math.floor(сл()*(i + 1)), x = порядок[i]; порядок[i] = порядок[j]; порядок[j] = x; }
+  _мусор = { N, P, Q, A, B, E, M0, n, жив, порядок, co: new Float64Array(N), si: new Float64Array(N), Ea: new Float64Array(N), t: null, круг: 0 };
+  return _мусор;
+}
+function шарМусорВкл(вкл){
+  шарМусор = вкл;
+  if (вкл){
+    if (шарГалактика) шарГалВкл(false);
+    шарЦентрСолнце = false;
+    _мусорГотовь().t = null; _мусорНачало = performance.now();
+    if (шарЦентрТело() === "earth") шарЛетиК(1/48000, 2200);
+    note(tr({ ru: "Каждая точка — один объект, за которым следят радары: около 47 000. Зелёные — работающие спутники, красные — мусор: старые спутники, ступени ракет, обломки. Время ускорено: 1 секунда — 5 минут",
+              en: "Each dot is one object tracked by radar: about 47,000. Green: working satellites; red: junk, i.e. dead satellites, rocket stages, fragments. Time sped up: 1 second = 5 minutes" }), 8000);
+  }
+  document.getElementById("globeJunk")?.setAttribute("aria-pressed", String(шарМусор));
+  renderNow();
+}
+// Точки пишем прямо в пиксели отдельного холста (на телефоне — в половинном
+// разрешении) и кладём его поверх: 47 000 прямоугольников через путь холста
+// на телефоне рисуются втрое дольше.
+let _мусорХолст = null, _мусорПиксели = null;
+// Синусы и косинусы на каждую точку каждый кадр на телефоне дороже всего
+// остального. Поэтому почти круговые орбиты доворачиваем на малый угол без
+// тригонометрии, вытянутые — одним шагом Ньютона от прошлого положения,
+// а точно пересчитываем по кусочку орбит за кадр и всё сразу после паузы.
+function _мусорК(м, t){
+  const { N, E, M0, n, co, si, Ea } = м;
+  const точно = (i) => {
+    const e = E[i], Mm = M0[i] + n[i]*t;
+    let x = Mm + e*Math.sin(Mm);
+    if (e >= 0.01) for (let q = 0; q < 6; q++) x -= (x - e*Math.sin(x) - Mm)/(1 - e*Math.cos(x));
+    Ea[i] = x; co[i] = Math.cos(x); si[i] = Math.sin(x);
+  };
+  const d = м.t === null ? Infinity : t - м.t;
+  if (!(Math.abs(d) < 150)){ for (let i = 0; i < N; i++) точно(i); }
+  else if (d !== 0){
+    for (let i = 0; i < N; i++){
+      const e = E[i];
+      if (e < 0.01){
+        const δ = n[i]*d, δ2 = δ*δ, cd = 1 - δ2/2, sd = δ*(1 - δ2/6), c0 = co[i];
+        co[i] = c0*cd - si[i]*sd; si[i] = si[i]*cd + c0*sd;
+      } else {
+        const Mm = M0[i] + n[i]*t; let x = Ea[i];
+        x -= (x - e*si[i] - Mm)/(1 - e*co[i]);
+        Ea[i] = x; co[i] = Math.cos(x); si[i] = Math.sin(x);
+      }
+    }
+    const кусок = Math.ceil(N/120);
+    for (let i = м.круг, k = Math.min(N, м.круг + кусок); i < k; i++) точно(i);
+    м.круг = (м.круг + кусок) % N;
+  }
+  м.t = t;
+}
+function шарРисуйМусор(c, г, оси, масштаб, R, дпр){
+  const м = _мусорГотовь(), { N, P, Q, A, B, E, жив, co, si, порядок } = м;
+  _мусорК(м, (performance.now() - _мусорНачало)/1000*МУСОР_УСКОР);
+  const Ee = шарОсиВЭкв(г.e, оси), En = шарОсиВЭкв(г.n, оси), Ek = шарОсиВЭкв(г.k, оси);
+  const W = c.canvas.width, H = c.canvas.height, ф = дпр >= 1.8 ? 2 : 1;
+  const w = Math.ceil(W/ф), h = Math.ceil(H/ф);
+  if (!_мусорХолст) _мусорХолст = document.createElement("canvas");
+  if (_мусорХолст.width !== w || _мусорХолст.height !== h || !_мусорПиксели){
+    _мусорХолст.width = w; _мусорХолст.height = h;
+    _мусорПиксели = _мусорХолст.getContext("2d").createImageData(w, h);
+  }
+  const u = new Uint32Array(_мусорПиксели.data.buffer);
+  u.fill(0);
+  const cx = г.cx/ф, cy = г.cy/ф, R2 = (R/ф)*(R/ф), k = масштаб/ф;
+  // цвета в порядке байт ABGR: мусор / спутники × сзади / спереди
+  const цвет = [0x8c3c50e6, 0xc85070ff, 0x8078d070, 0xd0a0f590];
+  const крупно = R/ф > 0.12*Math.min(w, h);     // издали точки по пикселю, иначе Землю не видно
+  const ex0 = k*Ee[0], ex1 = k*Ee[1], ex2 = k*Ee[2], ey0 = k*En[0], ey1 = k*En[1], ey2 = k*En[2];
+  for (let ii = 0; ii < N; ii++){
+    const i = порядок[ii];
+    const x = A[i]*(co[i] - E[i]), y = B[i]*si[i];
+    const j = 3*i;
+    const X = x*P[j] + y*Q[j], Y = x*P[j + 1] + y*Q[j + 1], Z = x*P[j + 2] + y*Q[j + 2];
+    const px = (cx + X*ex0 + Y*ex1 + Z*ex2) | 0, py = (cy - X*ey0 - Y*ey1 - Z*ey2) | 0;
+    if (px < 0 || px >= w - 1 || py < 0 || py >= h - 1) continue;
+    const z = X*Ek[0] + Y*Ek[1] + Z*Ek[2], dx = px - cx, dy = py - cy;
+    const спереди = z >= 0;
+    if (!спереди && dx*dx + dy*dy < R2) continue;  // за Землёй
+    const o = py*w + px, кр = цвет[2*жив[i] + (спереди ? 1 : 0)];
+    if (!спереди && u[o]) continue;                // сзади не затирает переднее
+    u[o] = кр;
+    if (крупно){ u[o + 1] = кр; u[o + w] = кр; u[o + w + 1] = кр; }
+  }
+  _мусорХолст.getContext("2d").putImageData(_мусорПиксели, 0, 0);
+  c.save();
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.imageSmoothingEnabled = ф > 1;
+  c.drawImage(_мусорХолст, 0, 0, w*ф, h*ф);
+  c.restore();
+}
 function шарЗумКнопки(){
   const кн = { земля: "globeZEarth", луна: "globeZMoon", солнце: "globeZSun", планеты: "globeZAll" };
   for (const [имя, id] of Object.entries(кн))
@@ -22355,9 +23302,55 @@ function шарКПресету(имя){
 function шарМасштабируй(множитель){
   const цели = шарЦели(frame);
   шарАним = null;
-  шарМ = Math.max(цели.планеты*0.4, Math.min(цели.земля*4, шарМ*множитель));
+  // в Галактике — до 70 кпк на полэкрана; за планетами колесо и щипок
+  // шагают крупнее, иначе до Галактики сотни оборотов колеса
+  if (шарГалактика && 1/шарМ > 300*AU_KM) множитель = Math.pow(множитель, 3);
+  const мин = шарГалактика ? 1/(70*КПК_КМ) : цели.планеты*0.4;
+  шарМ = Math.max(мин, Math.min(цели.земля*4, шарМ*множитель));
   шарПресет = ""; шарЗумКнопки();
   scheduleRender();
+}
+// Регулятор масштаба: шкала логарифмическая, вверху — своё тело крупно,
+// внизу — все планеты, а в Галактике — вся Галактика
+let _зумЦели = null, _зумЦелиВ = 0, _зумЗнач = -1, _зумТянут = false;
+function шарЗумПределы(){
+  const t = performance.now();
+  if (!_зумЦели || t - _зумЦелиВ > 700){ _зумЦели = шарЦели(frame); _зумЦелиВ = t; }
+  return { макс: _зумЦели.земля*4, мин: шарГалактика ? 1/(70*КПК_КМ) : _зумЦели.планеты*0.4 };
+}
+function шарЗумРегулятор(){
+  const р = document.getElementById("zoomR");
+  if (!р) return;
+  const п = шарЗумПределы();
+  const v = Math.round(1000*Math.log(шарМ/п.мин)/Math.log(п.макс/п.мин));
+  if (!_зумТянут && v !== _зумЗнач){ р.value = String(Math.max(0, Math.min(1000, v))); _зумЗнач = v; }
+  document.getElementById("zoomNear").textContent = tr(шарИмяЦентра());
+  document.getElementById("zoomFar").textContent = шарГалактика ? tr({ ru: "Галактика", en: "Galaxy" }) : tr({ ru: "Планеты", en: "Planets" });
+}
+function шарЛетиК(цель, мс){
+  шарАним = { от: Math.log(шарМ), до: Math.log(цель), t0: performance.now(),
+              dur: мс || Math.min(4000, 900 + 220*Math.abs(Math.log(цель/шарМ))) };
+  шарПресет = ""; шарЗумКнопки();
+  renderNow();
+}
+{
+  const р = document.getElementById("zoomR");
+  р.addEventListener("pointerdown", () => { _зумТянут = true; });
+  addEventListener("pointerup", () => { _зумТянут = false; });
+  addEventListener("pointercancel", () => { _зумТянут = false; });
+  р.addEventListener("input", () => {
+    const п = шарЗумПределы();
+    шарАним = null;
+    шарМ = п.мин*Math.exp(+р.value/1000*Math.log(п.макс/п.мин));
+    _зумЗнач = +р.value;
+    шарПресет = ""; шарЗумКнопки();
+    scheduleRender();
+  });
+  document.getElementById("zoomNear").addEventListener("click", () => шарКПресету("земля"));
+  document.getElementById("zoomFar").addEventListener("click", () => {
+    if (шарГалактика) шарЛетиК(1/(15*КПК_КМ), 7000);
+    else шарКПресету("планеты");
+  });
 }
 // Вид привязан к режиму, только если его не крутили, не летим к телу и не в Галактике
 function шарСвободен(){ return !!(шарФокус || шарЦентр || шарИнерц || шарГалактика); }
@@ -22376,6 +23369,7 @@ function openGlobe(){
   cvs.style.visibility = "hidden";               // небо под шаром не видно — не тратим на него видеокарту
   document.body.classList.add("globeOn");
   document.getElementById("globebar").hidden = false;
+  document.getElementById("zoombar").hidden = false;
   document.getElementById("globeTop").setAttribute("aria-pressed", "true");
   document.body.classList.remove("toolsOpen");
   document.getElementById("moreTop")?.setAttribute("aria-expanded", "false");
@@ -22401,6 +23395,7 @@ function closeGlobe(){
   document.body.classList.remove("globeOn");
   шарКлючЗвёзд = ""; шарЗвёзды.width = шарЗвёзды.height = 1;   // отдать память
   document.getElementById("globebar").hidden = true;
+  document.getElementById("zoombar").hidden = true;
   document.getElementById("globeTop").setAttribute("aria-pressed", "false");
   _высотыПанелей.clear();
   renderNow();
@@ -22539,7 +23534,6 @@ let шарЩипок = 0, шарПрошлыйТап = 0, шарСдвинут =
 {
   const точка = (e) => canvasPointFromClient(e.clientX, e.clientY);
   шарХолст.addEventListener("pointerdown", (e) => {
-    шарГалТурСтоп();                                 // взял вид в руки — облёт кончился
     шарХолст.setPointerCapture?.(e.pointerId);
     шарПальцы.set(e.pointerId, точка(e));
     шарСдвинут = false;
@@ -22617,7 +23611,6 @@ let шарЩипок = 0, шарПрошлыйТап = 0, шарСдвинут =
   шарХолст.addEventListener("pointerup", отпустить);
   шарХолст.addEventListener("pointercancel", отпустить);
   шарХолст.addEventListener("wheel", (e) => {
-    шарГалТурСтоп();
     e.preventDefault();
     шарМасштабируй(Math.exp(-e.deltaY*0.0012));
   }, { passive: false });
@@ -22626,11 +23619,25 @@ let шарЩипок = 0, шарПрошлыйТап = 0, шарСдвинут =
   document.getElementById("globeZen").addEventListener("click", () => шарПоставитьРежим("зенит"));
   document.getElementById("globeLook").addEventListener("click", () => шарПоставитьРежим("взгляд"));
   document.getElementById("globeZEarth").addEventListener("click", () => шарКПресету("земля"));
+  document.getElementById("globeJunk").addEventListener("click", () => шарМусорВкл(!шарМусор));
   document.getElementById("globeZMoon").addEventListener("click", () => шарКПресету("луна"));
   document.getElementById("globeZSun").addEventListener("click", () => шарКПресету("солнце"));
   document.getElementById("globeZAll").addEventListener("click", () => шарКПресету("планеты"));
   document.getElementById("globeGal").addEventListener("click", () => шарГалВкл(!шарГалактика));
   document.getElementById("globeGalFly").addEventListener("click", () => шарПолёт(!шарГалПолёт));
+  document.getElementById("globeGalKids").addEventListener("click", () => шарНаглядно(!шарГалНаглядно));
+  document.getElementById("globeGalFollow").addEventListener("click", () => шарЗаСолнцем(!шарГалСледом));
+  // облёт масштабов: от Солнечной системы до всей Галактики и обратно
+  document.getElementById("globeGalWide").addEventListener("click", () => {
+    if (!шарГалактика) return;
+    const наружу = !(галДоли().пол > 1);
+    if (!наружу && шарГалНаглядно){ шарГалНаглядно = false; шарГалСледом = false; шарГалКнопки(); }
+    const до = наружу ? 1/(15*КПК_КМ) : 1/(2.4*AU_KM);
+    шарЛетиК(до, 7000);
+    if (наружу) note(tr({ ru: "Летим от Солнца к краю Галактики. Снимка Млечного Пути снаружи нет: это модель по измерениям рукавов, бара и центра",
+                          en: "Flying from the Sun out of the Galaxy. There is no photo of the Milky Way from outside: this is a model built from measurements" }), 6000);
+    renderNow();
+  });
   document.getElementById("globeGalSpeed").addEventListener("click", () => {
     шарГалЗамедл = шарГалЗамедл === 1 ? 0.1 : шарГалЗамедл === 0.1 ? 0.01 : 1;
     шарГалКнопки();
@@ -25853,11 +26860,12 @@ function _высотаПанели(id, приСмене){
   if (!_высотаПанели.следим) _высотаПанели.следим = new Set();
   if (!_высотаПанели.следим.has(id)){
     _высотаПанели.следим.add(id);
-    let было = h;
     new ResizeObserver(() => {                       // высота сменилась сама, без касания
       const н = п.offsetHeight || 0;                 // здесь раскладка уже посчитана
-      if (н === было) return;
-      было = н; _высотыПанелей.set(id, н);
+      // сравниваем с тем, что сейчас в кэше: его могли перемерить после
+      // касания в промежуточной раскладке
+      if (_высотыПанелей.get(id) === н) return;
+      _высотыПанелей.set(id, н);
       if (приСмене) приСмене(); else relayout();
       scheduleRender();
     }).observe(п);
