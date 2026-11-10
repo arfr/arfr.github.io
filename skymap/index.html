@@ -412,6 +412,63 @@
   #toolcol > button{position:static;flex:none}
   body:not(.toolsOpen) :is(#shotTop,#fsTop,#nightTop,#shareTop,#langTop,#refrTop){display:none !important}
   body.toolsOpen :is(#altbar,#zoombar){visibility:hidden}
+  /* Игры: кубик в столбце и окно со списком игр; во время игры — панель ответов внизу. */
+  #gamesTop{position:static;width:34px;height:34px;
+    background:var(--panel);backdrop-filter:blur(14px);
+    border:1px solid var(--rule);border-radius:3px;
+    color:var(--ink);font:inherit;line-height:1;
+    display:grid;place-items:center;cursor:pointer}
+  #gamesTop svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round}
+  #gamesTop svg circle{fill:currentColor;stroke:none}
+  #gamesTop:focus-visible{outline:1px solid var(--spec-A);outline-offset:2px}
+  body.short #gamesTop{width:28px;height:28px}
+  #gamesModal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;
+    background:rgba(0,0,0,.55);padding:16px}
+  #gamesModal[hidden]{display:none}
+  #gamesModal .gm-box{width:min(440px,100%);max-height:calc(100% - 32px);overflow:auto;
+    background:var(--panel);backdrop-filter:blur(14px);border:1px solid var(--rule);border-radius:6px;
+    color:var(--ink);padding:14px 16px 16px}
+  #gamesModal .gm-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  #gamesModal h2{margin:0;font-size:15px;font-weight:600;letter-spacing:.02em}
+  #gamesModal .gm-x{background:none;border:1px solid var(--rule);border-radius:3px;color:var(--ink);
+    width:30px;height:30px;font:inherit;font-size:14px;cursor:pointer}
+  #gamesModal .gm-game{border:1px solid var(--rule);border-radius:5px;padding:12px;margin-top:10px}
+  #gamesModal .gm-game h3{margin:0 0 4px;font-size:14px;font-weight:600}
+  #gamesModal .gm-game p{margin:0 0 10px;font-size:12px;line-height:1.5;color:var(--ink-dim)}
+  #gamesModal .gm-game.soon{opacity:.55}
+  #gamesModal .gm-lv{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;margin:0 0 12px}
+  #gamesModal .gm-lv span{aspect-ratio:1;min-width:0;border:1px solid var(--rule);border-radius:3px;
+    color:var(--ink-dim);font-size:12px;display:grid;place-items:center}
+  #gamesModal .gm-lv span.done{color:var(--ink);background:rgba(70,190,110,.25);border-color:rgba(70,190,110,.6)}
+  #gamesModal .gm-lv span.now{color:var(--ink);outline:1px solid var(--ink);outline-offset:1px}
+  #gamesModal .gm-act{display:flex;gap:8px;flex-wrap:wrap}
+  #gamesModal .gm-act button{flex:1 1 auto;min-height:38px;border:1px solid var(--rule);border-radius:4px;
+    background:none;color:var(--ink);font:inherit;font-size:13px;cursor:pointer;padding:6px 10px}
+  #gamesModal .gm-act button.main{background:var(--ink);color:#05080c;border-color:var(--ink);font-weight:600}
+  #gamebar{position:fixed;z-index:9;left:50%;transform:translateX(-50%);
+    bottom:max(12px,env(safe-area-inset-bottom));width:min(560px,calc(100% - 20px));
+    background:var(--panel);backdrop-filter:blur(14px);border:1px solid var(--rule);border-radius:6px;
+    color:var(--ink);padding:10px 12px 12px}
+  #gamebar[hidden]{display:none}
+  #gamebar .gb-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px}
+  #gamebar .gb-q{flex:1;font-weight:600}
+  #gamebar .gb-s{color:var(--ink-dim)}
+  #gamebar .gb-x{background:none;border:1px solid var(--rule);border-radius:3px;color:var(--ink);
+    font:inherit;font-size:12px;padding:4px 8px;cursor:pointer}
+  #gamebar .gb-a{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  #gamebar .gb-a button{min-height:44px;border:1px solid var(--rule);border-radius:4px;background:rgba(255,255,255,.04);
+    color:var(--ink);font:inherit;font-size:14px;cursor:pointer;padding:6px 8px;line-height:1.2}
+  #gamebar .gb-a button:disabled{cursor:default}
+  #gamebar .gb-a button.ok{background:rgba(70,190,110,.35);border-color:rgba(90,210,130,.9);color:#eafff0}
+  #gamebar .gb-a button.bad{background:rgba(220,70,70,.3);border-color:rgba(230,90,90,.9)}
+  #gamebar .gb-m{font-size:12px;line-height:1.5;color:var(--ink-dim);margin-top:8px;display:flex;
+    align-items:center;gap:10px;justify-content:space-between}
+  #gamebar .gb-m:empty{display:none}
+  #gamebar .gb-m button{border:1px solid var(--rule);border-radius:4px;background:none;color:var(--ink);
+    font:inherit;font-size:13px;padding:6px 12px;cursor:pointer;flex:none}
+  #gamebar .gb-m button.main{background:var(--ink);color:#05080c;border-color:var(--ink);font-weight:600}
+  @media (max-width:560px){ #gamebar .gb-a{grid-template-columns:1fr;gap:6px} #gamebar .gb-a button{min-height:40px} }
+  body.gameOn :is(#menu,#panel,#globeTop,#gamesTop,#timedock,#zoombar,#why,#explain,#card){display:none !important}
   body.night #moreTop{filter:brightness(var(--dim,1))}
   #menu:focus-visible{outline:1px solid var(--spec-A);outline-offset:2px}
   
@@ -1291,6 +1348,27 @@
   </svg>
 </button>
 
+<button id="gamesTop" aria-label="Игры" title="Игры">
+  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <rect x="4" y="4" width="16" height="16" rx="3.2"></rect>
+    <circle cx="8.6" cy="8.6" r="1.35"></circle><circle cx="15.4" cy="8.6" r="1.35"></circle>
+    <circle cx="12" cy="12" r="1.35"></circle>
+    <circle cx="8.6" cy="15.4" r="1.35"></circle><circle cx="15.4" cy="15.4" r="1.35"></circle>
+  </svg>
+</button>
+<div id="gamesModal" hidden role="dialog" aria-modal="true" aria-labelledby="gmTitle">
+  <div class="gm-box">
+    <div class="gm-head"><h2 id="gmTitle">Игры</h2><button class="gm-x" id="gmClose" aria-label="Закрыть">✕</button></div>
+    <div id="gmList"></div>
+  </div>
+</div>
+<div id="gamebar" hidden>
+  <div class="gb-top"><span class="gb-q" id="gbQ"></span><span class="gb-s num" id="gbS"></span>
+    <button class="gb-x" id="gbExit"></button></div>
+  <div class="gb-a" id="gbA"></div>
+  <div class="gb-m" id="gbM"></div>
+</div>
+
 <button id="tilt" aria-label="Навести телефон на небо" hidden>
   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
     <circle cx="12" cy="12" r="8.5"></circle>
@@ -1676,6 +1754,9 @@ const STARS  = unpackStars(b64(SKYDATA.stars));
 const BOUNDS = unpackPolys(b64(SKYDATA.bounds),0).polys;
 const FIGS   = unpackFigures(b64(SKYDATA.figures));
 const FIGPOLYS = FIGS.flatMap(f=>f.polys);
+// состояние игры «Что это за созвездие?» (сама игра — внизу, у кнопки-кубика)
+const игра = { идёт: false, фигура: null, имя: null, рисунок: null, рисунокС: 0,
+               полёт: 0, таймер: 0, было: null, ответ: false };
 
 
 const SPECTR = ["#00ffff","#78ffff","#ffffff","#ffff80","#ffff00","#ff8000","#ff4040"];
@@ -18486,7 +18567,7 @@ function canvasPointFromClient(clientX, clientY, viewport){
   return { x: (clientX - r.left)*dpr, y: (clientY - r.top)*dpr };
 }
 function pickObject(cx, cy){
-  
+  if (игра.идёт) return null;               // в игре карточки выдали бы ответ
   if (!presented) return null;
   const т = canvasPointFromClient(cx, cy, presented.frame.viewport);
   return pickObjectAt(т.x, т.y, presented);
@@ -19855,6 +19936,7 @@ function _текстурныйТреугольник(c, img, W, H, x0, y0, x1, y
   c.restore();
 }
 function drawConstellationArtLayer(c, frame, display){
+  if (игра.идёт){ игрРисунок(c, frame); return; }
   if (!opt.art) return;
   const xf = frame.xf, f = frame.flat;
   const дпр = f.w/Math.max(1, f.cssW || f.w);
@@ -19952,6 +20034,7 @@ function _звездаВершины(ra, dec){
   return i;
 }
 function drawFiguresLayer(c, frame, display){
+  if (игра.идёт){ if (игра.фигура) игрФигура(c, frame); return; }
   if (!display.layers.fig) return;
   const лет = frame.time ? frame.time.yearsFromJ2000 : 0, xf = frame.xf;
   // звезда, улетевшая дальше 12°, из рисунка выпадает: линия через полнеба
@@ -20435,6 +20518,7 @@ function renderCanvas(frame, display){
 
 
   drawSunMarkerLayer(ctx, frame.scene.luminaries.sun, display);
+  игрПодпись(ctx, frame);
   
 
   ctx.globalAlpha = 1 - 0.72*frame.sky.level;
@@ -23729,28 +23813,78 @@ function склонЛет(n){
 // (резонансы с Юпитером 3:1, 5:2, 7:3 — там астероидов почти нет), эксцентриситет
 // около 0,14, наклон к эклиптике обычно до 10–15°. Каждая точка летит по своей
 // орбите по закону Кеплера: внутренний край обгоняет внешний.
-let _поясАстероидов = null;
-function поясАстероидов(){
-  if (_поясАстероидов) return _поясАстероидов;
-  let сид = 20261110;
+// общий розыгрыш орбит: выбор(rnd, гаусс, рэлей) даёт { a, e, i } или null (отбросить)
+function _разыгратьОрбиты(сид, сколько, выбор){
   const rnd = () => { сид |= 0; сид = сид + 0x6D2B79F5 | 0; let t = Math.imul(сид ^ сид >>> 15, 1 | сид);
                       t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0)/4294967296; };
   const гаусс = () => Math.sqrt(-2*Math.log(1 - rnd()))*Math.cos(2*Math.PI*rnd());
-  const люки = [[2.502, 0.035], [2.825, 0.025], [2.958, 0.02], [3.27, 0.06]];
+  const рэлей = (σ) => σ*Math.sqrt(-2*Math.log(1 - rnd()));
   const out = [];
-  while (out.length < 2000){
-    const a = 2.15 + 1.15*Math.pow(rnd(), 0.9);
-    if (люки.some(([ц, ш]) => Math.abs(a - ц) < ш)) continue;
-    if (a > 2.85 && rnd() < 0.35) continue;                 // снаружи пояс реже
-    const e = Math.min(0.32, Math.abs(0.14 + 0.07*гаусс()));
-    const i = Math.min(30, 7*Math.sqrt(-2*Math.log(1 - rnd())));   // Рэлей, σ = 7°
+  while (out.length < сколько){
+    const о = выбор(rnd, гаусс, рэлей);
+    if (!о) continue;
+    const { a, e, i } = о;
     const N = 360*rnd(), w = 360*rnd();
     // P — к перигелию, Q — на 90° дальше по движению (эклиптика, а. е.)
     const P = [cosD(N)*cosD(w) - sinD(N)*sinD(w)*cosD(i), sinD(N)*cosD(w) + cosD(N)*sinD(w)*cosD(i), sinD(w)*sinD(i)];
     const Q = [-cosD(N)*sinD(w) - sinD(N)*cosD(w)*cosD(i), -sinD(N)*sinD(w) + cosD(N)*cosD(w)*cosD(i), cosD(w)*sinD(i)];
     out.push({ a, e, b: a*Math.sqrt(1 - e*e), P, Q, M0: 360*rnd(), n: 0.9856076686/Math.pow(a, 1.5)*D2R });
   }
-  return _поясАстероидов = out;
+  return out;
+}
+let _поясАстероидов = null;
+function поясАстероидов(){
+  const люки = [[2.502, 0.035], [2.825, 0.025], [2.958, 0.02], [3.27, 0.06]];
+  return _поясАстероидов || (_поясАстероидов = _разыгратьОрбиты(20261110, 2000, (rnd, гаусс, рэлей) => {
+    const a = 2.15 + 1.15*Math.pow(rnd(), 0.9);
+    if (люки.some(([ц, ш]) => Math.abs(a - ц) < ш)) return null;
+    if (a > 2.85 && rnd() < 0.35) return null;              // снаружи пояс реже
+    return { a, e: Math.min(0.32, Math.abs(0.14 + 0.07*гаусс())), i: Math.min(30, рэлей(7)) };
+  }));
+}
+// Пояс Койпера — тоже типичные орбиты, а не каталог: плутино в резонансе 3:2
+// с Нептуном (a ≈ 39,4 а. е., как у Плутона), «классический» пояс 42–48 а. е.
+// (холодная часть почти в плоскости, горячая — с наклонами до 20–30°) и
+// рассеянный диск с вытянутыми орбитами дальше 50 а. е.
+let _поясКойпера = null;
+function поясКойпера(){
+  return _поясКойпера || (_поясКойпера = _разыгратьОрбиты(19920830, 1800, (rnd, гаусс, рэлей) => {
+    const q = rnd();
+    if (q < 0.25) return { a: 39.4 + 0.15*гаусс(), e: 0.05 + 0.25*rnd(), i: Math.min(35, рэлей(10)) };
+    if (q < 0.8){
+      const холодный = rnd() < 0.5;
+      return { a: 42 + 6*rnd(), e: Math.min(0.2, Math.abs(0.05*гаусс())), i: Math.min(35, рэлей(холодный ? 2.5 : 12)) };
+    }
+    return { a: 50 + 50*Math.pow(rnd(), 1.5), e: 0.2 + 0.35*rnd(), i: Math.min(40, рэлей(14)) };
+  }));
+}
+// Троянцы Юпитера — два роя в 60° впереди (L4) и позади (L5) Юпитера на его
+// орбите; они качаются около этих точек с периодом ~150 лет — здесь стоят на
+// месте относительно Юпитера. Впереди астероидов примерно в полтора раза больше.
+let _троянцы = null;
+function троянцы(){
+  if (_троянцы) return _троянцы;
+  const сл = _галСлуч(5200000);
+  const гаусс = () => Math.sqrt(-2*Math.log(1 - сл()))*Math.cos(2*Math.PI*сл());
+  const out = [];
+  for (let k = 0; k < 800; k++){
+    const L4 = сл() < 0.6;
+    out.push({ Δ: (L4 ? 60 : -60) + Math.max(-30, Math.min(30, 11*гаусс())),
+               r: 5.2*(1 + 0.05*гаусс()), i: Math.min(35, 9*Math.sqrt(-2*Math.log(1 - сл()))), Ω: 360*сл() });
+  }
+  return _троянцы = out;
+}
+// Плутон: средние элементы JPL для приближённых положений (J2000, эклиптика)
+const ПЛУТОН = { a: 39.48211675, e: 0.24882730, i: 17.14001206, L: 238.92903833, ϖ: 224.06891629, Ω: 110.30393684 };
+function плутонГелио(d){                             // d — сутки от 2000 янв. 0,0 (как у планет)
+  const t = d - 1.5, п = ПЛУТОН;
+  const M = rev360(п.L - п.ϖ + 360/(Math.pow(п.a, 1.5)*365.25)*t), ω = п.ϖ - п.Ω;
+  const E = kepler(M, п.e);
+  const xv = п.a*(cosD(E) - п.e), yv = п.a*Math.sqrt(1 - п.e*п.e)*sinD(E);
+  const r = Math.hypot(xv, yv), u = Math.atan2(yv, xv)/D2R + ω;
+  return { x: r*(cosD(п.Ω)*cosD(u) - sinD(п.Ω)*sinD(u)*cosD(п.i)),
+           y: r*(sinD(п.Ω)*cosD(u) + cosD(п.Ω)*sinD(u)*cosD(п.i)),
+           z: r*sinD(u)*sinD(п.i) };
 }
 function шарРисуйОрбиты(c, л, г, оси, масштаб, дпр){
   const jd = julianDay(cam.date), d0 = jd - 2451543.5;
@@ -23794,40 +23928,79 @@ function шарРисуйОрбиты(c, л, г, оси, масштаб, дпр)
     const цвет = (typeof PLANET_COLOR !== "undefined" && PLANET_COLOR[PLANET_IDS[k]]) || P[8] || "#cfd3da";
     c.globalAlpha = 0.4; кривая(т, цвет); c.globalAlpha = 1;
   });
-  // пояс астероидов между Марсом и Юпитером
-  if (масштаб*3.3*AU_KM > 12*дпр){
-    const ш = Math.max(1.2, 1.1*дпр);
-    c.fillStyle = "rgba(205,192,165,.7)";
-    let метка = null;
-    // эклиптика (а. е.) → экран — аффинное отображение: считаем его один раз за кадр
-    const о = наЭкран(изЭклиптики({ x: 0, y: 0, z: 0 }));
-    const ст = [[1, 0, 0], [0, 1, 0], [0, 0, 1]].map(([x, y, z]) => {
-      const q = наЭкран(изЭклиптики({ x, y, z })); return [q[0] - о[0], q[1] - о[1]]; });
-    c.beginPath();                                    // все точки — одним путём, одна заливка
-    for (const а of поясАстероидов()){
+  // эклиптика (а. е.) → экран — аффинное отображение: считаем его один раз за кадр
+  const о = наЭкран(изЭклиптики({ x: 0, y: 0, z: 0 }));
+  const ст = [[1, 0, 0], [0, 1, 0], [0, 0, 1]].map(([x, y, z]) => {
+    const q = наЭкран(изЭклиптики({ x, y, z })); return [q[0] - о[0], q[1] - о[1]]; });
+  const кЭкрану = (X, Y, Z) => [о[0] + X*ст[0][0] + Y*ст[1][0] + Z*ст[2][0], о[1] + X*ст[0][1] + Y*ст[1][1] + Z*ст[2][1]];
+  const ш = Math.max(1.2, 1.1*дпр);
+  const шрифтМелкий = `${Math.max(10, 11*дпр)}px ui-sans-serif,system-ui,sans-serif`;
+  const надпись = (текст, q, цвет, выравн = "left") => {
+    c.font = шрифтМелкий; c.fillStyle = цвет; c.textAlign = выравн; c.textBaseline = "middle";
+    c.fillText(текст, q[0], q[1]);
+  };
+  // рой точек по кеплеровым орбитам — одним путём, одна заливка
+  const рой = (список, цвет) => {
+    c.fillStyle = цвет;
+    c.beginPath();
+    for (const а of список){
       const M = ((а.M0*D2R + а.n*d0) % (2*Math.PI));
       let E = M + а.e*Math.sin(M);
       E -= (E - а.e*Math.sin(E) - M)/(1 - а.e*Math.cos(E));
       E -= (E - а.e*Math.sin(E) - M)/(1 - а.e*Math.cos(E));
       const xv = а.a*(Math.cos(E) - а.e), yv = а.b*Math.sin(E);
-      const X = xv*а.P[0] + yv*а.Q[0], Y = xv*а.P[1] + yv*а.Q[1], Z = xv*а.P[2] + yv*а.Q[2];
-      const qx = о[0] + X*ст[0][0] + Y*ст[1][0] + Z*ст[2][0];
-      const qy = о[1] + X*ст[0][1] + Y*ст[1][1] + Z*ст[2][1];
+      const [qx, qy] = кЭкрану(xv*а.P[0] + yv*а.Q[0], xv*а.P[1] + yv*а.Q[1], xv*а.P[2] + yv*а.Q[2]);
       if (qx < x0 || qx > x1 || qy < y0 || qy > y1) continue;
       c.rect(qx - ш/2, qy - ш/2, ш, ш);
     }
     c.fill();
-    // подпись — у края пояса, обращённого вправо на экране
+  };
+  // подпись кольца — у края, обращённого вправо на экране
+  const меткаКольца = (r, текст, цвет) => {
+    let метка = null;
     for (let k = 0; k < 72; k++){
-      const λ = k*5;
-      const q = наЭкран(изЭклиптики({ x: 3.0*cosD(λ), y: 3.0*sinD(λ), z: 0 }));
+      const q = кЭкрану(r*cosD(k*5), r*sinD(k*5), 0);
       if (q[0] < 0 || q[0] > л.w - 140*дпр || q[1] < л.topInset + 20*дпр || q[1] > л.h - 40*дпр) continue;
       if (!метка || q[0] > метка[0]) метка = q;
     }
-    if (метка){
-      c.font = `${Math.max(10, 11*дпр)}px ui-sans-serif,system-ui,sans-serif`;
-      c.fillStyle = "rgba(210,198,172,.8)"; c.textAlign = "left"; c.textBaseline = "middle";
-      c.fillText(tr({ ru: "пояс астероидов", en: "asteroid belt" }), метка[0] + 8*дпр, метка[1]);
+    if (метка) надпись(текст, [метка[0] + 8*дпр, метка[1]], цвет);
+  };
+  // пояс астероидов между Марсом и Юпитером
+  if (масштаб*3.3*AU_KM > 12*дпр){
+    рой(поясАстероидов(), "rgba(205,192,165,.7)");
+    меткаКольца(3.0, tr({ ru: "пояс астероидов", en: "asteroid belt" }), "rgba(210,198,172,.8)");
+  }
+  // троянцы Юпитера: два роя на его орбите, в 60° впереди и позади
+  if (масштаб*5.2*AU_KM > 30*дпр){
+    const J = планетаГелио(PLANETS[3], d0), λJ = Math.atan2(J.y, J.x)/D2R;
+    c.fillStyle = "rgba(225,190,140,.75)";
+    c.beginPath();
+    for (const т of троянцы()){
+      const λ = λJ + т.Δ, u = λ - т.Ω;
+      const [qx, qy] = кЭкрану(т.r*(cosD(т.Ω)*cosD(u) - sinD(т.Ω)*sinD(u)*cosD(т.i)),
+                               т.r*(sinD(т.Ω)*cosD(u) + cosD(т.Ω)*sinD(u)*cosD(т.i)), т.r*sinD(u)*sinD(т.i));
+      if (qx < x0 || qx > x1 || qy < y0 || qy > y1) continue;
+      c.rect(qx - ш/2, qy - ш/2, ш, ш);
+    }
+    c.fill();
+    if (масштаб*5.2*AU_KM > 60*дпр) for (const [Δ, имя] of [[60, { ru: "троянцы Юпитера · L4", en: "Jupiter Trojans · L4" }],
+                                                              [-60, { ru: "троянцы Юпитера · L5", en: "Jupiter Trojans · L5" }]]){
+      const q = кЭкрану(5.2*cosD(λJ + Δ), 5.2*sinD(λJ + Δ), 0);
+      if (q[0] > 0 && q[0] < л.w - 120*дпр && q[1] > л.topInset + 20*дпр && q[1] < л.h - 40*дпр)
+        надпись(tr(имя), [q[0] + 10*дпр, q[1]], "rgba(230,200,160,.85)");
+    }
+  }
+  // пояс Койпера за Нептуном и Плутон
+  if (масштаб*45*AU_KM > 12*дпр){
+    рой(поясКойпера(), "rgba(165,195,230,.6)");
+    меткаКольца(46, tr({ ru: "пояс Койпера", en: "Kuiper belt" }), "rgba(175,200,230,.85)");
+    const т = [];
+    for (let k = 0; k <= 180; k++) т.push(наЭкран(изЭклиптики(плутонГелио(d0 + k/180*90560))));
+    c.save(); c.lineWidth = Math.max(1, дпр*0.7); c.globalAlpha = 0.35; кривая(т, "#c9b9a6"); c.restore();
+    const h = плутонГелио(d0), q = кЭкрану(h.x, h.y, h.z);
+    if (q[0] > x0 && q[0] < x1 && q[1] > y0 && q[1] < y1){
+      c.fillStyle = "#d9c8b4"; c.beginPath(); c.arc(q[0], q[1], Math.max(1.6, 1.8*дпр), 0, 7); c.fill();
+      надпись(tr({ ru: "Плутон", en: "Pluto" }), [q[0] + 7*дпр, q[1]], "rgba(225,212,195,.9)");
     }
   }
   // Луна вокруг Земли (геоцентрическая, экваториальная) плюс где сейчас Земля
@@ -26865,6 +27038,467 @@ placeEl.addEventListener("click",()=>{
   кнопка.addEventListener("click", () => открыть(!document.body.classList.contains("toolsOpen")));
   document.getElementById("sky")?.addEventListener("pointerdown", () => открыть(false));
   addEventListener("keydown", e => { if (e.key === "Escape") открыть(false); });
+}
+
+// ── Игры. Кубик в столбце справа открывает окно со списком игр.
+// Первая игра — «Что это за созвездие?»: на небе остаётся одна фигура (без подписей
+// и рисунков), карта сама подлетает к ней, внизу три ответа. Верный ответ — имя
+// у фигуры и рисунок, пока не нажмёшь «Дальше». Ошибку покажем и спросим снова
+// позже. Созвездия разложены по уровням: сначала известные и видные отсюда,
+// в конце — трудные и те, что отсюда не видно никогда. Ход сохраняется.
+// сложность «на глаз»: 1 — узнает каждый, 5 — мелкие южные созвездия XVIII века
+const ИГРА_СЛОЖНОСТЬ = (() => {
+  const т = {
+    1: "Большая Медведица,Орион,Кассиопея,Лебедь,Скорпион,Лев,Южный Крест,Малая Медведица,Близнецы,Телец,Лира,Стрелец",
+    2: "Персей,Возничий,Волопас,Пегас,Андромеда,Дева,Орел,Большой Пес,Геркулес,Дракон,Северная Корона,Дельфин,Овен,Центавр,Цефей",
+    3: "Водолей,Козерог,Рыбы,Рак,Весы,Змееносец,Кит,Гидра,Эридан,Малый Пес,Стрела,Треугольник,Ворон,Заяц,Киль,Паруса,Голова Змеи,Хвост Змеи,Южная Рыба",
+    4: "Жираф,Рысь,Гончие Псы,Волосы Вероники,Малый Лев,Ящерица,Лисичка,Малый Конь,Щит,Единорог,Чаша,Секстант,Корма,Голубь,Южная Корона,Жертвенник,Волк,Журавль,Феникс,Павлин,Тукан",
+  };
+  const м = new Map();
+  for (const [k, s] of Object.entries(т)) for (const ru of s.split(",")) м.set(ru, +k);
+  return м;                                   // кого нет в списке — 5
+})();
+const ИГРА_КЛЮЧ = "sky.games.v2";
+let игрСохр = null;
+function игрЧитать(){
+  if (игрСохр) return игрСохр;
+  try { игрСохр = JSON.parse(localStorage.getItem(ИГРА_КЛЮЧ) || "null"); } catch (e) { игрСохр = null; }
+  const есть = new Set(FIGS.map(ф => ф.ru));
+  if (!игрСохр || !Array.isArray(игрСохр.уровни) || !игрСохр.уровни.every(у => Array.isArray(у) && у.every(ru => есть.has(ru))))
+    игрСохр = null;
+  if (игрСохр && !Array.isArray(игрСохр.знаю)) игрСохр.знаю = [];
+  return игрСохр;
+}
+function игрПисать(){
+  try { localStorage.setItem(ИГРА_КЛЮЧ, JSON.stringify(игрСохр)); } catch (e) {}
+}
+function игрПеремешать(a){
+  for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random()*(i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+// уровни: сложность + штраф за видимость отсюда (сегодня ночью / не сегодня / никогда)
+function игрУровниСобрать(){
+  const штраф = { today: 0, no: 1.2, never: 2.6 };
+  const список = FIGS.map(ф => {
+    let в = null;
+    try { в = видимостьСегодня("figure:" + ф.ru); } catch (e) {}
+    return { ru: ф.ru, балл: (ИГРА_СЛОЖНОСТЬ.get(ф.ru) || 5) + (штраф[в] ?? 1.2) };
+  });
+  список.sort((a, b) => a.балл - b.балл || a.ru.localeCompare(b.ru, "ru"));
+  const N = Math.max(1, Math.round(список.length/5)), L = список.length, уровни = [];   // по 5 вопросов
+  for (let i = 0; i < N; i++) уровни.push(список.slice(Math.round(i*L/N), Math.round((i + 1)*L/N)).map(x => x.ru));
+  const о = state.observer;
+  игрСохр = { уровни, пройдено: уровни.map(() => false), лучшие: уровни.map(() => null), ход: null, знаю: [],
+              где: (о.body || "earth") + " " + о.latitudeDeg.toFixed(1) + " " + о.longitudeEastDeg.toFixed(1) };
+  игрПисать();
+  return игрСохр;
+}
+const игрИмя = ru => { const ф = FIGS.find(x => x.ru === ru); return ф ? tr({ ru: ф.ru, en: ф.en }) : ru; };
+// первый не пройденный уровень — до него всё открыто
+const игрОткрыто = с => { const i = с.пройдено.indexOf(false); return i < 0 ? с.уровни.length - 1 : i; };
+
+// ── окно со списком игр
+function игрОкно(открыть = true){
+  const окно = document.getElementById("gamesModal");
+  окно.hidden = !открыть;
+  if (!открыть) return;
+  const с = игрЧитать();
+  const список = document.getElementById("gmList");
+  список.textContent = "";
+  const эл = (тег, класс, текст) => { const e = document.createElement(тег); if (класс) e.className = класс; if (текст !== undefined) e.textContent = текст; return e; };
+  const к = эл("div", "gm-game");
+  к.appendChild(эл("h3", "", tr({ ru: "Что это за созвездие?", en: "Which constellation is this?" })));
+  к.appendChild(эл("p", "", tr({
+    ru: "На небе остаётся одна фигура без подписи. Угадай её из трёх вариантов. Угаданные остаются на небе с именами. Уровни идут от самых известных и видных отсюда до самых трудных и тех, что отсюда не видно никогда.",
+    en: "Only one figure is left on the sky, without a name. Pick it from three answers. Guessed ones stay on the sky with their names. Levels go from the best known ones visible from here to the hardest ones that never rise here." })));
+  const уровни = с ? с.уровни : Array.from({ length: Math.max(1, Math.round(FIGS.length/5)) }, () => []);
+  const откр = с ? игрОткрыто(с) : 0;
+  const сетка = эл("div", "gm-lv");
+  уровни.forEach((у, i) => {
+    const б = эл("span", "", String(i + 1));          // только показ хода, выбрать нельзя
+    const пройден = с && с.пройдено[i];
+    if (пройден) б.classList.add("done");
+    if ((с && с.ход) ? с.ход.уровень === i : i === откр) б.classList.add("now");
+    б.title = пройден
+      ? tr({ ru: `Уровень ${i + 1}: пройден, с первого раза ${с.лучшие[i]} из ${у.length}`,
+             en: `Level ${i + 1}: done, ${с.лучшие[i]} of ${у.length} at first try` })
+      : tr({ ru: `Уровень ${i + 1}`, en: `Level ${i + 1}` });
+    сетка.appendChild(б);
+  });
+  к.appendChild(сетка);
+  const ряд = эл("div", "gm-act");
+  if (с && с.ход){
+    const у = с.ход.уровень, всего = с.уровни[у].length;
+    const б = эл("button", "main", tr({ ru: `Продолжить · уровень ${у + 1}, ${с.ход.угадано.length} из ${всего}`,
+                                        en: `Continue · level ${у + 1}, ${с.ход.угадано.length} of ${всего}` }));
+    б.addEventListener("click", () => { игрОкно(false); играВойти(); игрВопрос(); });
+    ряд.appendChild(б);
+  } else {
+    const б = эл("button", "main", с ? tr({ ru: `Продолжить · уровень ${откр + 1}`, en: `Continue · level ${откр + 1}` })
+                                     : tr({ ru: "Начать", en: "Start" }));
+    б.addEventListener("click", () => { игрОкно(false); играВойти(); игрУровень(с ? игрОткрыто(игрСохр) : 0); });
+    ряд.appendChild(б);
+  }
+  if (с){
+    const б = эл("button", "", tr({ ru: "Начать заново", en: "Start over" }));
+    б.addEventListener("click", () => {
+      if (!confirm(tr({ ru: "Сбросить все уровни и начать заново? Уровни соберутся заново для этого места.",
+                        en: "Reset all levels and start over? Levels will be rebuilt for this place." }))) return;
+      игрСохр = null; try { localStorage.removeItem(ИГРА_КЛЮЧ); } catch (e) {}
+      игрОкно(true);
+    });
+    ряд.appendChild(б);
+  }
+  к.appendChild(ряд);
+  список.appendChild(к);
+  const скоро = эл("div", "gm-game soon");
+  скоро.appendChild(эл("h3", "", tr({ ru: "Скоро — новые игры", en: "More games soon" })));
+  скоро.appendChild(эл("p", "", tr({ ru: "Звёзды, планеты, явления…", en: "Stars, planets, phenomena…" })));
+  список.appendChild(скоро);
+  document.getElementById("gmTitle").textContent = tr({ ru: "Игры", en: "Games" });
+  document.getElementById("gmClose").setAttribute("aria-label", tr({ ru: "Закрыть", en: "Close" }));
+  setTimeout(() => (список.querySelector(".gm-act button") || document.getElementById("gmClose")).focus(), 0);
+}
+
+// ── режим игры: прячем навигацию, подписи и рисунки; при выходе всё возвращаем
+const ИГРА_СЛОИ = { fig: true, figNam: false, nam: false, art: false, bnd: false, vis: false };
+function играВойти(){
+  if (игра.идёт) return;
+  if (шарОткрыт) closeGlobe();
+  if (активноеЯвление) закрытьЯвление();
+  setMenu(false); hideInfoCard();
+  document.body.classList.remove("toolsOpen");
+  document.getElementById("moreTop")?.setAttribute("aria-expanded", "false");
+  игра.было = { слои: {}, xray: opt.xray, свет: opt.day && !night ? "real" : null,
+                звёзды: state.display.starProfile, dome: cam.dome, fov: cam.fov,
+                az: cam.azimuthNorthDeg, alt: cam.altitudeDeg, target, телескоп };
+  for (const k in ИГРА_СЛОИ){ игра.было.слои[k] = opt[k]; if (opt[k] !== ИГРА_СЛОИ[k]) setLayer(k, ИГРА_СЛОИ[k], "система"); }
+  opt.xray = true;                            // фигура может быть под горизонтом
+  if (игра.было.свет) setLight("night", { тихо: true });
+  звёздныйПрофильПереключить("learning", { тихо: true });
+  телескоп = false; target = null;
+  if (cam.dome) setDome(false, true);
+  игра.идёт = true;
+  document.body.classList.add("gameOn");
+  document.getElementById("gamebar").hidden = false;
+  syncToggles(); renderNow();
+}
+function играВыйти(){
+  if (!игра.идёт) return;
+  clearTimeout(игра.таймер); игра.полёт++;
+  игра.идёт = false; игра.фигура = null; игра.имя = null; игра.рисунок = null;
+  document.body.classList.remove("gameOn");
+  document.getElementById("gamebar").hidden = true;
+  const б = игра.было; игра.было = null;
+  if (б){
+    for (const k in б.слои) if (opt[k] !== б.слои[k]) setLayer(k, б.слои[k], "система");
+    opt.xray = б.xray;
+    if (б.свет) setLight(б.свет, { тихо: true });
+    звёздныйПрофильПереключить(б.звёзды, { тихо: true });
+    if (б.dome) setDome(true, true);
+    setFov(б.fov);
+    cam.azimuthNorthDeg = б.az; cam.altitudeDeg = clamp(б.alt, низВзгляда(), 90);
+    target = б.target; телескоп = б.телескоп;
+  }
+  syncToggles(); renderNow();
+}
+
+// ── вопросы
+function игрУровень(i){
+  const с = игрЧитать() || игрУровниСобрать();
+  с.ход = { уровень: i, очередь: игрПеремешать(с.уровни[i].slice()), угадано: [], промахи: [], вопрос: null };
+  игрПисать();
+  игрВопрос();
+}
+function игрВопрос(){
+  const с = игрЧитать();
+  if (!с || !с.ход){ играВыйти(); return; }
+  const х = с.ход;
+  clearTimeout(игра.таймер);
+  игра.рисунок = null; игра.имя = null; игра.ответ = false;
+  if (!х.очередь.length){ игрУровеньПройден(); return; }
+  if (!х.вопрос || х.вопрос.ru !== х.очередь[0]){
+    const ru = х.очередь[0];
+    // соседи по сложности: этот уровень и два рядом — иначе ответ угадывается по «трудности» имени
+    const пул = [];
+    for (let k = Math.max(0, х.уровень - 1); k <= Math.min(с.уровни.length - 1, х.уровень + 1); k++) пул.push(...с.уровни[k]);
+    const чужие = игрПеремешать(пул.filter(x => x !== ru && !(/Змеи$/.test(x) && /Змеи$/.test(ru))));
+    х.вопрос = { ru, варианты: игрПеремешать([ru, чужие[0], чужие[1]]) };
+    игрПисать();
+  }
+  игра.фигура = х.вопрос.ru;
+  игрПанель();
+  игрЛететь(х.вопрос.ru);
+}
+function игрПанель(){
+  const с = игрЧитать(); if (!с || !с.ход) return;
+  const х = с.ход, всего = с.уровни[х.уровень].length;
+  document.getElementById("gbQ").textContent = tr({ ru: "Что это за созвездие?", en: "Which constellation is this?" });
+  document.getElementById("gbS").textContent = tr({ ru: `Уровень ${х.уровень + 1} · ${х.угадано.length}/${всего}`,
+                                                    en: `Level ${х.уровень + 1} · ${х.угадано.length}/${всего}` });
+  const выход = document.getElementById("gbExit");
+  выход.textContent = tr({ ru: "✕ Выйти", en: "✕ Leave" });
+  выход.title = tr({ ru: "Выйти из игры — продолжить можно потом", en: "Leave the game — you can continue later" });
+  const А = document.getElementById("gbA"); А.textContent = ""; А.hidden = false;
+  document.getElementById("gbM").textContent = "";
+  if (!х.вопрос) return;
+  х.вопрос.варианты.forEach((ru, i) => {
+    const б = document.createElement("button");
+    б.textContent = игрИмя(ru);
+    б.dataset.ru = ru;
+    б.addEventListener("click", () => игрОтвет(ru));
+    А.appendChild(б);
+  });
+}
+function игрОтвет(выбор){
+  const с = игрЧитать(); if (!с || !с.ход || !с.ход.вопрос || игра.ответ) return;
+  const х = с.ход, ru = х.вопрос.ru, верно = выбор === ru;
+  игра.ответ = true;
+  for (const б of document.querySelectorAll("#gbA button")){
+    б.disabled = true;
+    if (б.dataset.ru === ru) б.classList.add("ok");
+    else if (б.dataset.ru === выбор) б.classList.add("bad");
+  }
+  х.очередь.shift();
+  if (верно){
+    if (!х.угадано.includes(ru)) х.угадано.push(ru);
+    if (!с.знаю.includes(ru)) с.знаю.push(ru);      // угаданные остаются на небе с именами
+  }
+  else {
+    if (!х.промахи.includes(ru)) х.промахи.push(ru);
+    х.очередь.splice(Math.min(3, х.очередь.length), 0, ru);          // спросим снова чуть позже
+  }
+  х.вопрос = null;
+  игрПисать();
+  игрПанель_счёт(с);
+  const М = document.getElementById("gbM"); М.textContent = "";
+  const т = document.createElement("span");
+  т.textContent = верно ? tr({ ru: "Верно!", en: "Correct!" })
+                        : tr({ ru: `Это ${игрИмя(ru)}. Спросим ещё раз позже.`, en: `It is ${игрИмя(ru)}. We'll ask again later.` });
+  const д = document.createElement("button"); д.className = "main";
+  д.textContent = tr({ ru: "Дальше ▸", en: "Next ▸" });
+  д.addEventListener("click", игрВопрос);
+  М.append(т, д);
+  // имя у фигуры и рисунок — пока не нажмёшь «Дальше»: есть время рассмотреть и запомнить
+  игра.имя = ru;
+  const ф = FIGS.find(x => x.ru === ru);
+  игра.рисунок = _рисункиГотовь().some(р => р.ru === ru) ? ru : null;
+  игра.рисунокС = performance.now();
+  if (ф) игрЛететь(ru, true);
+  const тик = () => {
+    if (!игра.идёт || игра.имя !== ru) return;
+    const t = performance.now() - игра.рисунокС;
+    renderNow();
+    if (t < 500) requestAnimationFrame(тик);          // только плавное появление
+  };
+  requestAnimationFrame(тик);
+  setTimeout(() => д.focus(), 0);
+}
+function игрПанель_счёт(с){
+  const х = с.ход, всего = с.уровни[х.уровень].length;
+  document.getElementById("gbS").textContent = tr({ ru: `Уровень ${х.уровень + 1} · ${х.угадано.length}/${всего}`,
+                                                    en: `Level ${х.уровень + 1} · ${х.угадано.length}/${всего}` });
+}
+function игрУровеньПройден(){
+  const с = игрЧитать(), х = с.ход, i = х.уровень, всего = с.уровни[i].length;
+  const сПервого = всего - х.промахи.length;
+  с.пройдено[i] = true;
+  с.лучшие[i] = Math.max(с.лучшие[i] ?? 0, сПервого);
+  с.ход = null;
+  игрПисать();
+  игра.фигура = null; игра.имя = null; игра.рисунок = null;
+  renderNow();
+  document.getElementById("gbS").textContent = "";
+  document.getElementById("gbQ").textContent = tr({ ru: `Уровень ${i + 1} пройден!`, en: `Level ${i + 1} done!` });
+  const А = document.getElementById("gbA"); А.textContent = ""; А.hidden = true;
+  const М = document.getElementById("gbM"); М.textContent = "";
+  const т = document.createElement("span");
+  т.textContent = tr({ ru: `С первого раза: ${сПервого} из ${всего}.`, en: `At first try: ${сПервого} of ${всего}.` });
+  М.appendChild(т);
+  const кн = (текст, главная, f) => { const б = document.createElement("button"); б.textContent = текст; if (главная) б.className = "main"; б.addEventListener("click", f); М.appendChild(б); };
+  if (i + 1 < с.уровни.length) кн(tr({ ru: `Уровень ${i + 2} ▸`, en: `Level ${i + 2} ▸` }), true, () => игрУровень(i + 1));
+  else т.textContent += " " + tr({ ru: "Все созвездия неба пройдены!", en: "All constellations of the sky done!" });
+}
+
+// ── подлёт к фигуре: центр и размер по вершинам, поле — чтобы фигура заняла ~половину ширины
+function игрЦентр(ru){
+  const ф = FIGS.find(x => x.ru === ru); if (!ф) return null;
+  let X = 0, Y = 0, Z = 0; const в = [];
+  for (const poly of ф.polys) for (let i = 0; i < poly.ra.length; i++){
+    const a = poly.ra[i]*15*D2R, d = poly.dec[i]*D2R, cd = Math.cos(d);
+    const v = [cd*Math.cos(a), cd*Math.sin(a), Math.sin(d)]; в.push(v);
+    X += v[0]; Y += v[1]; Z += v[2];
+  }
+  const l = Math.hypot(X, Y, Z) || 1; X /= l; Y /= l; Z /= l;
+  let r = 0;
+  for (const v of в) r = Math.max(r, Math.acos(Math.max(-1, Math.min(1, v[0]*X + v[1]*Y + v[2]*Z)))/D2R);
+  return { ra: ((Math.atan2(Y, X)/D2R/15) % 24 + 24) % 24, dec: Math.asin(Z)/D2R, r };
+}
+function игрЛететь(ru, тихо){
+  const ц = игрЦентр(ru); if (!ц) return;
+  const ф = FIGS.find(x => x.ru === ru);
+  const мой = ++игра.полёт;
+  const вид = document.getElementById("sky").getBoundingClientRect();
+  const панель = document.getElementById("gamebar").getBoundingClientRect();
+  const Wc = Math.max(1, вид.width), Hc = Math.max(1, вид.height);
+  // свободная часть экрана: под строкой сверху и над панелью ответов
+  const верхC = 64, низC = Math.max(верхC + 120, (панель.top || Hc) - вид.top - 12);
+  const нач = { az: cam.azimuthNorthDeg, alt: cam.altitudeDeg, fov: cam.fov };
+  // рамка фигуры на экране (в пикселях кадра) при текущем взгляде
+  const рамка = () => {
+    rebuildFrame();
+    const xf = frame.xf, f = frame.flat, p = { x: 0, y: 0 };
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9, k = 0;
+    for (const poly of ф.polys) for (let i = 0; i < poly.ra.length; i++){
+      const v = xf.j2000ToCamera(poly.ra[i], poly.dec[i]);
+      if (v.y <= xf.cut) continue;
+      xf.project(v, p); k++;
+      if (p.x < x0) x0 = p.x; if (p.x > x1) x1 = p.x; if (p.y < y0) y0 = p.y; if (p.y > y1) y1 = p.y;
+    }
+    return { x0, x1, y0, y1, k, f, д: f.w/Wc };
+  };
+  // конечный взгляд: подбираем поле, пока фигура не займёт ~70% ширины или ~75% свободной высоты,
+  // и ставим её середину в середину свободной части
+  let поле = тихо ? cam.fov : clamp(3.2*ц.r, 18, 140);
+  cam.fov = поле;
+  навестиТочно({ kind: "игра", ra: ц.ra, dec: ц.dec });
+  for (let шаг = 0; шаг < 6; шаг++){
+    const р = рамка(); if (р.k < 2) break;
+    const f = р.f, д = р.д;
+    const цельX = f.w/2, цельY = (верхC + низC)/2*д;
+    const dx = (р.x0 + р.x1)/2 - цельX, dy = (р.y0 + р.y1)/2 - цельY;
+    cam.azimuthNorthDeg = norm360(cam.azimuthNorthDeg + (dx/f.K)/D2R/Math.max(0.05, Math.cos(cam.altitudeDeg*D2R)));
+    cam.altitudeDeg = clamp(cam.altitudeDeg - (dy/f.K)/D2R, низВзгляда(), 90);
+    if (тихо) { if (Math.hypot(dx, dy) < 2*д) break; continue; }
+    const m = Math.max((р.x1 - р.x0)/(0.7*f.w), (р.y1 - р.y0)/(0.75*(низC - верхC)*д));
+    if (Math.abs(m - 1) < 0.06 && Math.hypot(dx, dy) < 4*д) break;
+    поле = clamp(поле*Math.pow(m, 0.85), 12, 150);
+    cam.fov = поле;
+  }
+  const кон = { az: cam.azimuthNorthDeg, alt: cam.altitudeDeg, fov: cam.fov };
+  cam.azimuthNorthDeg = нач.az; cam.altitudeDeg = нач.alt; cam.fov = нач.fov;
+  rebuildFrame();
+  const dAz = ((кон.az - нач.az + 540) % 360) - 180;
+  if (Math.abs(dAz) + Math.abs(кон.alt - нач.alt) + Math.abs(кон.fov - нач.fov) < 0.05) { renderNow(); return; }
+  const t0 = performance.now(), T = тихо ? 500 : 1100;
+  const шаг = () => {
+    if (мой !== игра.полёт || !игра.идёт) return;
+    const k = Math.min(1, (performance.now() - t0)/T), e = k < .5 ? 2*k*k : 1 - Math.pow(-2*k + 2, 2)/2;
+    cam.azimuthNorthDeg = norm360(нач.az + dAz*e);
+    cam.altitudeDeg = нач.alt + (кон.alt - нач.alt)*e;
+    setFov(нач.fov + (кон.fov - нач.fov)*e);
+    if (k < 1) requestAnimationFrame(шаг);
+  };
+  requestAnimationFrame(шаг);
+}
+// фигура и подпись в игре (вызывается из слоя фигур, после земли — подпись)
+function игрФигура(c, frame){
+  const с = игрСохр, xf = frame.xf;
+  c.save();
+  c.globalAlpha = 1;
+  // уже угаданные — тусклее, чтобы было легче ориентироваться
+  if (с && с.знаю && с.знаю.length){
+    const знаю = new Set(с.знаю); знаю.delete(игра.фигура);
+    const полигоны = [];
+    for (const ф of FIGS) if (знаю.has(ф.ru)) полигоны.push(...ф.polys);
+    if (полигоны.length) drawPolysWith(c, xf, полигоны, "rgba(70,190,110,.5)", xf.hair(1.0), xf.j2000ToCamera);
+  }
+  const ф = FIGS.find(x => x.ru === игра.фигура);
+  if (ф) drawPolysWith(c, xf, ф.polys, "rgba(110,230,150,.95)", xf.hair(1.6), xf.j2000ToCamera);
+  c.restore();
+}
+// середина видимой части фигуры на экране (или null)
+function игрСередина(ф, frame){
+  const xf = frame.xf, f = frame.flat, p = { x: 0, y: 0 };
+  let sx = 0, sy = 0, k = 0, верх = 1e9;
+  for (const poly of ф.polys) for (let i = 0; i < poly.ra.length; i++){
+    const v = xf.j2000ToCamera(poly.ra[i], poly.dec[i]);
+    if (v.y <= xf.cut) continue;
+    xf.project(v, p);
+    if (p.x < 0 || p.x > f.w || p.y < 0 || p.y > f.h) continue;
+    sx += p.x; sy += p.y; k++; if (p.y < верх) верх = p.y;
+  }
+  return k ? { x: sx/k, y: sy/k, верх, k } : null;
+}
+function игрПодпись(c, frame){
+  if (!игра.идёт) return;
+  const с = игрСохр;
+  const д = frame.flat.w/Math.max(1, frame.flat.cssW || frame.flat.w);
+  c.save();
+  c.textAlign = "center"; c.lineJoin = "round";
+  // имена угаданных раньше — мелко
+  if (с && с.знаю && с.знаю.length){
+    const размер = Math.round(px(12, 0.1));
+    c.font = `${размер}px system-ui, sans-serif`; c.textBaseline = "middle";
+    c.lineWidth = Math.max(2, размер*0.25); c.strokeStyle = "rgba(0,0,0,.7)"; c.fillStyle = "rgba(150,215,170,.85)";
+    for (const ru of с.знаю){
+      if (ru === игра.фигура) continue;
+      const ф = FIGS.find(x => x.ru === ru); if (!ф) continue;
+      const м = игрСередина(ф, frame); if (!м || м.k < 2) continue;
+      const имя = игрИмя(ru);
+      c.strokeText(имя, м.x, м.y); c.fillText(имя, м.x, м.y);
+    }
+  }
+  // имя только что отвеченной — крупно над фигурой
+  const ф = игра.имя && FIGS.find(x => x.ru === игра.имя);
+  const м = ф && игрСередина(ф, frame);
+  if (м){
+    const t = performance.now() - игра.рисунокС;
+    c.globalAlpha = Math.min(1, t/300);
+    const размер = Math.round(px(18, 0.1));
+    c.font = `600 ${размер}px system-ui, sans-serif`;
+    c.textBaseline = "bottom";
+    const имя = игрИмя(ф.ru), y = Math.max(64*д + размер, м.верх - размер*0.6);
+    c.lineWidth = Math.max(2, размер*0.22); c.strokeStyle = "rgba(0,0,0,.75)";
+    c.strokeText(имя, м.x, y);
+    c.fillStyle = "#dfffe8";
+    c.fillText(имя, м.x, y);
+  }
+  c.restore();
+}
+function игрРисунок(c, frame){
+  if (!игра.идёт || !игра.рисунок) return false;
+  const t = performance.now() - игра.рисунокС;
+  const a = Math.max(0, Math.min(1, t/450));
+  if (a <= 0) return true;
+  const xf = frame.xf, f = frame.flat;
+  const дпр = f.w/Math.max(1, f.cssW || f.w);
+  const проектор = (ra, dec, p) => {
+    const v = xf.j2000ToCamera(ra, dec);
+    if (v.y <= xf.cut) return false;
+    xf.project(v, p); return true;
+  };
+  const ru = игра.рисунок;
+  рисункиСозвездий(c, проектор, f.w, f.h, 0.8*a, 2*дпр, x => x === ru ? 1 : 0);
+  return true;
+}
+{
+  const кубик = document.getElementById("gamesTop");
+  const столбец = document.getElementById("toolcol");
+  const глобус = document.getElementById("globeTop");
+  if (столбец && глобус) столбец.insertBefore(кубик, глобус.nextSibling);
+  кубик.addEventListener("click", () => игрОкно(true));
+  приПереводе(() => { const т = tr({ ru: "Игры", en: "Games" }); кубик.title = т; кубик.setAttribute("aria-label", т); });
+  document.getElementById("gmClose").addEventListener("click", () => игрОкно(false));
+  document.getElementById("gamesModal").addEventListener("click", e => { if (e.target.id === "gamesModal") игрОкно(false); });
+  document.getElementById("gbExit").addEventListener("click", играВыйти);
+  addEventListener("keydown", e => {
+    if (!document.getElementById("gamesModal").hidden && e.key === "Escape"){ игрОкно(false); return; }
+    if (!игра.идёт) return;
+    if (e.key === "Escape"){ играВыйти(); return; }
+    if (/^[123]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey){
+      const б = document.querySelectorAll("#gbA button")[+e.key - 1];
+      if (б && !б.disabled) б.click();
+    } else if (e.key === "Enter" && игра.ответ && document.activeElement?.tagName !== "BUTTON"){
+      e.preventDefault(); игрВопрос();
+    }
+  });
+  // тянешь карту сам — подлёт останавливается
+  document.getElementById("sky")?.addEventListener("pointerdown", () => { игра.полёт++; });
+  приПереводе(() => {
+    if (игра.идёт && игра.фигура && !игра.ответ) игрПанель();
+    if (!document.getElementById("gamesModal").hidden) игрОкно(true);
+  });
 }
 const tiltBtn=document.getElementById("tilt");
 let tiltOn=false;
