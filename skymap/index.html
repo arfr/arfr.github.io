@@ -441,6 +441,12 @@
     color:var(--ink-dim);font-size:12px;display:grid;place-items:center}
   #gamesModal .gm-lv span.done{color:var(--ink);background:rgba(70,190,110,.25);border-color:rgba(70,190,110,.6)}
   #gamesModal .gm-lv span.now{color:var(--ink);outline:1px solid var(--ink);outline-offset:1px}
+  #gamesModal .gm-lab{font-size:11px;color:var(--ink-dim);margin:0 0 5px;letter-spacing:.04em;text-transform:uppercase}
+  #gamesModal .gm-diff{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  #gamesModal .gm-diff button{min-height:34px;border:1px solid var(--rule);border-radius:4px;background:none;
+    color:var(--ink);font:inherit;font-size:13px;cursor:pointer;padding:4px}
+  #gamesModal .gm-diff button[aria-pressed=true]{background:rgba(70,190,110,.25);border-color:rgba(90,210,130,.8)}
+  #gamesModal .gm-game p.gm-diffnote{margin:6px 0 12px;font-size:11px}
   #gamesModal .gm-act{display:flex;gap:8px;flex-wrap:wrap}
   #gamesModal .gm-act button{flex:1 1 auto;min-height:38px;border:1px solid var(--rule);border-radius:4px;
     background:none;color:var(--ink);font:inherit;font-size:13px;cursor:pointer;padding:6px 10px}
@@ -453,6 +459,10 @@
   #gamebar .gb-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px}
   #gamebar .gb-q{flex:1;font-weight:600}
   #gamebar .gb-s{color:var(--ink-dim)}
+  #gamebar .gb-st{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11px;color:var(--ink-dim);margin:-2px 0 8px}
+  #gamebar .gb-st:empty{display:none}
+  #gamebar .gb-st b{color:var(--ink);font-weight:600}
+  #gamebar .gb-st .bad b{color:#ff8a8a}
   #gamebar .gb-x{background:none;border:1px solid var(--rule);border-radius:3px;color:var(--ink);
     font:inherit;font-size:12px;padding:4px 8px;cursor:pointer}
   #gamebar .gb-a{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -1365,6 +1375,7 @@
 <div id="gamebar" hidden>
   <div class="gb-top"><span class="gb-q" id="gbQ"></span><span class="gb-s num" id="gbS"></span>
     <button class="gb-x" id="gbExit"></button></div>
+  <div class="gb-st" id="gbSt"></div>
   <div class="gb-a" id="gbA"></div>
   <div class="gb-m" id="gbM"></div>
 </div>
@@ -27088,7 +27099,7 @@ function игрУровниСобрать(){
   const N = Math.max(1, Math.round(список.length/5)), L = список.length, уровни = [];   // по 5 вопросов
   for (let i = 0; i < N; i++) уровни.push(список.slice(Math.round(i*L/N), Math.round((i + 1)*L/N)).map(x => x.ru));
   const о = state.observer;
-  игрСохр = { уровни, пройдено: уровни.map(() => false), лучшие: уровни.map(() => null), ход: null, знаю: [],
+  игрСохр = { уровни, пройдено: уровни.map(() => false), лучшие: уровни.map(() => null), ход: null, знаю: [], сложность: игра.сложность || "easy",
               где: (о.body || "earth") + " " + о.latitudeDeg.toFixed(1) + " " + о.longitudeEastDeg.toFixed(1) };
   игрПисать();
   return игрСохр;
@@ -27126,6 +27137,24 @@ function игрОкно(открыть = true){
     сетка.appendChild(б);
   });
   к.appendChild(сетка);
+  const выбор = эл("div", "gm-diff");
+  const подсказка = эл("p", "gm-diffnote");
+  const обновить = () => {
+    const режим = игрСложность();
+    for (const б of выбор.children) б.setAttribute("aria-pressed", String(б.dataset.m === режим));
+    подсказка.textContent = tr(ИГРА_СЛОЖНОСТИ.find(x => x[0] === режим)[2]);
+  };
+  for (const [m, имя] of ИГРА_СЛОЖНОСТИ){
+    const б = эл("button", "", tr(имя)); б.dataset.m = m;
+    б.addEventListener("click", () => {
+      игра.сложность = m;
+      if (игрСохр){ игрСохр.сложность = m; игрПисать(); }
+      обновить();
+    });
+    выбор.appendChild(б);
+  }
+  к.appendChild(эл("div", "gm-lab", tr({ ru: "Сложность", en: "Difficulty" })));
+  к.appendChild(выбор); к.appendChild(подсказка); обновить();
   const ряд = эл("div", "gm-act");
   if (с && с.ход){
     const у = с.ход.уровень, всего = с.уровни[у].length;
@@ -27144,6 +27173,7 @@ function игрОкно(открыть = true){
     б.addEventListener("click", () => {
       if (!confirm(tr({ ru: "Сбросить все уровни и начать заново? Уровни соберутся заново для этого места.",
                         en: "Reset all levels and start over? Levels will be rebuilt for this place." }))) return;
+      игра.сложность = игрСложность();
       игрСохр = null; try { localStorage.removeItem(ИГРА_КЛЮЧ); } catch (e) {}
       игрОкно(true);
     });
@@ -27234,8 +27264,7 @@ function игрПанель(){
   const с = игрЧитать(); if (!с || !с.ход) return;
   const х = с.ход, всего = с.уровни[х.уровень].length;
   document.getElementById("gbQ").textContent = tr({ ru: "Что это за созвездие?", en: "Which constellation is this?" });
-  document.getElementById("gbS").textContent = tr({ ru: `Уровень ${х.уровень + 1} · ${х.угадано.length}/${всего}`,
-                                                    en: `Level ${х.уровень + 1} · ${х.угадано.length}/${всего}` });
+  игрПанель_счёт(с);
   const выход = document.getElementById("gbExit");
   выход.textContent = tr({ ru: "✕ Выйти", en: "✕ Leave" });
   выход.title = tr({ ru: "Выйти из игры — продолжить можно потом", en: "Leave the game — you can continue later" });
@@ -27266,6 +27295,7 @@ function игрОтвет(выбор){
   }
   else {
     if (!х.промахи.includes(ru)) х.промахи.push(ru);
+    х.ошибок = (х.ошибок || 0) + 1; с.ошибок = (с.ошибок || 0) + 1;
     х.очередь.splice(Math.min(3, х.очередь.length), 0, ru);          // спросим снова чуть позже
   }
   х.вопрос = null;
@@ -27294,26 +27324,40 @@ function игрОтвет(выбор){
   requestAnimationFrame(тик);
   setTimeout(() => д.focus(), 0);
 }
+// счёт: уровень N из M; в уровне угадано; сколько созвездий ещё не угадано; ошибки
 function игрПанель_счёт(с){
-  const х = с.ход, всего = с.уровни[х.уровень].length;
-  document.getElementById("gbS").textContent = tr({ ru: `Уровень ${х.уровень + 1} · ${х.угадано.length}/${всего}`,
-                                                    en: `Level ${х.уровень + 1} · ${х.угадано.length}/${всего}` });
+  const х = с.ход, всего = с.уровни[х.уровень].length, N = с.уровни.length;
+  document.getElementById("gbS").textContent = tr({ ru: `Уровень ${х.уровень + 1} из ${N}`, en: `Level ${х.уровень + 1} of ${N}` });
+  const все = FIGS.length, осталось = все - new Set(с.знаю).size;
+  const ош = х.ошибок || 0, ошВсего = с.ошибок || 0;
+  const ряд = document.getElementById("gbSt"); ряд.textContent = "";
+  const пункт = (подпись, число, класс) => {
+    const e = document.createElement("span"); if (класс) e.className = класс;
+    const b = document.createElement("b"); b.textContent = число;
+    e.append(подпись + " ", b); ряд.appendChild(e);
+  };
+  пункт(tr({ ru: "В уровне:", en: "This level:" }), `${х.угадано.length}/${всего}`);
+  пункт(tr({ ru: "Осталось созвездий:", en: "Constellations left:" }), `${осталось} ${tr({ ru: "из", en: "of" })} ${все}`);
+  пункт(tr({ ru: "Ошибок:", en: "Mistakes:" }), ош + (ошВсего > ош ? ` · ${tr({ ru: "всего", en: "total" })} ${ошВсего}` : ""), ош ? "bad" : "");
+  пункт(tr({ ru: "Сложность:", en: "Difficulty:" }), tr(ИГРА_СЛОЖНОСТИ.find(x => x[0] === игрСложность())[1]));
 }
 function игрУровеньПройден(){
   const с = игрЧитать(), х = с.ход, i = х.уровень, всего = с.уровни[i].length;
-  const сПервого = всего - х.промахи.length;
+  const сПервого = всего - х.промахи.length, ошибок = х.ошибок || 0;
   с.пройдено[i] = true;
   с.лучшие[i] = Math.max(с.лучшие[i] ?? 0, сПервого);
   с.ход = null;
   игрПисать();
   игра.фигура = null; игра.имя = null; игра.рисунок = null;
   renderNow();
-  document.getElementById("gbS").textContent = "";
+  document.getElementById("gbS").textContent = tr({ ru: `${i + 1} из ${с.уровни.length}`, en: `${i + 1} of ${с.уровни.length}` });
+  document.getElementById("gbSt").textContent = "";
   document.getElementById("gbQ").textContent = tr({ ru: `Уровень ${i + 1} пройден!`, en: `Level ${i + 1} done!` });
   const А = document.getElementById("gbA"); А.textContent = ""; А.hidden = true;
   const М = document.getElementById("gbM"); М.textContent = "";
   const т = document.createElement("span");
-  т.textContent = tr({ ru: `С первого раза: ${сПервого} из ${всего}.`, en: `At first try: ${сПервого} of ${всего}.` });
+  т.textContent = tr({ ru: `С первого раза: ${сПервого} из ${всего}, ошибок: ${ошибок}. Осталось созвездий: ${FIGS.length - new Set(с.знаю).size}.`,
+                      en: `At first try: ${сПервого} of ${всего}, mistakes: ${ошибок}. Constellations left: ${FIGS.length - new Set(с.знаю).size}.` });
   М.appendChild(т);
   const кн = (текст, главная, f) => { const б = document.createElement("button"); б.textContent = текст; if (главная) б.className = "main"; б.addEventListener("click", f); М.appendChild(б); };
   if (i + 1 < с.уровни.length) кн(tr({ ru: `Уровень ${i + 2} ▸`, en: `Level ${i + 2} ▸` }), true, () => игрУровень(i + 1));
@@ -27404,8 +27448,33 @@ function игрФигура(c, frame){
     if (полигоны.length) drawPolysWith(c, xf, полигоны, "rgba(70,190,110,.5)", xf.hair(1.0), xf.j2000ToCamera);
   }
   const ф = FIGS.find(x => x.ru === игра.фигура);
-  if (ф) drawPolysWith(c, xf, ф.polys, "rgba(110,230,150,.95)", xf.hair(1.6), xf.j2000ToCamera);
+  const режим = игрСложность(), ответили = игра.имя === игра.фигура;
+  // лёгкий — линии фигуры; средний — без линий, звёзды фигуры подсвечены;
+  // сложный — ничего, только фигура в середине экрана. После ответа — линии всегда.
+  if (ф && (режим === "easy" || ответили))
+    drawPolysWith(c, xf, ф.polys, "rgba(110,230,150,.95)", xf.hair(1.6), xf.j2000ToCamera);
+  else if (ф && режим === "medium"){
+    const p = { x: 0, y: 0 }, были = new Set(), r = px(8, 0.15);
+    for (const poly of ф.polys) for (let i = 0; i < poly.ra.length; i++){
+      const ключ = poly.ra[i].toFixed(3) + "|" + poly.dec[i].toFixed(2);
+      if (были.has(ключ)) continue; были.add(ключ);
+      const v = xf.j2000ToCamera(poly.ra[i], poly.dec[i]);
+      if (v.y <= xf.cut) continue;
+      xf.project(v, p);
+      const g = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, r*0.85);    // только мягкое свечение, без кольца
+      g.addColorStop(0, "rgba(130,245,170,.42)"); g.addColorStop(0.4, "rgba(120,240,160,.16)"); g.addColorStop(1, "rgba(120,240,160,0)");
+      c.fillStyle = g; c.beginPath(); c.arc(p.x, p.y, r*0.85, 0, 7); c.fill();
+    }
+  }
   c.restore();
+}
+const ИГРА_СЛОЖНОСТИ = [["easy", { ru: "Легко", en: "Easy" }, { ru: "видна фигура", en: "the figure is shown" }],
+                        ["medium", { ru: "Средне", en: "Medium" }, { ru: "без линий, звёзды фигуры выделены", en: "no lines, the figure's stars are marked" }],
+                        ["hard", { ru: "Сложно", en: "Hard" }, { ru: "ни линий, ни выделения — только небо", en: "no lines, no marks — just the sky" }]];
+function игрСложность(){
+  const с = игрСохр;
+  return с && ИГРА_СЛОЖНОСТИ.some(x => x[0] === с.сложность) ? с.сложность
+       : (игра.сложность || "easy");
 }
 // середина видимой части фигуры на экране (или null)
 function игрСередина(ф, frame){
