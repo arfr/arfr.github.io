@@ -8527,6 +8527,9 @@ function deriveSkyContext(instant, observer){
                        { prec: precession.prec, precJd: precession.jd });
 }
 
+const ЗУМ_ПОТОЛОК = 80;   // см. zoomNow
+// телескопический зум: поле до ~10″ — Юпитер с лунами, Сатурн с кольцами
+const ПОЛЕ_МИН = 0.003;
 function deriveFrame(state, viewport, runtime = { quality: "full" }){
   const layout = computeLayout(viewport);
   const projection    = computeProjection(state.camera, layout);
@@ -8559,7 +8562,7 @@ function deriveFrame(state, viewport, runtime = { quality: "full" }){
     hair: cssPx => Math.max(1, (cssPx === undefined ? 0.7 : cssPx)
                     * (flat.w / Math.max(1, flat.cssW || flat.w))),
     px: (cssPx, zoomPow) => cssPx * (flat.w / Math.max(1, flat.cssW || flat.w))
-          * Math.pow(Math.max(1, flat.K / (Math.max(flat.w, flat.h)/2)),
+          * Math.pow(Math.min(ЗУМ_ПОТОЛОК, Math.max(1, flat.K / (Math.max(flat.w, flat.h)/2))),
                      zoomPow === undefined ? 0.22 : zoomPow),
     
 
@@ -8603,7 +8606,7 @@ function deriveFrame(state, viewport, runtime = { quality: "full" }){
 
     labelPx: (кегль) => Math.max(8, Math.round(
       кегль * labelScale * (flat.w / Math.max(1, flat.cssW || flat.w))
-        * Math.pow(Math.max(1, flat.K / (Math.max(flat.w, flat.h)/2)), 0.22))),
+        * Math.pow(Math.min(ЗУМ_ПОТОЛОК, Math.max(1, flat.K / (Math.max(flat.w, flat.h)/2))), 0.22))),
   };
   
 
@@ -9593,9 +9596,13 @@ let labelScale = 0.8;
 
 
 function dprNow(){ return frame.viewport.dpr; }
+// В телескопическом поле (доли градуса) увеличение растёт в тысячи раз; рост
+// подписей, линий и звёздных кружков с увеличением на этом останавливаем —
+// иначе при поле в минуту дуги звёзды стали бы блинами. Прежний диапазон
+// (купол до ×60, поле от 10°) потолка не достигает.
 function zoomNow(){
-  return Math.max(1, frame.projection.K
-                     / (Math.max(frame.viewport.width, frame.viewport.height)/2));
+  return Math.min(ЗУМ_ПОТОЛОК, Math.max(1, frame.projection.K
+                     / (Math.max(frame.viewport.width, frame.viewport.height)/2)));
 }
 function px(cssPx, zoomPow){
   return cssPx * dprNow() * Math.pow(zoomNow(), zoomPow === undefined ? 0.22 : zoomPow);
@@ -11241,7 +11248,7 @@ const ОПОРА_ШКАЛЫ = 5.0;
 
 function markerScale(f){
   const K180 = Math.max(f.w, f.h)/2;              
-  const zoom = Math.max(1, f.K/K180);
+  const zoom = Math.min(ЗУМ_ПОТОЛОК, Math.max(1, f.K/K180));
   const dpr  = f.w / Math.max(1, f.cssW || f.w);
   return dpr*0.60*Math.pow(zoom, 0.35);
 }
@@ -12799,7 +12806,8 @@ function planetPos(P, d, обс){
     ra: rev360(Math.atan2(ye,xe)/D2R)/15,
     dec: Math.atan2(ze, Math.hypot(xe,ye))/D2R,
     dist,
-    mag: P[7] + 5*Math.log10(r*dist) + dm
+    mag: P[7] + 5*Math.log10(r*dist) + dm,
+    phase: ph, r
   };
 }
 
@@ -12819,12 +12827,16 @@ const PLANET_NAMES = [
   { ru: "Нептун",   en: "Neptune" },
 ];
 const PLANET_RADIUS_KM = [2439.7, 6051.8, 3389.5, 69911, 58232, 25362, 24622];
+// экваториальные радиусы (МАС) — по ним в справочниках дают видимый диаметр
+// и по ним рисуется сплюснутый диск в телескопе
+const PLANET_EQ_RADIUS_KM = [2440.5, 6051.8, 3396.2, 71492, 60268, 25559, 24764];
 function derivePlanetSky(instant, обс){
   const d = julianDay(instant) - 2451543.5;
   return PLANETS.map((кат, i) => {
     if (PLANET_IDS[i] === обс.body) return null;    // со своей планеты её саму не видно
     const q = planetPos(кат, d, обс);
-    return { id: PLANET_IDS[i], name: PLANET_NAMES[i], ra: q.ra, dec: q.dec, mag: q.mag, distAu: q.dist };
+    return { id: PLANET_IDS[i], name: PLANET_NAMES[i], ra: q.ra, dec: q.dec, mag: q.mag, distAu: q.dist,
+             phaseDeg: q.phase, jd: d + 2451543.5 };
   }).filter(Boolean);
 }
 
@@ -12882,11 +12894,19 @@ function derivePlanetScene(frame, planetsSky, display){
 
 
 
-    const r = Math.max(1.2, markerRadius(п.mag, ОПОРА_ШКАЛЫ)*markerScale(frame.flat));
+    const r0 = Math.max(1.2, markerRadius(п.mag, ОПОРА_ШКАЛЫ)*markerScale(frame.flat));
+    const тело = телоПланеты(frame, п, q);
+    const r = тело && тело.rPx > r0 ? тело.rPx : r0;
+    // подпись — над диском, а у Сатурна над кольцами (их эллипс наклонён на экране)
+    let верх = r;
+    if (тело && тело.id === "saturn"){
+      const a = 136775*тело.кмВПикс, b = a*Math.abs(Math.sin(тело.B));
+      верх = Math.max(r, Math.sqrt(a*a*тело.W.y*тело.W.y + b*b*тело.W.x*тело.W.x));
+    }
     return { ...общее, screen: {x: q.x, y: q.y}, glyph: "disc", hiddenReason: null,
-             aboveHorizon: up, alpha: up ? 1 : 0.4, glyphRadiusPx: r,
-             labelOffsetPx: { x: 0, y: -(r + зазорМетки) },
-             hitRadiusPx: markerRadius(п.mag, ОПОРА_ШКАЛЫ)*dpr,
+             aboveHorizon: up, alpha: up ? 1 : 0.4, glyphRadiusPx: r, body: тело,
+             labelOffsetPx: { x: 0, y: -(верх + зазорМетки) },
+             hitRadiusPx: Math.max(markerRadius(п.mag, ОПОРА_ШКАЛЫ)*dpr, тело ? тело.rPx : 0),
              trailEligible: true, trailPoint: {x: q.x, y: q.y} };
   });
 }
@@ -12901,10 +12921,300 @@ function drawPlanetLayer(c, planetScene, display){
   c.save();
   for (const п of живые){
     c.globalAlpha = п.alpha;
+    if (п.body && (п.body.rPx >= 2.2 || п.body.moons.length)){ нарисоватьТелоПланеты(c, п); continue; }
     c.fillStyle = PLANET_COLOR[п.styleKey];
     c.beginPath(); c.arc(п.screen.x, п.screen.y, п.glyphRadiusPx, 0, 7); c.fill();
   }
   c.restore();
+}
+
+// ───────────── Телескоп: диски планет, фазы, кольца Сатурна, спутники ─────────────
+// Видимый радиус — по расстоянию; ориентация диска — по оси вращения планеты
+// (полюса IAU, J2000), фаза — по углу Солнце—планета—Земля, сторона света — по
+// направлению на Солнце на экране. Спутники Юпитера — по Миусу (гл. 44, упрощённая
+// теория, ошибка порядка сотой доли радиуса орбиты — для картинки незаметно).
+const ПЛАНЕТА_ПОЛЮС = {           // α0, δ0 северного полюса вращения, J2000, градусы
+  mercury: [281.01, 61.45], venus: [272.76, 67.16], mars: [317.68, 52.89],
+  jupiter: [268.06, 64.50], saturn: [40.59, 83.54], uranus: [257.31, -15.18],
+  neptune: [299.36, 43.46] };
+const ПЛАНЕТА_СЖАТИЕ = { mars: 0.0059, jupiter: 0.0649, saturn: 0.0980, uranus: 0.0229, neptune: 0.0171 };
+const _АЕ_КМ = 149597870.7;
+function _ед(ra, dec){ const a = ra*15*D2R, d = dec*D2R, c = Math.cos(d);
+  return [c*Math.cos(a), c*Math.sin(a), Math.sin(d)]; }
+function _изЕд(v){ const L = Math.hypot(v[0], v[1], v[2]);
+  return { ra: ((Math.atan2(v[1], v[0])/D2R/15) % 24 + 24) % 24, dec: Math.asin(v[2]/L)/D2R }; }
+// направление на экране (единичный вектор) касательной t в точке p
+function _экранноеНаправление(frame, p, t, q){
+  const δ = 1e-7, w = [p[0] + t[0]*δ, p[1] + t[1]*δ, p[2] + t[2]*δ];
+  const o = _изЕд(w), v = frame.xf.ofDateToCamera(o.ra, o.dec);
+  if (v.y <= frame.xf.cut) return null;
+  const s = { x: 0, y: 0 }; frame.xf.project(v, s);
+  const dx = s.x - q.x, dy = s.y - q.y, L = Math.hypot(dx, dy);
+  return L > 0 ? { x: dx/L, y: dy/L, pxPerRad: L/δ } : null;
+}
+function _касательная(p, к){            // проекция к на плоскость, перпендикулярную p
+  const d = к[0]*p[0] + к[1]*p[1] + к[2]*p[2];
+  const t = [к[0] - d*p[0], к[1] - d*p[1], к[2] - d*p[2]], L = Math.hypot(t[0], t[1], t[2]);
+  return L > 1e-12 ? [t[0]/L, t[1]/L, t[2]/L] : null;
+}
+function телоПланеты(frame, п, q){
+  const i = PLANET_IDS.indexOf(п.id);
+  if (i < 0 || !(п.distAu > 0)) return null;
+  const p = _ед(п.ra, п.dec);
+  const север = _касательная(p, [0, 0, 1]);
+  if (!север) return null;
+  const сн = _экранноеНаправление(frame, p, север, q);
+  if (!сн) return null;
+  const радиусРад = PLANET_EQ_RADIUS_KM[i]/(п.distAu*_АЕ_КМ);
+  const rPx = радиусРад*сн.pxPerRad;
+  const кмВПикс = сн.pxPerRad/(п.distAu*_АЕ_КМ);
+  if (rPx < 0.15) return null;                       // совсем точка — ни диска, ни спутников
+  // ось вращения планеты на экране и наклон к нам (B — широта точки под наблюдателем)
+  const пол = ПЛАНЕТА_ПОЛЮС[п.id];
+  const пд = j2000ToOfDate(пол[0]/15, пол[1], п.jd || julianDay(cam.date));
+  const n = _ед(пд.ra, пд.dec);
+  const B = Math.asin(Math.max(-1, Math.min(1, -(n[0]*p[0] + n[1]*p[1] + n[2]*p[2]))));
+  const ось = _касательная(p, n);
+  const он = ось ? _экранноеНаправление(frame, p, ось, q) : null;
+  // запад на экране — для координат спутников (X Миуса положителен к западу)
+  const восток = _касательная(p, [-p[1], p[0], 0]);
+  const зн = восток ? _экранноеНаправление(frame, p, восток, q) : null;
+  // направление на Солнце
+  let кСолнцу = null;
+  if (frame.sky && frame.sky.sun){
+    const t = _касательная(p, _ед(frame.sky.sun.ra, frame.sky.sun.dec));
+    кСолнцу = t ? _экранноеНаправление(frame, p, t, q) : null;
+  }
+  const N = он || сн;                                 // «вверх» планеты на экране
+  let W = { x: -N.y, y: N.x };                        // перпендикуляр к оси …
+  if (зн && W.x*(-зн.x) + W.y*(-зн.y) < 0) W = { x: N.y, y: -N.x };   // … смотрящий на запад
+  const тело = { id: п.id, rPx, кмВПикс, B, N, W, кСолнцу, phaseDeg: п.phaseDeg || 0,
+                 сжатие: ПЛАНЕТА_СЖАТИЕ[п.id] || 0, moons: [],
+                 p, север, восток, сн, зн, distAu: п.distAu };
+  const jd = п.jd || julianDay(cam.date);
+  if (п.id === "jupiter") тело.moons = спутникиЮпитера(jd, тело);
+  else if (ЛУНЫ_ПО_ЭЛЕМЕНТАМ[п.id]) тело.moons = спутникиПоЭлементам(jd, тело, ЛУНЫ_ПО_ЭЛЕМЕНТАМ[п.id]);
+  return тело;
+}
+const ЛУНЫ_ЮПИТЕРА = [
+  { ru: "Ио", en: "Io", км: 1821.6, mag: 5.0 }, { ru: "Европа", en: "Europa", км: 1560.8, mag: 5.3 },
+  { ru: "Ганимед", en: "Ganymede", км: 2634.1, mag: 4.6 }, { ru: "Каллисто", en: "Callisto", км: 2410.3, mag: 5.6 }];
+function спутникиЮпитера(jd, тело){
+  const d = jd - 2451545.0;
+  const V = 172.74 + 0.00111588*d, M = 357.529 + 0.9856003*d;
+  const N = 20.020 + 0.0830853*d + 0.329*sinD(V);
+  const J = 66.115 + 0.9025179*d - 0.329*sinD(V);
+  const A = 1.915*sinD(M) + 0.020*sinD(2*M), Bc = 5.555*sinD(N) + 0.168*sinD(2*N);
+  const K = J + A - Bc;
+  const R = 1.00014 - 0.01671*cosD(M) - 0.00014*cosD(2*M);
+  const r = 5.20872 - 0.25208*cosD(N) - 0.00611*cosD(2*N);
+  const Δ = Math.sqrt(r*r + R*R - 2*r*R*cosD(K));
+  const ψ = Math.asin(Math.max(-1, Math.min(1, R/Δ*sinD(K))))/D2R;
+  const t = d - Δ/173;
+  let u1 = 163.8069 + 203.4058646*t + ψ - Bc, u2 = 358.4140 + 101.2916335*t + ψ - Bc;
+  let u3 = 5.7176 + 50.2345180*t + ψ - Bc,   u4 = 224.8092 + 21.4879800*t + ψ - Bc;
+  const G = 331.18 + 50.310482*t, H = 87.45 + 21.569231*t;
+  const r1 = 5.9057 - 0.0244*cosD(2*(u1 - u2)), r2 = 9.3966 - 0.0882*cosD(2*(u2 - u3));
+  const r3 = 14.9883 - 0.0216*cosD(G), r4 = 26.3627 - 0.1939*cosD(H);
+  u1 += 0.473*sinD(2*(u1 - u2)); u2 += 1.065*sinD(2*(u2 - u3));
+  u3 += 0.165*sinD(G);           u4 += 0.843*sinD(H);
+  const λ = 34.35 + 0.083091*d + 0.329*sinD(V) + Bc;
+  const DE = 3.12*sinD(λ + 42.8);
+  return [[u1, r1], [u2, r2], [u3, r3], [u4, r4]].map(([u, rr], k) => {
+    const X = rr*sinD(u), Y = -rr*cosD(u)*sinD(DE), Z = rr*cosD(u);   // Z > 0 — ближе нас
+    return { name: ЛУНЫ_ЮПИТЕРА[k], X, Y, Z, rPx: ЛУНЫ_ЮПИТЕРА[k].км*тело.кмВПикс, mag: ЛУНЫ_ЮПИТЕРА[k].mag,
+             x: X*тело.W.x*тело.rPx + Y*тело.N.x*тело.rPx,
+             y: X*тело.W.y*тело.rPx + Y*тело.N.y*тело.rPx };
+  });
+}
+// Спутники Марса и Сатурна — средние элементы JPL (ssd.jpl.nasa.gov/sats/elem,
+// эпоха 2000-01-01.5 TDB), отнесённые к локальной плоскости Лапласа: её полюс α, δ
+// (J2000), узел орбиты отсчитан от восходящего узла плоскости Лапласа на экваторе.
+// Средняя долгота λ = узел + ω + M идёт с периодом P, перицентр — с периодом Pапс,
+// узел пятится с периодом Pузл. JPL предупреждает, что это не эфемериды: для Титана
+// и Реи ошибка — доли градуса по орбите, для Фобоса и Деймоса — может быть больше.
+// Запись: [имя, a км, e, ω, M, i, узел, P сут, Pапс лет, Pузл лет, α полюса, δ полюса, зв. вел., R км]
+const ЛУНЫ_ПО_ЭЛЕМЕНТАМ = {
+  mars: [
+    [{ ru: "Фобос", en: "Phobos" }, 9375, 0.015, 216.3, 189.7, 1.1, 169.2, 0.31891023, 1.1, 2.3, 317.7, 52.9, 11.4, 11],
+    [{ ru: "Деймос", en: "Deimos" }, 23457, 0.000, 0.0, 205.0, 1.8, 54.3, 1.2624407, 0, 56.2, 316.6, 53.5, 12.4, 6]],
+  saturn: [
+    [{ ru: "Мимас", en: "Mimas" }, 186000, 0.020, 160.4, 275.3, 1.6, 66.2, 0.942422, 0.493, 0.986, 40.6, 83.5, 12.9, 198],
+    [{ ru: "Энцелад", en: "Enceladus" }, 238400, 0.005, 119.5, 57.0, 0.0, 0.0, 1.370218, 2.916, 0, 40.6, 83.5, 11.7, 252],
+    [{ ru: "Тефия", en: "Tethys" }, 295000, 0.001, 335.3, 0.0, 1.1, 273.0, 1.887802, 0, 4.982, 40.6, 83.5, 10.2, 531],
+    [{ ru: "Диона", en: "Dione" }, 377700, 0.002, 116.0, 212.0, 0.0, 0.0, 2.736916, 11.698, 0, 40.6, 83.5, 10.4, 561],
+    [{ ru: "Рея", en: "Rhea" }, 527200, 0.001, 44.3, 31.5, 0.3, 133.7, 4.517503, 33.939, 35.775, 40.6, 83.5, 9.7, 764],
+    [{ ru: "Титан", en: "Titan" }, 1221900, 0.029, 78.3, 11.7, 0.3, 78.6, 15.945448, 346.680, 687.370, 36.4, 84.0, 8.3, 2575],
+    [{ ru: "Япет", en: "Iapetus" }, 3561700, 0.028, 254.5, 74.8, 7.6, 86.5, 79.331002, 1662.900, 3130.302, 288.7, 78.9, 11.0, 735]] };
+function спутникиПоЭлементам(jd, тело, список){
+  const t = jd - 2451545.0 - тело.distAu*0.0057755;          // поправка за время света
+  const лет = t/365.25;
+  const p = тело.p, ofDate = (v) => {                          // вектор J2000 → на дату
+    const L = Math.hypot(v[0], v[1], v[2]); if (!(L > 0)) return v;
+    const ra = Math.atan2(v[1], v[0])/D2R/15, dec = Math.asin(v[2]/L)/D2R;
+    const о = j2000ToOfDate((ra + 24) % 24, dec, jd);
+    const u = _ед(о.ra, о.dec); return [u[0]*L, u[1]*L, u[2]*L];
+  };
+  const out = [];
+  for (const [имя, a, e, ω0, M0, i, Ω0, P, Pап, Pуз, αп, δп, mag, Rкм] of список){
+    const Ω = Ω0 - (Pуз ? 360*лет/Pуз : 0);
+    const ϖ = Ω0 + ω0 + (Pап ? 360*лет/Pап : 0);
+    const λ = Ω0 + ω0 + M0 + 360*t/P;
+    const M = λ - ϖ;
+    const ν = λ + (2*e*sinD(M) + 1.25*e*e*sinD(2*M))/D2R;   // истинная долгота (уравнение центра)
+    const r = a*(1 - e*cosD(M));
+    const u = ν - Ω;                                           // аргумент широты
+    // в плоскости Лапласа: x — к её восходящему узлу на экваторе, z — к её полюсу
+    const xl = r*(cosD(Ω)*cosD(u) - sinD(Ω)*sinD(u)*cosD(i));
+    const yl = r*(sinD(Ω)*cosD(u) + cosD(Ω)*sinD(u)*cosD(i));
+    const zl = r*sinD(u)*sinD(i);
+    const ап = αп*D2R, дп = δп*D2R;
+    const ex = [-Math.sin(ап), Math.cos(ап), 0];                 // узел плоскости на экваторе (α+90°)
+    const ez = [Math.cos(дп)*Math.cos(ап), Math.cos(дп)*Math.sin(ап), Math.sin(дп)];
+    const ey = [ez[1]*ex[2] - ez[2]*ex[1], ez[2]*ex[0] - ez[0]*ex[2], ez[0]*ex[1] - ez[1]*ex[0]];
+    const d = ofDate([xl*ex[0] + yl*ey[0] + zl*ez[0], xl*ex[1] + yl*ey[1] + zl*ez[1], xl*ex[2] + yl*ey[2] + zl*ez[2]]);
+    const к = тело.кмВПикс;
+    const в = d[0]*тело.восток[0] + d[1]*тело.восток[1] + d[2]*тело.восток[2];
+    const с = d[0]*тело.север[0] + d[1]*тело.север[1] + d[2]*тело.север[2];
+    const Z = -(d[0]*p[0] + d[1]*p[1] + d[2]*p[2]);           // > 0 — ближе нас, чем планета
+    const x = (тело.зн ? тело.зн.x*в : 0)*к + тело.сн.x*с*к;
+    const y = (тело.зн ? тело.зн.y*в : 0)*к + тело.сн.y*с*к;
+    // X, Y — в радиусах планеты вдоль её экватора (на запад) и оси: для «на диске / за диском»
+    const R = тело.rPx || 1;
+    const X = (x*тело.W.x + y*тело.W.y)/R, Y = (x*тело.N.x + y*тело.N.y)/R;
+    out.push({ name: имя, X, Y, Z: Z/(PLANET_RADIUS_KM[PLANET_IDS.indexOf(тело.id)] || 1),
+               rPx: Rкм*к, mag, x, y });
+  }
+  return out;
+}
+// кольца Сатурна, км от центра: C, B, щель Кассини, A
+const КОЛЬЦА_САТУРНА = [
+  [74658, 92000, "rgba(170,155,125,.35)"], [92000, 117580, "rgba(232,214,170,.92)"],
+  [117580, 122170, "rgba(40,36,30,.25)"],  [122170, 136775, "rgba(210,192,150,.78)"]];
+const ВИД_ПЛАНЕТЫ = {
+  mercury: { база: "#b9b2a4", тень: "#4a463f" }, venus: { база: "#f4ecd2", тень: "#5c5546" },
+  mars:    { база: "#d9744a", тень: "#5a2a1a" }, jupiter: { база: "#e9dcc0", тень: "#6b5a44" },
+  saturn:  { база: "#e8d6a6", тень: "#6a5a3c" }, uranus: { база: "#b6e3ea", тень: "#3d5f66" },
+  neptune: { база: "#7fa2f0", тень: "#2c3d6e" } };
+function нарисоватьТелоПланеты(c, п){
+  const т = п.body, R = Math.max(т.rPx, 0.8), cx = п.screen.x, cy = п.screen.y;
+  const вид = ВИД_ПЛАНЕТЫ[т.id] || { база: PLANET_COLOR[п.styleKey], тень: "#333" };
+  const уголОси = Math.atan2(т.N.y, т.N.x);           // экранный угол «на север планеты»
+  const sB = Math.sin(т.B);
+  const спереди = [], сзади = [];
+  for (const л of т.moons){
+    const внутри = Math.hypot(л.X, л.Y/(1 - т.сжатие)) < 1;
+    if (внутри && л.Z < 0) continue;                 // за диском — не видно
+    (л.Z >= 0 ? спереди : сзади).push(л);
+  }
+  // спутники позади планеты
+  for (const л of сзади) нарисоватьСпутник(c, cx + л.x, cy + л.y, л, R);
+  const кольца = т.id === "saturn" && R > 1.5;
+  const полукольца = (дальняя) => {
+    c.save();
+    c.translate(cx, cy); c.rotate(уголОси + Math.PI/2);  // x — вдоль экватора, y — к югу планеты
+    const k = Math.max(0.004, Math.abs(sB));
+    // дальняя половина колец — та, что по ту сторону плоскости от нас: при B>0
+    // (видим северную сторону колец) дальняя половина выше планеты (к её северу)
+    const дальВерх = sB > 0;
+    const верх = дальняя ? дальВерх : !дальВерх;
+    c.beginPath();
+    c.rect(-1e5, верх ? -1e5 : 0, 2e5, 1e5);
+    c.clip();
+    for (const [r1, r2, цвет] of КОЛЬЦА_САТУРНА){
+      const a1 = r1*т.кмВПикс, a2 = r2*т.кмВПикс;
+      c.beginPath();
+      c.ellipse(0, 0, a2, a2*k, 0, 0, 2*Math.PI);
+      c.ellipse(0, 0, a1, a1*k, 0, 0, 2*Math.PI, true);
+      c.fillStyle = цвет; c.fill("evenodd");
+    }
+    c.restore();
+  };
+  if (кольца) полукольца(true);
+  // фаза: рисуем только освещённую часть диска, ночная сторона — просто небо.
+  // Терминатор — полуэллипс с полуосью R·cos(фазы): при фазе < 90° он выгнут
+  // в ночную сторону (диск больше половины), при > 90° — серп.
+  const сФазой = т.кСолнцу && т.phaseDeg > 2 && R > 1.5;
+  if (сФазой){
+    const k = Math.cos(т.phaseDeg*D2R), Rз = R + 0.5;
+    c.save();
+    c.translate(cx, cy); c.rotate(Math.atan2(т.кСолнцу.y, т.кСолнцу.x));  // +x — к Солнцу
+    c.beginPath();
+    c.arc(0, 0, Rз, -Math.PI/2, Math.PI/2, false);         // дневная полуокружность
+    c.ellipse(0, 0, Math.abs(k)*Rз + 0.01, Rз, 0, Math.PI/2, k > 0 ? 3*Math.PI/2 : -Math.PI/2, k <= 0);
+    c.closePath();
+    c.rotate(-Math.atan2(т.кСолнцу.y, т.кСолнцу.x)); c.translate(-cx, -cy);
+    c.clip();
+  }
+  // диск: сплюснутый эллипс, повёрнутый по оси, с потемнением к краю
+  c.save();
+  c.translate(cx, cy); c.rotate(уголОси + Math.PI/2);
+  const Rp = R*(1 - т.сжатие*Math.cos(т.B)*Math.cos(т.B));
+  c.beginPath(); c.ellipse(0, 0, R, Rp, 0, 0, 2*Math.PI);
+  c.save(); c.clip();
+  const г = c.createRadialGradient(0, 0, 0, 0, 0, R);
+  г.addColorStop(0, вид.база); г.addColorStop(0.75, вид.база); г.addColorStop(1, вид.тень);
+  c.fillStyle = г; c.fillRect(-R, -R, 2*R, 2*R);
+  if (R > 3 && (т.id === "jupiter" || т.id === "saturn")){
+    // облачные пояса: широты (планетографические) тёмных поясов
+    const пояса = т.id === "jupiter"
+      ? [[7, 17, "rgba(150,100,66,.5)"], [-20, -7, "rgba(150,100,66,.55)"], [24, 30, "rgba(150,110,80,.25)"],
+         [-36, -29, "rgba(150,110,80,.25)"], [50, 90, "rgba(120,110,100,.3)"], [-90, -48, "rgba(120,110,100,.3)"]]
+      : [[18, 30, "rgba(170,140,90,.35)"], [-30, -16, "rgba(170,140,90,.3)"], [55, 90, "rgba(140,140,120,.3)"],
+         [-90, -55, "rgba(140,140,120,.3)"]];
+    for (const [ш1, ш2, цвет] of пояса){
+      // y на экране (к югу положителен): −sin(широта − B)·Rp
+      const y1 = -Math.sin(Math.min(Math.PI/2, ш2*D2R - т.B))*Rp, y2 = -Math.sin(Math.max(-Math.PI/2, ш1*D2R - т.B))*Rp;
+      const верх = Math.min(y1, y2), h = Math.abs(y2 - y1);
+      if (h < 0.3) continue;
+      const край = Math.min(h*0.35, Math.max(0.6, R*0.03));          // края поясов размыты
+      const гр = c.createLinearGradient(0, верх - край, 0, верх + h + край);
+      const d = край/(h + 2*край);
+      гр.addColorStop(0, "rgba(0,0,0,0)"); гр.addColorStop(Math.min(0.49, 2*d), цвет);
+      гр.addColorStop(Math.max(0.51, 1 - 2*d), цвет); гр.addColorStop(1, "rgba(0,0,0,0)");
+      c.fillStyle = гр; c.fillRect(-R, верх - край, 2*R, h + 2*край);
+    }
+  }
+  if (R > 3 && т.id === "mars"){
+    // полярные шапки: шапка радиусом ρ вокруг полюса видна, пока полюс не ушёл
+    // за край дальше ρ (зн·B > −ρ); полюс на диске — в y = −зн·cos(B)·Rp
+    c.fillStyle = "rgba(255,255,250,.85)";
+    const ρ = 14*D2R;
+    for (const зн of [1, -1]){
+      if (зн*т.B <= -ρ) continue;
+      const y = -зн*Math.cos(т.B)*Rp;
+      c.beginPath();
+      c.ellipse(0, y, R*Math.sin(ρ), Math.max(R*Math.sin(ρ)*Math.abs(Math.sin(т.B)), R*0.05), 0, 0, 2*Math.PI);
+      c.fill();
+    }
+  }
+  c.restore();
+  c.restore();
+  if (сФазой) c.restore();
+  if (кольца) полукольца(false);
+  for (const л of спереди){
+    const внутри = Math.hypot(л.X, л.Y/(1 - т.сжатие)) < 1;
+    нарисоватьСпутник(c, cx + л.x, cy + л.y, л, R, внутри);
+    if (внутри && т.кСолнцу){                         // тень спутника на диске — чуть в сторону от Солнца
+      const сдвиг = Math.min(R*0.25, 0.12*R*Math.abs(л.Z));
+      c.fillStyle = "rgba(0,0,0,.75)";
+      c.beginPath(); c.arc(cx + л.x - т.кСолнцу.x*сдвиг, cy + л.y - т.кСолнцу.y*сдвиг,
+                           Math.max(0.9, л.rPx), 0, 7); c.fill();
+    }
+  }
+}
+function нарисоватьСпутник(c, x, y, л, Rпланеты, наДиске){
+  // слабые спутники — мельче и тусклее (Галилеевы ~5ᵐ, Титан 8ᵐ, Мимас 13ᵐ)
+  const m = л.mag || 5;
+  const r = Math.max(Math.max(0.7, 1.3 - 0.07*(m - 5)), л.rPx);
+  const яр = Math.max(0.45, Math.min(0.95, 0.95 - 0.06*(m - 5)));
+  c.fillStyle = наДиске ? "rgba(255,255,245,.65)" : `rgba(235,232,220,${яр})`;
+  c.beginPath(); c.arc(x, y, r, 0, 7); c.fill();
+  if (Rпланеты >= 2.5 && !наДиске){
+    c.font = `${Math.round(px(11, 0))}px system-ui, sans-serif`;
+    c.fillStyle = "rgba(200,205,215,.8)";
+    c.fillText(tr(л.name), x + r + 3, y - r - 2);
+  }
 }
 
 
@@ -13628,12 +13938,63 @@ function drawPoleMark(frame){
   ctx.restore();
 }
 function довестиДоЦели(){
+  if (телескоп && target && target.kind === "планета"){ телескопДовести(); return; }
   if (!следитьЗаЦелью || !target) return;
   const c = resolve(target);
   const h = horizontalIn(deriveSkyContext(cam.date, наблюдательПоказа(state)), c.ra, c.dec, c.now);
   навестиНаНебо(h.az, h.alt);
 }
+// Телескоп: поле в доли градуса, и наведение по горизонтальным координатам
+// промахивается на рефракцию и прочие поправки (минуты дуги — больше всего поля).
+// Поэтому доводим по экрану: проецируем цель и сдвигаем взгляд, пока она не в центре.
+let телескоп = false;
+let _телескопМетка = "";
+// небо вращается: при любом сдвиге времени или поля доводим планету в центр заново
+function телескопДовести(){
+  if (!телескоп) return;
+  if (!target || target.kind !== "планета" || cam.fov > 5 || cam.dome){ телескоп = false; return; }
+  const метка = +cam.date + "|" + cam.fov + "|" + target.i;
+  if (метка === _телескопМетка) return;
+  навестиТочно(target);
+  _телескопМетка = метка;
+}
+function навестиТочно(e){
+  const c = resolve(e);
+  {
+    const h = horizontalIn(deriveSkyContext(cam.date, наблюдательПоказа(state)), c.ra, c.dec, c.now);
+    const dAz = Math.abs(((h.az - cam.azimuthNorthDeg + 540) % 360) - 180), dAlt = Math.abs(h.alt - cam.altitudeDeg);
+    if (dAz*Math.cos(h.alt*D2R) + dAlt > 0.5) навестиНаНебо(h.az, h.alt);   // грубо — по координатам
+  }
+  for (let k = 0; k < 6; k++){
+    rebuildFrame();
+    if (!frame) return;
+    const v = c.now ? frame.xf.ofDateToCamera(c.ra, c.dec) : frame.xf.j2000ToCamera(c.ra, c.dec);
+    if (v.y <= frame.xf.cut){ const h = horizontalIn(deriveSkyContext(cam.date, наблюдательПоказа(state)), c.ra, c.dec, c.now);
+                              навестиНаНебо(h.az, h.alt); continue; }
+    const q = { x: 0, y: 0 }; frame.xf.project(v, q);
+    const dx = q.x - frame.flat.cx, dy = q.y - frame.flat.cy, K = frame.flat.K;
+    if (Math.hypot(dx, dy) < 0.3) return;
+    cam.azimuthNorthDeg = norm360(cam.azimuthNorthDeg + (dx/K)/D2R/Math.max(0.05, Math.cos(cam.altitudeDeg*D2R)));
+    cam.altitudeDeg = clamp(cam.altitudeDeg - (dy/K)/D2R, низВзгляда(), 90);
+  }
+}
+// «В телескоп»: обычный (не купольный) вид, поле по размеру планеты с лунами
+// (поле — по ширине экрана; на узком телефоне планета мельче, раздвинь пальцами)
+const ПОЛЕ_ТЕЛЕСКОПА = { mercury: 5, venus: 5, mars: 7, jupiter: 16, saturn: 12, uranus: 12, neptune: 16 };   // поле в радиусах планеты (×2)
+function вТелескоп(i){
+  const e = SEARCH_INDEX.find(x => x.kind === "планета" && x.i === i);
+  if (!e) return;
+  if (cam.dome) setDome(false);
+  const п = planetPos(PLANETS[i], julianDay(cam.date) - 2451543.5, state.observer);
+  const радиусГр = Math.atan(PLANET_EQ_RADIUS_KM[i]/(п.dist*149597870.7))/D2R;
+  target = e;
+  setFov(Math.min(10, Math.max(ПОЛЕ_МИН, 2*радиусГр*(ПОЛЕ_ТЕЛЕСКОПА[PLANET_IDS[i]] || 10))));
+  телескоп = true; _телескопМетка = "";
+  телескопДовести();
+  renderNow();
+}
 function aimAt(e){
+  телескоп = false;
   const c = resolve(e);
   
 
@@ -13650,11 +14011,23 @@ function drawTarget(frame){
   const v = c.now ? frame.xf.ofDateToCamera(c.ra, c.dec) : frame.xf.j2000ToCamera(c.ra, c.dec);
   if (v.y <= frame.xf.cut) return;
   const p = frame.xf.project(v, {x:0,y:0});
-  const r = px(16, 0.3);
+  let r = px(16, 0.3), круг = true;
+  // в телескопе прицел не лезет на диск планеты: раздвигаем его за край (у Сатурна —
+  // за кольца), а когда диск во весь экран — не рисуем вовсе
+  if (target.kind === "планета" && frame.scene && frame.scene.planets){
+    const пл = frame.scene.planets.find(x => x.id === PLANET_IDS[target.i]);
+    const т = пл && пл.body;
+    const край = т ? т.rPx*(т.id === "saturn" ? 2.4 : 1.25) : 0;
+    if (край > r*0.6){
+      r = Math.max(r, край);
+      круг = false;                          // только штрихи — круг резал бы подпись
+      if (r > Math.min(frame.viewport.width, frame.viewport.height)*0.42) return;
+    }
+  }
   ctx.save();
   ctx.strokeStyle="rgba(0,255,255,.85)";
   ctx.lineWidth=hair(1.1);
-  ctx.beginPath(); ctx.arc(p.x,p.y,r,0,7); ctx.stroke();
+  if (круг){ ctx.beginPath(); ctx.arc(p.x,p.y,r,0,7); ctx.stroke(); }
   for (const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
     ctx.beginPath();
     ctx.moveTo(p.x+dx*r*1.35, p.y+dy*r*1.35);
@@ -16721,6 +17094,7 @@ const жцСлой = (k) => `слой:${k}`;
 
 function закрытьЯвление({ откат = true } = {}){
   луноСолнце = false;
+  телескоп = false;
   следитьЗаЦелью = false;
   видПрецессии = false;
   const было = жц;
@@ -16813,7 +17187,7 @@ function currentScene(){
             alt: округл(cam.altitudeDeg, 2),
             az:  округл(norm360(cam.azimuthNorthDeg), 2),
             zoom: округл(cam.zoom, 4),
-            fov:  округл(cam.fov, 2) },
+            fov:  округл(cam.fov, cam.fov < 1 ? 5 : 2) },
     presentation: {
       light: state.display.lighting,
       layers: SCENE_LAYER_KEYS.filter(k => !!opt[k]),
@@ -16982,7 +17356,7 @@ function decodeScene(текст){
                alt: число(alt, "высота взгляда", -90, 90),
                az:  число(az,  "азимут", 0, 360),
                zoom: число(zoom, "увеличение", 0.01, 100),
-               fov:  число(fov, "поле", 1, 360) };
+               fov:  число(fov, "поле", 0.001, 360) };
     },
     p: (зн) => {
       const [свет, сетка, слои] = зн.split(",");
@@ -18627,6 +19001,17 @@ function objectInfo(o){
     const rows = [{head:o.name, sub:{ ru:"планета", en:"planet" }},
                   {k:{ ru:"величина", en:"magnitude" }, v:o.mag.toFixed(1)+"\u1D50"}];
     if (п) { rows.push(constelRow(п.ra, п.dec)); rows.push(координатыRow(п.ra, п.dec)); }
+    const i = PLANET_IDS.indexOf(o.id);
+    if (п && i >= 0 && п.distAu > 0){
+      const диам = 2*Math.atan(PLANET_EQ_RADIUS_KM[i]/(п.distAu*_АЕ_КМ))/D2R*3600;
+      rows.push({k:{ ru:"видимый диаметр", en:"apparent diameter" }, v: диам.toFixed(диам < 10 ? 1 : 0) + "\u2033"});
+      if (п.phaseDeg > 3)
+        rows.push({k:{ ru:"освещено", en:"illuminated" },
+                   v: ((1 + Math.cos(п.phaseDeg*D2R))/2*100).toFixed(0) + "%"});
+      rows.push({k:{ ru:"расстояние", en:"distance" },
+                 v: слить(п.distAu.toFixed(2), { ru:" а. е.", en:" au" })});
+      rows.push({ act: "telescope:" + i, action: { ru: "В телескоп", en: "Telescope view" } });
+    }
     return rows;
   }
   if (o.kind === "солнце"){
@@ -18747,6 +19132,7 @@ function разметкаКарточки(rows){
 
   function выполнитьДействиеКарточки(имя){
     const ч = String(имя).split(":");
+    if (ч[0] === "telescope"){ hideCard(); вТелескоп(+ч[1]); return; }
     if (ч[0] === "comet" && typeof goToApparition === "function"){
       goToApparition(ч[1], ч[2]);
       
@@ -18804,7 +19190,7 @@ function разметкаКарточки(rows){
     return shown;
   };
 
-  function showCard(o, cx, cy, byFinger){
+  function showCard(o, cx, cy, byFinger, поНажатию = false){
     
 
 
@@ -18841,6 +19227,11 @@ function разметкаКарточки(rows){
     box.style.left = Math.max(6, Math.min(innerWidth - w - 6, x)) + "px";
     box.style.top  = Math.max(6, Math.min(innerHeight - h - 6, y)) + "px";
     shown = o;
+    // карточку с кнопкой («В телескоп») по нажатию закрепляем — иначе до кнопки
+    // не дотянуться: мышь по дороге сотрёт карточку, а палец попадёт в небо
+    if (поНажатию && box.querySelector && box.querySelector("[data-card-act]")){
+      закреплена = true; box.classList.add("pinned");
+    }
   }
   
 
@@ -18886,7 +19277,7 @@ function разметкаКарточки(rows){
     if (Math.hypot(e.clientX - d.x, e.clientY - d.y) > 12) return;   
     if (((e.timeStamp || Date.now()) - d.t) > 900) return;           
     const o = pickObject(e.clientX, e.clientY);
-    if (o) showCard(o, e.clientX, e.clientY, true);
+    if (o){ закреплена = false; box.classList.remove("pinned"); showCard(o, e.clientX, e.clientY, true, true); }
     else hideCard();
   });
   cvs.addEventListener("pointercancel", ()=>{ down = null; lastTouch = Date.now(); });
@@ -18899,7 +19290,8 @@ function разметкаКарточки(rows){
     const d = down;
     if (d && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 12) return;
     const o = pickObject(e.clientX, e.clientY);
-    if (o) showCard(o, e.clientX, e.clientY, !d || !d.mouse);
+    if (o){ закреплена = false; box.classList.remove("pinned"); showCard(o, e.clientX, e.clientY, !d || !d.mouse, true); }
+    else if (закреплена && d && d.mouse) hideCard();
   });
   const endHold = () => { clearTimeout(holdTimer); holdTimer = 0; };
   cvs.addEventListener("pointercancel", endHold);
@@ -19854,6 +20246,7 @@ function подавитьБыстрые(кадр, display){
 
 function renderState(){
   const display = snapshotDisplay(state.display);
+  телескопДовести();
   rebuildFrame();                          
   const кадр = frame;
   
@@ -20098,6 +20491,12 @@ function compass(azNorth){
 
 
 let кадрHUD = null;
+function полеСловами(f){
+  if (f >= 9.5) return `${f.toFixed(0)}°`;
+  if (f >= 1)   return `${f.toFixed(1)}°`;
+  if (f*60 >= 1) return `${(f*60).toFixed(f*60 >= 10 ? 0 : 1)}′`;
+  return `${(f*3600).toFixed(0)}″`;
+}
 function fovShown(){
   
 
@@ -20146,7 +20545,7 @@ function updateHud(frame){
 
 
 
-    (cam.dome ? "" : `${tr(СЛОВА_ПОКАЗАНИЙ.поле)} ${fovShown().toFixed(0)}°   ·   `)+
+    (cam.dome ? "" : `${tr(СЛОВА_ПОКАЗАНИЙ.поле)} ${полеСловами(fovShown())}   ·   `)+
     
 
     
@@ -20266,6 +20665,7 @@ cvs.addEventListener("pointermove", e=>{
 
     if (axis === "x") cam.altitudeDeg = alt0;
     else if (axis === "y") cam.azimuthNorthDeg = az0;
+    телескоп = false;                     // повёл рукой — телескоп больше не держит планету
   }
   if (axis === "x") dy = 0;
   else if (axis === "y") dx = 0;
@@ -20605,9 +21005,9 @@ altEl.addEventListener("input", ()=>{ setAltitude(+altEl.value); });
 const norm360 = v => ((v%360)+360)%360;
 const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
 function setFov(f){
-  cam.fov = clamp(f, 10, fovWholeSky());
-  fovEl.value = cam.fov.toFixed(0);
-  fovOut.textContent = `${cam.fov.toFixed(0)}°`;
+  cam.fov = clamp(f, ПОЛЕ_МИН, fovWholeSky());
+  fovEl.value = Math.max(+fovEl.min, cam.fov).toFixed(0);
+  fovOut.textContent = полеСловами(cam.fov);
   renderNow();
 }
 
