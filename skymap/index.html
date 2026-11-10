@@ -406,11 +406,11 @@
     #globecoords{flex-basis:100%;order:-1;padding-bottom:4px}
     #globecoords:empty{display:none}
   }
-  /* Столбец справа: «⋮», снимок и компас видны всегда, остальное — в группе. */
+  /* Столбец справа: «⋮», 3D-глобус и компас (где есть датчик) видны всегда, остальное — в группе. */
   #toolcol{position:fixed;top:max(12px,env(safe-area-inset-top));right:14px;z-index:6;
     display:flex;flex-direction:column;gap:10px}
   #toolcol > button{position:static;flex:none}
-  body:not(.toolsOpen) :is(#globeTop,#fsTop,#nightTop,#shareTop,#langTop,#refrTop){display:none !important}
+  body:not(.toolsOpen) :is(#shotTop,#fsTop,#nightTop,#shareTop,#langTop,#refrTop){display:none !important}
   body.toolsOpen :is(#altbar,#zoombar){visibility:hidden}
   body.night #moreTop{filter:brightness(var(--dim,1))}
   #menu:focus-visible{outline:1px solid var(--spec-A);outline-offset:2px}
@@ -920,6 +920,19 @@
     border-top:1px solid var(--rule);padding:5px 10px 6px;
   }
   #timedock[hidden]{display:none}
+  /* Язычок над панелью: свернуть панель вниз и развернуть обратно */
+  #dockToggle{
+    position:absolute;left:50%;top:-19px;transform:translateX(-50%);
+    width:46px;height:19px;padding:0;cursor:pointer;
+    background:var(--panel);backdrop-filter:blur(14px);color:var(--ink-dim);
+    border:1px solid var(--rule);border-bottom:0;border-radius:6px 6px 0 0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  #dockToggle:hover{color:var(--ink)}
+  #dockToggle svg{display:block;transition:transform .2s ease}
+  #timedock.свёрнут #dockToggle svg{transform:rotate(180deg)}
+  #timedock.свёрнут{padding:0}
+  #timedock.свёрнут > :not(#dockToggle){display:none !important}
   
 
 
@@ -1500,6 +1513,7 @@
 
 
 <div id="timedock" hidden>
+  <button id="dockToggle" aria-expanded="true" aria-label="Свернуть панель" title="Свернуть панель"><svg width="14" height="9" viewBox="0 0 14 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 2l5 5 5-5"/></svg></button>
   
   <div id="earthbar" hidden>
     <button class="t" id="earthCancel">Отмена</button>
@@ -5062,7 +5076,7 @@ const COMETS = [
   { id: "C/2020 F3", name: { ru: "NEOWISE", en: "NEOWISE" }, kind: "long-period",
     features: ["naked-eye", "ion-tail", "dust-tail"],
     aliases: ["C/2020 F3", "2020 F3", "NEOWISE", "Неовайз", "комета NEOWISE"],
-    presentation: { comaScale: 0.25, dustStrength: 1.0,  dustBreadth: 0.35, ionStrength: 0.22, naturalExtent: 26 },
+    presentation: { comaScale: 0.25, dustStrength: 1.0,  dustBreadth: 0.35, ionStrength: 0.025, naturalExtent: 26 },
     apparitions: [{ id: "2020", available: true, referenceTime: 2459049.5, label: { ru: "2020", en: "2020" },
       window: [2458940, 2459120],
       orbit: { q: 0.2946512493809196, e: 0.9991780262531292, i: 128.9375027594809,
@@ -7091,7 +7105,13 @@ function _полеВозрастов(предел){
 
 
 function dustPresentationWeight(beta, age, кал){
-  return кал.dustStrength*Math.exp(-age/(0.55*кал.naturalExtent));
+  // узлы возрастов сгущаются к молодым (a ∝ i^1.7) — вес узла ∝ шагу по возрасту,
+  // иначе пыль у головы пересчитывается ~в 10 раз и хвост превращается в шар
+  const шаг = 1.7*Math.pow(Math.max(1e-6, age/кал.naturalExtent), 0.7/1.7);
+  // свет рассеивают в основном микронные пылинки (β ≈ 0.1…1): крупные зёрна
+  // массивны, но тусклы — вес ∝ β^0.6 (÷0.30 — среднее по сетке β)
+  const яркость = Math.pow(Math.max(beta, 1e-4), 0.6)/0.30;
+  return кал.dustStrength*шаг*яркость*Math.exp(-age/(0.9*кал.naturalExtent));
 }
 
 function cometDustField(о, jd, кал, E){
@@ -7129,8 +7149,8 @@ function cometNaturalGeometry(п, о, jd, E, голова){
   return {
     calibration: кал,
     coma: { scaleDeg: кал.comaScale },
-    ion: { dir: ион, lengthDeg: Math.max(0.5, размах*1.4),
-           width0Deg: кал.comaScale*0.4, width1Deg: кал.comaScale*1.2,
+    ion: { dir: ион, lengthDeg: Math.max(0.5, размах*0.7),
+           width0Deg: кал.comaScale*0.25, width1Deg: кал.comaScale*0.7,
            strength: кал.ionStrength,
            
 
@@ -7155,7 +7175,9 @@ function _кометнаяЗатравка(id, jd){
 function _кометнаяЗемля(jd){
   const D = Math.PI/180, T = (jd - 2451545.0)/36525, eps = 23.43929111*D;
   const L = ((280.46646 + 36000.76983*T) % 360)*D, g = ((357.52911 + 35999.05029*T) % 360)*D;
-  const lam = L + (1.914602*Math.sin(g) + 0.019993*Math.sin(2*g))*D;
+  // L отсчитана от равноденствия даты, а орбиты комет — J2000: убираем прецессию
+  const lam = L + (1.914602*Math.sin(g) + 0.019993*Math.sin(2*g))*D
+                - (1.396971*T + 0.0003086*T*T)*D;
   const R = 1.000001018*(1 - 0.016708634*0.016708634)/(1 + 0.016708634*Math.cos(g + (lam - L)));
   return { x: -R*Math.cos(lam), y: -R*Math.sin(lam)*Math.cos(eps), z: -R*Math.sin(lam)*Math.sin(eps) };
 }
@@ -9865,9 +9887,12 @@ function relayout(){
 
   const низ = низ0 === undefined ? undefined
             : Math.min(низ0, Math.round(vp.h*dpr*0.4));
+  // панель свёрнута — снизу остаётся только язычок и подписи сторон света
+  const свёрнута = !!document.getElementById("timedock")?.classList.contains("свёрнут");
+  const низОбычный = свёрнута ? Math.round((19 + ЗАПАС_ПОДПИСИ_PX)*dpr) : insetsFor(vp.h, dpr).bot;
   inputViewport = setInputViewport({ cssW: vp.w, cssH: vp.h, dpr,
     ...(низ === undefined ? {} : { topInset: insetsFor(vp.h, dpr).top,
-                                   botInset: Math.max(insetsFor(vp.h, dpr).bot, низ) }) });
+                                   botInset: Math.max(низОбычный, низ) }) });
   cvs.width = inputViewport.w; cvs.height = inputViewport.h;
   
 
@@ -11351,7 +11376,7 @@ const КОМЕТА_ВИД = {
   
 
 
-  комаP: 1.6, комаЯдро: 0.35, комаОбрез: 9,
+  комаP: 1.6, комаЯдро: 0.35, комаОбрез: 3,
   
 
 
@@ -11362,7 +11387,7 @@ const КОМЕТА_ВИД = {
 
 
 
-  усиление: 1.9, гамма: 0.72,
+  усиление: 1.9, гамма: 0.6,
   комаЦвет:  [232, 238, 226],
   пыльЦвет:  [236, 214, 170],
   ионЦвет:   [120, 175, 245],
@@ -11378,7 +11403,7 @@ function cometPresentationField(frame){
   
 
 
-  const шаг = Math.max(2, Math.min(6, Math.round(пикНаГрад*н.coma.scaleDeg/1.5) || 2));
+  const шаг = Math.max(2, Math.min(3, Math.round(пикНаГрад*н.coma.scaleDeg/1.5) || 2));
   const W = Math.max(1, Math.ceil(xf.w/шаг)), H = Math.max(1, Math.ceil(xf.h/шаг));
   const кома = new Float32Array(W*H), пыль = new Float32Array(W*H), ион = new Float32Array(W*H);
   const градНаЯчейку = шаг/пикНаГрад;
@@ -11435,10 +11460,17 @@ function cometPresentationField(frame){
     const σяч = Math.max(0.6, σград*пикНаГрад/шаг);
     
 
-    const к = КОМЕТА_ВИД.пыльМасштаб/(2*Math.PI*σград*σград);
+    // ширина мазка растёт с удалением от головы: у ядра хвост узкий, к концу
+    // расходится веером; одна широкая σ на всё делала из молодой пыли круглый шар
+    const u0 = к.head, σмин = Math.max(0.6*градНаЯчейку, н.coma.scaleDeg*0.3);
     for (const о of н.dust.samples){
       const т = наЭкран(о.dir);
-      if (т) мазок(пыль, т.x, т.y, σяч, о.weight*к);
+      if (!т) continue;
+      const c = Math.max(-1, Math.min(1, о.dir.x*u0.x + о.dir.y*u0.y + о.dir.z*u0.z));
+      const r = Math.acos(c)*180/Math.PI;
+      const σi = Math.min(Math.max(σград, 1.5), Math.max(σмин, 0.15*r));
+      мазок(пыль, т.x, т.y, Math.max(0.6, σi*пикНаГрад/шаг),
+            о.weight*КОМЕТА_ВИД.пыльМасштаб/(2*Math.PI*σi*σi));
     }
     поле_σпыли = σград;
   }
@@ -11484,7 +11516,7 @@ function cometPresentationField(frame){
 
 
            dustSigmaDeg: поле_σпыли,
-           head: голова, coma: кома, dust: пыль, ion: ион, total: всего };
+           head: голова, comaScaleDeg: н.coma.scaleDeg, coma: кома, dust: пыль, ion: ион, total: всего };
 }
 
 
@@ -11516,6 +11548,18 @@ function drawCometNatural(c, frame){
   c.save();
   if ("imageSmoothingEnabled" in c) c.imageSmoothingEnabled = true;
   c.drawImage(мал, 0, 0, поле.w*поле.step, поле.h*поле.step);
+  // ложное ядро: маленькое круглое сияние в полном разрешении, чтобы голова
+  // не выглядела квадратом из насыщенных ячеек грубой сетки
+  if (поле.head && typeof c.createRadialGradient === "function"){
+    const x = поле.head.x*поле.step, y = поле.head.y*поле.step;
+    const r = Math.max(2.5*поле.step, 0.35*поле.pxPerDeg*(поле.comaScaleDeg || 0.2));
+    const g = c.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0,    "rgba(255,255,248,0.95)");
+    g.addColorStop(0.25, "rgba(246,244,226,0.55)");
+    g.addColorStop(1,    "rgba(236,230,205,0)");
+    c.fillStyle = g;
+    c.beginPath(); c.arc(x, y, r, 0, 2*Math.PI); c.fill();
+  }
   c.restore();
   return поле;
 }
@@ -19992,11 +20036,14 @@ function endPtr(e){
   
   if (pts.size===1 && tapStart && tapMoved < 10){
     const now = e.timeStamp || Date.now();
-    if (tapPrev && now - tapPrev.t < 300 &&
+    // На обычном небе двойное касание ничего не делает (раньше открывало
+    // меню слева — мешало), поэтому одиночное срабатывает сразу, без ожидания.
+    if (!(typeof шарОткрыт !== "undefined" && шарОткрыт)){
+      clearTimeout(tapTimer); tapTimer = 0; tapPrev = null;
+      singleTap(e.clientX, e.clientY);
+    } else if (tapPrev && now - tapPrev.t < 300 &&
         Math.hypot(e.clientX - tapPrev.x, e.clientY - tapPrev.y) < 30){
-      clearTimeout(tapTimer); tapTimer = 0; tapPrev = null;   
-      if (!(typeof шарОткрыт !== "undefined" && шарОткрыт))   // в 3D двойное касание занято
-        setMenu(document.getElementById("panel").hidden);
+      clearTimeout(tapTimer); tapTimer = 0; tapPrev = null;   // в 3D двойное касание занято
     } else {
       tapPrev = {x: e.clientX, y: e.clientY, t: now};
       const cx = e.clientX, cy = e.clientY;
@@ -20098,7 +20145,8 @@ function раскладкаРегулятора(){
   const щель = бар && бар.querySelector(".altslot");
   if (!щель) return;
   const низ = низВзгляда();
-  const ключ = `${низ}|${innerWidth}x${innerHeight}|${document.body.className}`;
+  // высота нижней панели тоже: её сворачивают и разворачивают
+  const ключ = `${низ}|${innerWidth}x${innerHeight}|${document.body.className}|${dockHeightPx()}`;
   if (ключ === _регКлюч) return;                   // раскладку не трогаем каждый кадр
   if (!бар.getClientRects().length) return;
   _регКлюч = ключ;
@@ -20109,10 +20157,15 @@ function раскладкаРегулятора(){
   if (!щельИсх) return;
   const подписи = r.height - щельИсх;
   const док = document.getElementById("timedock");
-  const дно = док && !док.hidden ? док.getBoundingClientRect().top : innerHeight;
+  let дно = док && !док.hidden ? док.getBoundingClientRect().top : innerHeight;
+  // подсказка «тяни — поворот…» стоит справа над панелью: подпись «Горизонт»
+  // не должна на неё налезать
+  const подсказка = document.getElementById("hint");
+  if (подсказка && подсказка.getClientRects().length){ const п = подсказка.getBoundingClientRect(); if (п.height) дно = Math.min(дно, п.top); }
   const место = дно - 10 - r.top - подписи;
   const ТОЛЩ = 20;                                   // диаметр ползунка
-  const k = Math.max(0.6, Math.min((щельИсх - ТОЛЩ)/90, (место - ТОЛЩ)/180));
+  // «Сквозь землю» удлиняет шкалу вдвое (до −90°): тогда сжимаем сильнее
+  const k = Math.max(0.35, Math.min((щельИсх - ТОЛЩ)/90, (место - ТОЛЩ)/180));
   бар.style.top = r.top + "px";
   бар.style.transform = "none";
   бар.style.height = "auto";
@@ -21135,6 +21188,7 @@ function openEarth(){
   земляПальцы.clear(); земляРежим = null;
   земляХолст.hidden = false;
   земляПолоса.hidden = false;
+  докДляРежима(true);
   setMenu(false);
   земляПодпись();
   renderNow();
@@ -21146,6 +21200,7 @@ function closeEarth(){
   земляПальцы.clear(); земляРежим = null;
   земляХолст.hidden = true;
   земляПолоса.hidden = true;
+  if (!шарОткрыт) докДляРежима(false);
   renderNow();
 }
 function applyEarth(){
@@ -23369,6 +23424,7 @@ function openGlobe(){
   cvs.style.visibility = "hidden";               // небо под шаром не видно — не тратим на него видеокарту
   document.body.classList.add("globeOn");
   document.getElementById("globebar").hidden = false;
+  докДляРежима(true);
   document.getElementById("zoombar").hidden = false;
   document.getElementById("globeTop").setAttribute("aria-pressed", "true");
   document.body.classList.remove("toolsOpen");
@@ -23395,6 +23451,7 @@ function closeGlobe(){
   document.body.classList.remove("globeOn");
   шарКлючЗвёзд = ""; шарЗвёзды.width = шарЗвёзды.height = 1;   // отдать память
   document.getElementById("globebar").hidden = true;
+  if (!(typeof земляОткрыта !== "undefined" && земляОткрыта)) докДляРежима(false);
   document.getElementById("zoombar").hidden = true;
   document.getElementById("globeTop").setAttribute("aria-pressed", "false");
   _высотыПанелей.clear();
@@ -25507,6 +25564,7 @@ function текущийВидНеба(){
 
 
 
+let докДляРежима = () => {};                        // нижняя панель: развернуть на время 3D или карты
 let setMenu;
 {
   const btn=document.getElementById("menu"), pan=document.getElementById("panel");
@@ -25525,7 +25583,7 @@ let setMenu;
   addEventListener("keydown", e=>{
     if (e.key==="Escape" && !pan.hidden && e.target===document.body) setMenu(false);
   });
-  setMenu(matchMedia("(min-width:721px)").matches);
+  setMenu(false);                                   // при загрузке меню закрыто и на компьютере
 }
 
 
@@ -25634,7 +25692,7 @@ placeEl.addEventListener("click",()=>{
   const столбец = document.createElement("div");
   столбец.id = "toolcol";
   document.body.appendChild(столбец);
-  for (const id of ["moreTop","shotTop","tilt","globeTop","fsTop","nightTop","shareTop","langTop","refrTop"])
+  for (const id of ["moreTop","globeTop","tilt","shotTop","fsTop","nightTop","shareTop","langTop","refrTop"])
     столбец.appendChild(document.getElementById(id));
   const открыть = (on) => {
     document.body.classList.toggle("toolsOpen", on);
@@ -27135,6 +27193,34 @@ function шагХодаПодпись(мс){
                   : { ru: `${Math.round(мс/60000)} мин`, en: `${Math.round(мс/60000)} min` };
 }
 
+// Язычок «свернуть панель»: панель уходит вниз, небо получает весь экран.
+// При загрузке панель свёрнута, как и меню слева. В 3D и на карте выбора
+// места кнопки живут в этой же панели: там она разворачивается сама, а при
+// выходе сворачивается обратно, если её не трогали руками.
+{
+  const док = document.getElementById("timedock"), язык = document.getElementById("dockToggle");
+  const поставь = (свёрнут) => {
+    док.classList.toggle("свёрнут", свёрнут);
+    язык.setAttribute("aria-expanded", String(!свёрнут));
+    const т = свёрнут ? tr({ ru: "Развернуть панель", en: "Show the panel" }) : tr({ ru: "Свернуть панель", en: "Hide the panel" });
+    язык.setAttribute("aria-label", т); язык.title = т;
+  };
+  const применить = (свёрнут) => {
+    if (док.classList.contains("свёрнут") === свёрнут) return;
+    поставь(свёрнут);
+    if (typeof _высотыПанелей !== "undefined") _высотыПанелей.clear();
+    if (typeof relayout === "function") relayout();
+    scheduleRender();
+  };
+  let развёрнутаСама = false;
+  докДляРежима = (нужна) => {
+    if (нужна){ if (док.classList.contains("свёрнут")){ развёрнутаСама = true; применить(false); } }
+    else if (развёрнутаСама){ развёрнутаСама = false; применить(true); }
+  };
+  поставь(true);
+  язык.addEventListener("click", () => { развёрнутаСама = false; применить(!док.classList.contains("свёрнут")); });
+  приПереводе(() => поставь(док.classList.contains("свёрнут")));
+}
 {
   const dock  = document.getElementById("timedock");
   const track = document.getElementById("navTrack");
