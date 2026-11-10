@@ -5024,6 +5024,130 @@ window.EVENTS = [
             layers: { stars: true, fig: true, nam: true, ecl: true, sun: true, moon: true, pl: true } },
     hint: { ru: "3D-вид «В Галактике», полёт запущен. Крутите вид пальцем, «Стоп» — остановить.",
             en: "3D view «In the Galaxy», flight running. Turn the view with a finger, «Stop» to halt." }
+  },
+  {
+    id: "sky-pole-rotation",
+    name: { ru: "Небо вращается вокруг Полярной", en: "The sky turns around Polaris" },
+    note: { ru: "Москва, ночь, взгляд на север. Полярная звезда почти не двигается: она стоит "
+              + "меньше чем в градусе от полюса мира — точки, куда смотрит ось Земли. Все "
+              + "остальные звёзды за сутки описывают вокруг неё круги, против часовой стрелки. "
+              + "Ковш Большой Медведицы и Кассиопея здесь никогда не заходят.",
+            en: "Moscow, night, looking north. Polaris hardly moves: it stands less than a degree "
+              + "from the celestial pole, the point the Earth's axis aims at. Every other star "
+              + "circles around it once a day, counter-clockwise. The Big Dipper and Cassiopeia "
+              + "never set here." },
+    find: { kind: "today" },
+    set:  { dome: false, fov: 120, alt: 56, az: 0, aim: false, target: false,
+            day: false, localMeanHour: 21, scale: "1d", navWindow: { value: 1, unit: "month" },
+            place: { lat: 55.75, lon: 37.62 },
+            layers: { stars: true, fig: true, nam: true, trail: false } },
+    hint: { ru: "Нажми Пуск: сутки пройдут секунд за двадцать. Ковш обойдёт Полярную по кругу, а она останется на месте.",
+            en: "Press play: a day passes in about twenty seconds. The Dipper walks round Polaris, while Polaris stays put." },
+    explain: { ru: "Вращается не небо, а Земля — с запада на восток, раз в звёздные сутки (23 ч 56 мин). "
+                 + "Поэтому нам кажется, что небо поворачивается в обратную сторону вокруг точки, куда "
+                 + "направлена земная ось. Высота полюса над горизонтом равна широте места: в Москве "
+                 + "56°, на Северном полюсе — зенит, на экваторе — у самого горизонта. Полярная звезда "
+                 + "отмечает полюс только в нашу эпоху: ось медленно описывает конус (прецессия, "
+                 + "26 000 лет), и через 12 000 лет полюс будет рядом с Вегой.",
+               en: "It is not the sky that turns but the Earth, west to east, once a sidereal day "
+                 + "(23 h 56 min). So the sky seems to turn the other way around the point the Earth's "
+                 + "axis aims at. The pole stands as high above the horizon as your latitude: 56° in "
+                 + "Moscow, the zenith at the North Pole, on the horizon at the equator. Polaris marks "
+                 + "the pole only in our era: the axis slowly sweeps a cone (precession, 26,000 years), "
+                 + "and in 12,000 years the pole will be near Vega." }
+  },
+  {
+    id: "sky-pole-precession",
+    name: { ru: "Полюс мира не стоит на месте", en: "The celestial pole wanders" },
+    note: { ru: "Полярная звезда — «полярная» только в наше время. Земная ось, как волчок, "
+              + "медленно описывает конус, и полюс мира за 26 000 лет обходит на небе круг. "
+              + "Крестик — полюс мира, пунктир — его путь. Через 12 000 лет полюс подойдёт к Веге.",
+            en: "Polaris is the pole star only in our time. The Earth's axis, like a spinning top, "
+              + "slowly sweeps a cone, and the celestial pole travels round a circle on the sky "
+              + "in 26,000 years. The cross is the celestial pole, the dashes its path. In 12,000 "
+              + "years the pole will come close to Vega." },
+    find: { kind: "today" },
+    set:  { dome: false, fov: 110, alt: 56, az: 0, aim: false, target: false,
+            day: false, scale: "1000y", precessionView: true,
+            span: 13000*31557600, navWindow: { value: 100000, unit: "year" },
+            place: { lat: 55.75, lon: 37.62 },
+            layers: { stars: true, fig: true, nam: true } },
+    hint: { ru: "Нажми Пуск: тысяча лет — за полторы секунды. Суточное вращение убрано, "
+              + "остаётся только ход полюса: Полярная уходит, через 12 000 лет на её месте Вега.",
+            en: "Press play: a thousand years in a second and a half. The daily turning is removed, "
+              + "only the pole's travel is left: Polaris drifts off, and in 12,000 years Vega takes its place." },
+    explain: { ru: "Земля сплюснута и чуть раздута на экваторе. Солнце и Луна тянут этот «пояс», "
+                 + "стараясь выпрямить наклонённую ось, а вращающаяся Земля отвечает как волчок: ось "
+                 + "не выпрямляется, а медленно поворачивается по конусу. Это прецессия, один оборот "
+                 + "примерно за 25 800 лет. Центр круга — полюс эклиптики в Драконе. Пять тысяч лет "
+                 + "назад, когда строили пирамиды, полярной звездой был Тубан из Дракона. Полярная "
+                 + "ближе всего к полюсу будет около 2100 года, а около 14 000 года в нескольких "
+                 + "градусах от полюса окажется Вега. Звёзды при этом почти не двигаются — "
+                 + "поворачивается сама Земля.",
+               en: "The Earth is flattened and slightly bulging at the equator. The Sun and the Moon "
+                 + "pull on this bulge, trying to straighten the tilted axis, and the spinning Earth "
+                 + "answers like a top: the axis does not straighten but slowly swings round a cone. "
+                 + "This is precession, one turn in about 25,800 years. The centre of the circle is the "
+                 + "ecliptic pole in Draco. Five thousand years ago, when the pyramids were built, the "
+                 + "pole star was Thuban in Draco. Polaris will be closest to the pole around 2100, and "
+                 + "around the year 14,000 Vega will stand a few degrees from the pole. The stars hardly "
+                 + "move in all this: it is the Earth itself that turns." }
+  },
+  {
+    id: "sky-100k-past",
+    name: { ru: "Небо 100 000 лет назад", en: "The sky 100,000 years ago" },
+    note: { ru: "Большая Медведица 100 000 лет назад. Звёзды не неподвижны: каждая летит своим путём, "
+              + "и за сотню тысяч лет ковш складывается совсем иначе. Чёрточки от каждой звезды "
+              + "показывают, куда она переместится к нашему времени.",
+            en: "The Big Dipper 100,000 years ago. The stars are not fixed: each flies its own way, "
+              + "and over a hundred thousand years the Dipper takes a quite different shape. The "
+              + "dashes from each star show where it will have moved by our time." },
+    find: { kind: "at", ms: -3154813272000000 },
+    set:  { dome: false, fov: 60, aim: "Мицар", day: false, xray: true, follow: true,
+            localMeanHour: 0, scale: "1000y", compareNow: true,
+            span: 45000*31557600, navWindow: { value: 100000, unit: "year" },
+            place: { lat: 55.75, lon: 37.62 },
+            layers: { stars: true, fig: true, nam: true, cmp: true } },
+    hint: { ru: "Пустой кружок — где звезда стоит сегодня, голубая чёрточка — её путь. Пуск — меньше чем за минуту пройдут все 100 000 лет, и ковш соберётся в знакомую фигуру.",
+            en: "The hollow ring marks where the star stands today, the blue dash is its path. Press play: all 100,000 years pass in under a minute, and the Dipper assembles into the familiar figure." },
+    explain: { ru: "Пять средних звёзд ковша — одна семья, они летят вместе, в одну сторону. А Дубхе и "
+                 + "Алькаид, крайние, — чужие, они движутся в другую сторону. Поэтому ковш медленно "
+                 + "ломается. Дальше людей на небе меняется и другое: за эти годы земная ось описала "
+                 + "почти четыре круга прецессии, и полюс мира бывал то у Полярной, то у Веги. "
+                 + "Собственные движения взяты из каталога Hipparcos и продолжены по прямой — для "
+                 + "картины формы созвездий этого достаточно.",
+               en: "The five middle stars of the Dipper are one family; they fly together, the same way. "
+                 + "Dubhe and Alkaid at the ends are strangers and move another way, so the "
+                 + "Dipper slowly breaks. Something else changes too: over this time the Earth's axis "
+                 + "swept almost four circles of precession, and the celestial pole has been now near "
+                 + "Polaris, now near Vega. Proper motions come from the Hipparcos catalogue and are "
+                 + "continued in a straight line, which is enough to show how the figures change shape." }
+  },
+  {
+    id: "sky-100k-future",
+    name: { ru: "Небо через 100 000 лет", en: "The sky in 100,000 years" },
+    note: { ru: "Большая Медведица через 100 000 лет. Ковш развалится: ручка и край чаши уйдут в разные "
+              + "стороны. Чёрточки от каждой звезды ведут туда, где она стоит сегодня.",
+            en: "The Big Dipper in 100,000 years. The Dipper will fall apart: the handle and the rim "
+              + "of the bowl drift different ways. The dash from each star leads to where it stands today." },
+    find: { kind: "at", ms: 3156706728000000 },
+    set:  { dome: false, fov: 60, aim: "Мицар", day: false, xray: true, follow: true,
+            localMeanHour: 0, scale: "1000y", compareNow: true,
+            span: 45000*31557600, navWindow: { value: 100000, unit: "year" },
+            place: { lat: 55.75, lon: 37.62 },
+            layers: { stars: true, fig: true, nam: true, cmp: true } },
+    hint: { ru: "Пустой кружок — где звезда стоит сегодня, голубая чёрточка — её путь. Сравни с нашим ковшом: Дубхе и Алькаид разошлись.",
+            en: "The hollow ring marks where the star stands today, the blue dash is its path. Compare with our Dipper: Dubhe and Alkaid have drifted apart." },
+    explain: { ru: "Звёзды летят со скоростями в десятки километров в секунду, но они так далеко, что за "
+                 + "человеческую жизнь сдвиг не увидеть глазом. За 100 000 лет он набегает до градусов — "
+                 + "это несколько лунных дисков. Быстрее всех меняются близкие звёзды: Арктур, например, "
+                 + "уйдёт из Волопаса заметно далеко. Полюс мира за это время тоже обойдёт небо почти "
+                 + "четыре раза, и Полярная будет «полярной» лишь в короткие эпохи.",
+               en: "Stars fly at tens of kilometres a second, but they are so far away that over a human "
+                 + "life the shift cannot be seen. Over 100,000 years it adds up to degrees, several Moon "
+                 + "discs. Nearby stars change fastest: Arcturus, for one, will wander well away from "
+                 + "Boötes. The celestial pole also travels round the sky almost four times, and Polaris "
+                 + "will be the pole star only in brief eras." }
   }
 ];
 
@@ -13425,6 +13549,90 @@ function навестиНаНебо(azГрад, altГрад){
   const наклон = frame ? aimCameraAltitude(altГрад, state.camera, frame.layout) : altГрад;
   cam.altitudeDeg = clamp(наклон, низВзгляда(), 90);
 }
+// явление может попросить камеру следовать за целью во время хода времени
+// (за 100 000 лет ковш обходит всё небо — без этого он просто уезжает с экрана)
+let следитьЗаЦелью = false;
+// время суток подгоняем так, чтобы часовой угол цели был всегда один и тот же
+// (по умолчанию −6 ч: цель на востоке, на полпути к меридиану): иначе на шагах
+// в сотни лет час ночи скачет и фигура вертится как попало. Меридиан не берём —
+// за тысячи лет склонение меняется, и цель проходила бы через зенит, а камера
+// перескакивала бы с севера на юг.
+let часовойУголСлежения = -6;
+function цельНаМеридиан(){
+  if (!следитьЗаЦелью || !target) return;
+  const c = resolve(target);
+  const od = c.now ? c : j2000ToOfDate(c.ra, c.dec, julianDay(cam.date));
+  let ч = (lst(cam.date, -state.observer.longitudeEastDeg) - od.ra - часовойУголСлежения) % 24;
+  if (ч > 12) ч -= 24; if (ч < -12) ч += 24;
+  const сутки = state.observer.rotationPeriodMs || EARTH_BODY.rotationPeriodMs;
+  cam.date = new Date(cam.date.getTime() - ч*сутки/24);
+}
+// «полюс мира не стоит на месте»: за тысячи лет время суток подгоняем так, чтобы
+// полюс эклиптики всегда стоял на меридиане над полюсом мира. Суточное вращение
+// тогда исчезает, и остаётся только прецессия: звёзды медленно кружат вокруг
+// полюса эклиптики, а полюс мира (центр экрана) ползёт от Полярной к Веге.
+let видПрецессии = false;
+const ПОЛЮС_ЭКЛ = { ra: 18, dec: 66.560708 };            // J2000
+function прецессияБезСуток(){
+  if (!видПрецессии) return;
+  const od = j2000ToOfDate(ПОЛЮС_ЭКЛ.ra, ПОЛЮС_ЭКЛ.dec, julianDay(cam.date));
+  let ч = (lst(cam.date, -state.observer.longitudeEastDeg) - od.ra) % 24;
+  if (ч > 12) ч -= 24; if (ч < -12) ч += 24;
+  const сутки = state.observer.rotationPeriodMs || EARTH_BODY.rotationPeriodMs;
+  cam.date = new Date(cam.date.getTime() - ч*сутки/24);
+}
+// крестик на полюсе мира и пунктир его пути за 26 000 лет (круг 23,4° вокруг
+// полюса эклиптики; наклон оси за это время тоже чуть гуляет — на рисунке не видно)
+let _путьПолюса = null;
+function drawPoleMark(frame){
+  if (!видПрецессии) return;
+  const xf = frame.xf, p = { x: 0, y: 0 };
+  if (!_путьПолюса){
+    _путьПолюса = [];
+    const ε = 23.43929*D2R, β = (90 - 23.43929)*D2R;
+    for (let k = 0; k <= 180; k++){
+      const λ = k/180*2*Math.PI;
+      const x = Math.cos(β)*Math.cos(λ), y = Math.cos(β)*Math.sin(λ), z = Math.sin(β);
+      const ye = y*Math.cos(ε) - z*Math.sin(ε), ze = y*Math.sin(ε) + z*Math.cos(ε);
+      _путьПолюса.push([((Math.atan2(ye, x)/D2R/15) % 24 + 24) % 24, Math.asin(ze)/D2R]);
+    }
+  }
+  ctx.save();
+  ctx.strokeStyle = "rgba(255,210,120,.55)";
+  ctx.lineWidth = hair(1.0);
+  ctx.setLineDash([hair(4), hair(5)]);
+  ctx.beginPath();
+  let перо = false;
+  for (const [ra, dec] of _путьПолюса){
+    const v = xf.j2000ToCamera(ra, dec);
+    if (v.y <= xf.cut){ перо = false; continue; }
+    xf.project(v, p);
+    if (перо) ctx.lineTo(p.x, p.y); else { ctx.moveTo(p.x, p.y); перо = true; }
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+  const v = xf.ofDateToCamera(0, 90);
+  if (v.y > xf.cut){
+    xf.project(v, p);
+    const r = px(9, 0.3);
+    ctx.strokeStyle = "rgba(255,210,120,.95)";
+    ctx.lineWidth = hair(1.4);
+    ctx.beginPath();
+    ctx.moveTo(p.x - r, p.y); ctx.lineTo(p.x + r, p.y);
+    ctx.moveTo(p.x, p.y - r); ctx.lineTo(p.x, p.y + r);
+    ctx.stroke();
+    ctx.fillStyle = "rgba(255,210,120,.95)";
+    ctx.font = `${Math.round(px(12, 0.3))}px system-ui, sans-serif`;
+    ctx.fillText(tr({ ru: "полюс мира", en: "celestial pole" }), p.x + r*1.3, p.y - r*0.6);
+  }
+  ctx.restore();
+}
+function довестиДоЦели(){
+  if (!следитьЗаЦелью || !target) return;
+  const c = resolve(target);
+  const h = horizontalIn(deriveSkyContext(cam.date, наблюдательПоказа(state)), c.ra, c.dec, c.now);
+  навестиНаНебо(h.az, h.alt);
+}
 function aimAt(e){
   const c = resolve(e);
   
@@ -14045,6 +14253,10 @@ function eventDate(ev, from = cam.date){
     return { when: new Date(ev.find.ms), станция: new Date(ev.find.ms), precision: "instant" };
   if (ev.find.kind === "now")
     return { when: new Date(from), станция: new Date(from), precision: точностьСрока(ev) };
+  // «сегодня» — настоящая дата, а не та, что сейчас выставлена на карте:
+  // явлению про Полярную нельзя начинаться в эпоху, где полюс у Веги
+  if (ev.find.kind === "today")
+    return { when: new Date(), станция: new Date(), precision: "instant" };
   if (ev.find.kind === "moon-evening"){
     const у = вечерСЛуной(new Date(from));
     return у ? { when: у.when, узел: у, precision: "instant" } : null;
@@ -14223,7 +14435,14 @@ function applyRun(s){
 
 
   const готовый = s.scale && ШАГИ.find(ш => ш.id === s.scale);
-  if (готовый){ setTimeScale(готовый); return; }
+  if (готовый){
+    setTimeScale(готовый);
+    // своё окно на оси времени: быстрый ход в узком окне дёргает ручку
+    // и свою скорость: span — сколько проходит за ~20 секунд хода
+    if (s.span) setSpan(s.span);
+    if (s.navWindow){ setNavSpan(s.navWindow); syncNav(); }
+    return;
+  }
   
   
 
@@ -14487,7 +14706,11 @@ function мигРецепта(когда, s){
 }
 
 function showEvent(ev){
-  const срок = eventDate(ev);
+  // срок ищем от даты, что была до прошлого явления: иначе после «Неба через
+  // 100 000 лет» следующий закат искался бы в 102 002 году
+  const отсчёт = (жц && жц.чьё.get("дата") === "явление" && жц.снимок && жц.снимок.дата)
+    ? new Date(жц.снимок.дата) : cam.date;
+  const срок = eventDate(ev, отсчёт);
   if (!срок){ note(`«${tr(ev.name)}»: срок не найден`, 3000); return null; }
   
 
@@ -14576,6 +14799,14 @@ function showEvent(ev){
 
 
   if (s.mark) markEpoch(true);
+  // сравнение с сегодняшним небом: чёрточки от звёзд эпохи явления к их местам сейчас
+  if (s.compareNow){ cmpDate = new Date(); opt.cmp = true; syncToggles(); }
+  // «сквозь землю» на время явления: за тысячи лет ковш уходит и под горизонт
+  if (s.xray !== undefined && жц){ жц.xrayДо = opt.xray; opt.xray = !!s.xray; syncToggles(); }
+  следитьЗаЦелью = !!s.follow;
+  if (следитьЗаЦелью){ цельНаМеридиан(); довестиДоЦели(); }
+  видПрецессии = !!s.precessionView;
+  if (видПрецессии) прецессияБезСуток();
   renderNow();
   
 
@@ -16490,6 +16721,8 @@ const жцСлой = (k) => `слой:${k}`;
 
 function закрытьЯвление({ откат = true } = {}){
   луноСолнце = false;
+  следитьЗаЦелью = false;
+  видПрецессии = false;
   const было = жц;
   жц = null;
   if (!было) return null;
@@ -16506,6 +16739,7 @@ function закрытьЯвление({ откат = true } = {}){
   if (мой("промежуток")) setNavSpan(с.промежуток);
   if (мой("след")) trailEngine.restore(с.след);
   if (мой("сутки")) state.daynight = { ...state.daynight, ...с.сутки };
+  if (было.xrayДо !== undefined) opt.xray = было.xrayДо;
   
 
   for (const k of LAYER_KEYS)
@@ -17494,6 +17728,7 @@ let cmpDate = null;
 
 
 
+const СРАВН_ПРЕДЕЛ_COS = Math.cos(12*D2R);
 function deriveCompareScene(frame, display, markedInstant){
   const out = { segments: [], dotPx: 0, lineWidthPx: 0, reason: null };
   if (!display.layers.cmp){ out.reason = "layer-off"; return out; }
@@ -17519,6 +17754,12 @@ function deriveCompareScene(frame, display, markedInstant){
                                         starDecAt(i, frame.time.yearsFromJ2000));
     if (vNow.alt < 0 || vNow.y <= frame.xf.cut) continue;
     frame.xf.project(vNow, p);
+    // улетевшие дальше 12° не рисуем: такая линия через полнеба читается как ошибка
+    {
+      const a0 = starRAAt(i, years)*15*D2R, d0 = starDecAt(i, years)*D2R;
+      const a1 = starRAAt(i, frame.time.yearsFromJ2000)*15*D2R, d1 = starDecAt(i, frame.time.yearsFromJ2000)*D2R;
+      if (Math.sin(d0)*Math.sin(d1) + Math.cos(d0)*Math.cos(d1)*Math.cos(a1 - a0) < СРАВН_ПРЕДЕЛ_COS) continue;
+    }
     const vOld = frame.xf.j2000ToCamera(starRAAt(i, years), starDecAt(i, years));
     if (vOld.alt < 0 || vOld.y <= frame.xf.cut) continue;
     frame.xf.project(vOld, q);
@@ -17538,7 +17779,8 @@ function drawCompareLayer(c, compareScene, display){
   c.lineWidth = compareScene.lineWidthPx;
   for (const о of compareScene.segments){
     c.beginPath(); c.moveTo(о.from.x, о.from.y); c.lineTo(о.to.x, о.to.y); c.stroke();
-    c.beginPath(); c.arc(о.from.x, о.from.y, compareScene.dotPx, 0, 7); c.fill();
+    // отмеченный момент — пустой кружок: «здесь звезда была (или будет) тогда»
+    c.beginPath(); c.arc(о.from.x, о.from.y, Math.max(2.5*compareScene.dotPx, 3), 0, 7); c.stroke();
   }
   c.restore();
 }
@@ -19292,10 +19534,44 @@ function рисункиСозвездий(c, проектор, Wэ, Hэ, про�
   }
   c.restore();
 }
+// Вершины фигур заданы координатами J2000, а звёзды летят (собственное движение).
+// За века разница не видна, но за десятки тысяч лет линии ковша остались бы на
+// месте, а звёзды ушли бы от них. Поэтому вершину привязываем к ближайшей
+// звезде (в пределах 0,3°) и двигаем вместе с ней.
+const _фигЗвезда = new Map();
+function _звездаВершины(ra, dec){
+  const ключ = ra + "|" + dec;
+  let i = _фигЗвезда.get(ключ);
+  if (i !== undefined) return i;
+  i = -1;
+  const a = ra*15*D2R, d = dec*D2R, cd = Math.cos(d);
+  const x = cd*Math.cos(a), y = cd*Math.sin(a), z = Math.sin(d);
+  const порог = Math.cos(0.3*D2R);
+  let лучш = порог;
+  for (let j = 0; j < STARS.n; j++){
+    if (STARS.mag[j] > 6 || Math.abs(STARS.dec[j] - dec) > 0.3) continue;
+    const aj = STARS.ra[j]*15*D2R, dj = STARS.dec[j]*D2R, cj = Math.cos(dj);
+    const c = x*cj*Math.cos(aj) + y*cj*Math.sin(aj) + z*Math.sin(dj);
+    if (c > лучш){ лучш = c; i = j; }                  // ближайшая звезда
+  }
+  _фигЗвезда.set(ключ, i);
+  return i;
+}
 function drawFiguresLayer(c, frame, display){
   if (!display.layers.fig) return;
-  drawPolysWith(c, frame.xf, FIGPOLYS,
-                "rgba(70,190,110,.72)", frame.xf.hair(1.0), frame.xf.j2000ToCamera);
+  const лет = frame.time ? frame.time.yearsFromJ2000 : 0, xf = frame.xf;
+  // звезда, улетевшая дальше 12°, из рисунка выпадает: линия через полнеба
+  // (Арктур за 100 000 лет уходит на 60°) выглядела бы ошибкой, а не созвездием
+  const ВЫПАЛА = { y: -Infinity, alt: -90 }, предел = Math.cos(12*D2R);
+  const преобр = (!BSC || Math.abs(лет) < 200) ? xf.j2000ToCamera : (ra, dec) => {
+    const i = _звездаВершины(ra, dec);
+    if (i < 0) return xf.j2000ToCamera(ra, dec);
+    const ra1 = starRAAt(i, лет), dec1 = starDecAt(i, лет);
+    const a0 = ra*15*D2R, d0 = dec*D2R, a1 = ra1*15*D2R, d1 = dec1*D2R;
+    const c = Math.sin(d0)*Math.sin(d1) + Math.cos(d0)*Math.cos(d1)*Math.cos(a1 - a0);
+    return c < предел ? ВЫПАЛА : xf.j2000ToCamera(ra1, dec1);
+  };
+  drawPolysWith(c, xf, FIGPOLYS, "rgba(70,190,110,.72)", xf.hair(1.0), преобр);
 }
 
 function drawBoundariesLayer(c, frame, display){
@@ -19776,6 +20052,7 @@ function renderCanvas(frame, display){
   drawHoleLayer(ctx, frame.scene.holes, display);
   if (opt.met) drawShowers(frame);
   drawTarget(frame);
+  drawPoleMark(frame);
 }
 
 
@@ -25059,6 +25336,9 @@ function step(ts){
     state.playback.quantumMs = 0;
     cam.date = new Date(cam.date.getTime() + dt*playRate*state.playback.direction);
   }
+  цельНаМеридиан();
+  прецессияБезСуток();
+  довестиДоЦели();
   syncTimeInputs();
   draw();
   playRaf=requestAnimationFrame(step);
